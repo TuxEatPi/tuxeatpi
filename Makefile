@@ -12,4 +12,9 @@ env:
 	virtualenv -p /usr/bin/python3 env
 	env/bin/pip3 install RPi.GPIO
 
+doc-update-refs:
+	rm -rf doc/source/refs/
+	sphinx-apidoc -M -f -e -o doc/source/refs/ tuxeatpi/               
 
+doc-generate:
+	cd doc && make html
