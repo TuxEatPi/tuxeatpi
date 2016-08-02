@@ -1,3 +1,4 @@
+########
 tuxeatpi
 ########
 
@@ -18,3 +19,29 @@ Other features considered:
 - Voice recognition
 - Webcam
 - Voice synthesizer
+
+
+Set dev env
+###########
+
+Install make::
+
+    apt-get install make
+
+Then run the following commands::
+
+    make dep-dev
+    make env-dev
+
+Quick test
+##########
+
+Start GPIOSim::
+
+    make gpiosim
+
+Then the example::
+
+    make tux_example
+
+Then you can interact with green pin and see events in the output
