@@ -7,8 +7,9 @@ PIN_IDS = [4, 17, 22, 25]
 
 class BaseComponent(object):
     """Parent class use for component like wings, eyes, ...
+
     Define some checks about component creation and
-    _switch function for handle input events
+    switches function for handle input events
     """
     pins = None
 
