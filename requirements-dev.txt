@@ -4,3 +4,5 @@ ipython
 nose
 Sphinx
 sphinx-rtd-theme
+https://github.com/TuxEatPi/GPIOSim/archive/master.zip
+coverage

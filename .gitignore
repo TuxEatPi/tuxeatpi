@@ -3,3 +3,4 @@ env
 *.pyc
 doc/build
 *.egg-info/
+.coverage

@@ -6,3 +6,6 @@ mytux = Tux()
 
 mytux.wings.move_up()
 
+#import time
+#time.sleep(40)
+

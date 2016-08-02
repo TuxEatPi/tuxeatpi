@@ -8,19 +8,8 @@ import time
 try:
     from RPi import GPIO
 except RuntimeError:
-    from unittest.mock import MagicMock
-    GPIO = MagicMock()
-    # TODO create a truc GPIO mock module
-    GPIO.setup = lambda x, y, initial=None, pull_up_down=None: None
-    GPIO.OUT = None
-    GPIO.IN = None
-    GPIO.LOW = None
-    GPIO.HIGH = None
-    GPIO.PUD_DOWN = None
-    GPIO.RISING = None
-    GPIO.add_event_detect = lambda x, y: None
-    GPIO.add_event_callback = lambda x, y: None
-    GPIO.output = lambda x, y: None
+    # Use fake GPIO
+    from GPIOSim.RPi import GPIO
 
 from tuxeatpi.components.base import BaseComponent
 
@@ -50,8 +39,8 @@ class Wings(BaseComponent):
             'movement': None,
            }
 
-    def __init__(self, pins, event_queue):
-        BaseComponent.__init__(self, pins, event_queue)
+    def __init__(self, pins, event_queue ,logger):
+        BaseComponent.__init__(self, pins, event_queue, logger)
         self._setup_pins()
         # Init private attributes
         self._position = None
@@ -91,6 +80,7 @@ class Wings(BaseComponent):
           Means wings are DOWN and they are going UP
         """
         # calibrate
+        self.logger.info("Wings movement detected")
         if self._calibration_node or self._position is None:
             now = time.time()
             if self._last_time_position is not None and now - self._last_time_position > 0.1:
@@ -127,7 +117,7 @@ class Wings(BaseComponent):
                 self.move_stop()
 
             # decrease move count if needed
-            if self._move_count > 0:
+            if self._move_count is not None and self._move_count > 0:
                 self._move_count -= 1
 
 

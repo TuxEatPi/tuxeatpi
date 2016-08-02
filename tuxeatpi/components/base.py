@@ -3,6 +3,8 @@ Thie module contains basic and useful classes
 to create Tux component like wings, eyes, ...
 """
 
+import logging
+
 PIN_IDS = [4, 17, 22, 25]
 
 class BaseComponent(object):
@@ -13,7 +15,7 @@ class BaseComponent(object):
     """
     pins = None
 
-    def __init__(self, pins, event_queue):
+    def __init__(self, pins, event_queue, logger):
         # Check pin_name_list validity
         if not isinstance(self.pins, dict):
             raise AttributeError("Bad attribute definition: pins must be a dict")
@@ -41,29 +43,36 @@ class BaseComponent(object):
         self.pins = pins
         # Set Event queue
         self.event_queue = event_queue
+        # Set logger
+        self.logger = logger
 
     def _switch(self, event_pin_id):
         """Add event to Tux event queue"""
         # Get pin_name
         event_name = event_pin_id
-        for pin_name, pin_id in self.pins:
+        for pin_name, pin_id in self.pins.items():
             if pin_id == event_pin_id:
                 # Get pin name and remove 'pin_' prefix
-                event_name = pin_name.replace[4:]
+                event_name = pin_name
 
         if event_name == event_pin_id:
             #TODO make it WARNING
             raise Exception("Pin not found")
         else:
             # Create event
-            Event(component=self.__class__, name=event_name)
-            self.event_queue.put(Event)
+            event = Event(component=self.__class__.__name__, name=event_name, pin_id=event_pin_id)
+            self.logger.info("New event: %s", event)
+            self.event_queue.put(event)
 
 
 class Event(object):
     """Event are created for each input event
     And store in Tux event queue
     """
-    def __init__(self, component, name):
+    def __init__(self, component, name, pin_id):
         self.component = component
         self.name = name
+        self.pin_id = pin_id
+
+    def __repr__(self):
+        return '<Event: %(component)s - %(name)s on pin %(pin_id)s>' % self.__dict__
