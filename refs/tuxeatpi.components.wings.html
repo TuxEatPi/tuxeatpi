@@ -1,0 +1,288 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tuxeatpi.components.wings module &mdash; Tux Eat Pi 1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Tux Eat Pi 1 documentation" href="../index.html"/> 
+
+  
+  <script src="../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../index.html" class="icon icon-home"> Tux Eat Pi
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"><ul>
+<li><a class="reference internal" href="#">tuxeatpi.components.wings module</a></li>
+</ul>
+</div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Tux Eat Pi</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+    <li>tuxeatpi.components.wings module</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="../_sources/refs/tuxeatpi.components.wings.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="module-tuxeatpi.components.wings">
+<span id="tuxeatpi-components-wings-module"></span><h1>tuxeatpi.components.wings module<a class="headerlink" href="#module-tuxeatpi.components.wings" title="Permalink to this headline">¶</a></h1>
+<p>Wings component</p>
+<dl class="class">
+<dt id="tuxeatpi.components.wings.Wings">
+<em class="property">class </em><code class="descclassname">tuxeatpi.components.wings.</code><code class="descname">Wings</code><span class="sig-paren">(</span><em>pins</em>, <em>event_queue</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="tuxeatpi.components.base.html#tuxeatpi.components.base.BaseComponent" title="tuxeatpi.components.base.BaseComponent"><code class="xref py py-class docutils literal"><span class="pre">tuxeatpi.components.base.BaseComponent</span></code></a></p>
+<p>Define wings component</p>
+<p>Wings use 4 pins:</p>
+<ul>
+<li><dl class="first docutils">
+<dt>position:</dt>
+<dd><ul class="first last simple">
+<li>INPUT</li>
+<li>Help to determine wings position (&#8216;up&#8217; or &#8216;down&#8217;)</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>left_switch:</dt>
+<dd><ul class="first last simple">
+<li>INPUT</li>
+<li>Event when use push the left wing</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>right_switch</dt>
+<dd><ul class="first last simple">
+<li>INPUT</li>
+<li>Event when use push the right wing</li>
+</ul>
+</dd>
+</dl>
+</li>
+<li><dl class="first docutils">
+<dt>movement</dt>
+<dd><ul class="first last simple">
+<li>OUTPUT</li>
+<li>Use to start/stop wings movement</li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.get_position">
+<code class="descname">get_position</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.get_position"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.get_position" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the current wings position
+and calibrate them if not available</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_count">
+<code class="descname">move_count</code><span class="sig-paren">(</span><em>count</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_count"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_count" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move wings N times</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_down">
+<code class="descname">move_down</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_down"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_down" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put wings to down position</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_start">
+<code class="descname">move_start</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_start"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_start" title="Permalink to this definition">¶</a></dt>
+<dd><p>Start moving wings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_stop">
+<code class="descname">move_stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop moving wings</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_time">
+<code class="descname">move_time</code><span class="sig-paren">(</span><em>timeout</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_time"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_time" title="Permalink to this definition">¶</a></dt>
+<dd><p>Move wings during until timeout</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.components.wings.Wings.move_up">
+<code class="descname">move_up</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/wings.html#Wings.move_up"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.wings.Wings.move_up" title="Permalink to this definition">¶</a></dt>
+<dd><p>Put wings to up position</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="tuxeatpi.components.wings.Wings.pins">
+<code class="descname">pins</code><em class="property"> = {'movement': None, 'left_switch': None, 'right_switch': None, 'position': None}</em><a class="headerlink" href="#tuxeatpi.components.wings.Wings.pins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tux Eat Pi Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,8 @@
+env
+*.swp
+*.pyc
+doc/build
+*.egg-info/
+.coverage
+cover/
+nosetests.xml
