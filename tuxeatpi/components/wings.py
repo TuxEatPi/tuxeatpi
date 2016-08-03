@@ -13,6 +13,7 @@ except RuntimeError:
 
 from tuxeatpi.components.base import BaseComponent
 
+
 class Wings(BaseComponent):
     """Define wings component
     Wings use 4 pins:
@@ -37,9 +38,9 @@ class Wings(BaseComponent):
             'left_switch': None,
             'right_switch': None,
             'movement': None,
-           }
+            }
 
-    def __init__(self, pins, event_queue ,logger):
+    def __init__(self, pins, event_queue, logger):
         BaseComponent.__init__(self, pins, event_queue, logger)
         self._setup_pins()
         # Init private attributes
@@ -70,7 +71,7 @@ class Wings(BaseComponent):
         GPIO.add_event_detect(self.pins['right_switch'], GPIO.RISING)
         GPIO.add_event_callback(self.pins['right_switch'], self._switch)
 
-    def _position_callback(self, pin_id):
+    def _position_callback(self, pin_id):  # pylint: disable=W0613
         """Callback function to handle wings position
         The position is determive by the time between two
         position event (two call to this function)
@@ -122,7 +123,6 @@ class Wings(BaseComponent):
             # decrease move count if needed
             if self._move_count is not None and self._move_count > 0:
                 self._move_count -= 1
-
 
     def get_position(self):
         """Return the current wings position

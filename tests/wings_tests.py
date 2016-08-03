@@ -44,11 +44,22 @@ class WingsTest(Wings):
         Wings.__init__(self, pins, event_queue ,logger)
 
     def move_start(self):
+        self.move_wings_thread = WingsMover()
         self.move_wings_thread.start()
 
     def move_stop(self):
         self.move_wings_thread.stop()
-        self.move_wings_thread = WingsMover()
+
+    def push_wing(self, side):
+        for pin_id, gpio in GPIO.PIN_TO_GPIO.items():
+            if self.pins[side + '_switch'] == gpio:
+                push_switch(pin_id)
+                return
+
+def push_switch(pin_id):
+    set_pin_value(pin_id, 0)
+    time.sleep(0.1)
+    set_pin_value(pin_id, 1)
 
 
 class Test(unittest.TestCase):
@@ -61,7 +72,7 @@ class Test(unittest.TestCase):
     def tearDown(self):
         self.eventer.stop()
 
-    def test_wings(self):
+    def test_wings1(self):
         mytux = Tux(log_level=logging.DEBUG)
         mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
         # Test calibrate
@@ -82,13 +93,25 @@ class Test(unittest.TestCase):
         self.assertEqual(mytux.wings.get_position(), "up")
 
 
+    def test_wings2(self):
+        mytux = Tux(log_level=logging.DEBUG)
+        mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
+        # Test calibrate
+        time.sleep(3)
+        self.assertEqual(mytux.wings.get_position(), "down")
+
         # test left switch event
-        pin_id = 'pin6'
-        set_pin_value(pin_id, 0)
-        time.sleep(0.1)
-        set_pin_value(pin_id, 1)
-        event = mytux.event_queue.get()
+        mytux.wings.push_wing('left')
+        event = mytux.event_queue.get(timeout=5)
         self.assertEqual(event.component, 'WingsTest')
         self.assertEqual(event.pin_id, 4)
         self.assertEqual(event.name, 'left_switch')
+
+        # test left switch event
+        mytux.wings.push_wing('right')
+        event = mytux.event_queue.get(timeout=5)
+        self.assertEqual(event.component, 'WingsTest')
+        self.assertEqual(event.pin_id, 17)
+        self.assertEqual(event.name, 'right_switch')
+        #print("QQ")
 

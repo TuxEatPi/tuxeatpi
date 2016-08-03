@@ -3,11 +3,10 @@ Thie module contains basic and useful classes
 to create Tux component like wings, eyes, ...
 """
 
-import logging
-
 PIN_IDS = [4, 17, 22, 25]
 
-class BaseComponent(object):
+
+class BaseComponent(object):  # pylint: disable=R0903
     """Parent class use for component like wings, eyes, ...
 
     Define some checks about component creation and
@@ -56,7 +55,7 @@ class BaseComponent(object):
                 event_name = pin_name
 
         if event_name == event_pin_id:
-            #TODO make it WARNING
+            # TODO make it WARNING
             raise Exception("Pin not found")
         else:
             # Create event
@@ -65,7 +64,7 @@ class BaseComponent(object):
             self.event_queue.put(event)
 
 
-class Event(object):
+class Event(object):  # pylint: disable=R0903
     """Event are created for each input event
     And store in Tux event queue
     """
