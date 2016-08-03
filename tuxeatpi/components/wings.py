@@ -1,6 +1,4 @@
-"""
-Wings component
-"""
+"""Wings component"""
 
 from threading import Timer
 import time
@@ -16,7 +14,9 @@ from tuxeatpi.components.base import BaseComponent
 
 class Wings(BaseComponent):
     """Define wings component
+
     Wings use 4 pins:
+
     - position:
         * INPUT
         * Help to determine wings position ('up' or 'down')
