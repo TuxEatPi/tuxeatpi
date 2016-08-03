@@ -93,9 +93,11 @@ class Wings(BaseComponent):
                 self._last_time_position = now
             if self._last_time_position is None:
                 self._last_time_position = now
-            if self._move_count <= 0:
+            # TODO check the <= condition validity with real tux
+            if self._move_count <= 1 and self._wanted_position == self._position:
                 self._move_count = None
                 self._calibration_node = False
+                self.move_stop()
             else:
                 self._move_count -= 1
         else:
@@ -112,8 +114,9 @@ class Wings(BaseComponent):
                     self._wanted_position = None
                     self.move_stop()
             # move by count
-            elif isinstance(self._move_count, int) and self._move_count <= 0:
-                self._move_count = 0
+            # TODO check the <= condition validity with real tux
+            elif isinstance(self._move_count, int) and self._move_count <= 1:
+                self._move_count = None
                 self.move_stop()
 
             # decrease move count if needed

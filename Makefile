@@ -1,6 +1,9 @@
 
+#######################################
+### Dev targets
+#######################################
 dep-dev:
-	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk male
+	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk
 #   Not sure of that one
 #	sudo apt-get install python3-dev
 
@@ -10,6 +13,9 @@ env-dev:
 	env/bin/pip3 install -r requirements.txt
 	env/bin/python setup.py develop
 
+#######################################
+### Virtual env targets
+#######################################
 env:
 	virtualenv -p /usr/bin/python3 env
 	env/bin/pip3 install RPi.GPIO
@@ -28,5 +34,10 @@ doc-update-refs:
 doc-generate:
 	cd doc && make html
 
+#######################################
+### Test targets
+#######################################
+
 test-run:
-	env/bin/nosetests --with-coverage tests
+	rm -rf .coverage cover/
+	env/bin/nosetests --with-coverage --cover-html --cover-package=tuxeatpi tests -svd --with-xunit

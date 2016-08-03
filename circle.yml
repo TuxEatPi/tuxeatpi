@@ -1,0 +1,26 @@
+machine:
+  pre:
+    - wget https://s3.amazonaws.com/circle-downloads/circle-pyenv-python-3.5.1_1.0_amd64.deb
+    - sudo dpkg -i circle-pyenv-python-3.5.1_1.0_amd64.deb
+
+  python:
+    version: 3.5.1
+
+dependencies:
+  pre:
+    - pip install -r requirements-dev.txt
+    - pip install -r requirements.txt
+    - pip install codeclimate-test-reporter
+
+test:
+  override:
+    - mkdir -p /tmp/GPIOSim
+    - cp -f tests/pins.ini /tmp/GPIOSim/pins.ini
+    - nosetests --with-coverage --cover-html --cover-package=tuxeatpi tests -svd --with-xunit
+    - coverage run `which nosetests` tuxeatpi tests
+    - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter
+  post:
+    - mkdir -p $CIRCLE_TEST_REPORTS/xunit/
+    - cp nosetests.xml $CIRCLE_TEST_REPORTS/xunit/
+    - cp -r cover $CIRCLE_TEST_REPORTS/
+

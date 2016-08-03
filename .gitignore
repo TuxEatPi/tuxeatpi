@@ -4,3 +4,5 @@ env
 doc/build
 *.egg-info/
 .coverage
+cover/
+nosetests.xml
