@@ -31,6 +31,11 @@ Other features considered:
 - Webcam
 - Voice synthesizer
 
+Documentation
+#############
+
+https://tuxeatpi.github.io/tuxeatpi
+
 
 Set dev env
 ###########

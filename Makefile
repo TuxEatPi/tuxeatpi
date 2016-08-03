@@ -9,8 +9,8 @@ dep-dev:
 
 env-dev:
 	virtualenv --system-site-packages -p /usr/bin/python3 env
-	env/bin/pip3 install -r requirements-dev.txt
-	env/bin/pip3 install -r requirements.txt
+	env/bin/pip3 install -r requirements-dev.txt --upgrade --force-reinstall
+	env/bin/pip3 install -r requirements.txt --upgrade --force-reinstall
 	env/bin/python setup.py develop
 
 #######################################
@@ -33,6 +33,7 @@ doc-update-refs:
 
 doc-generate:
 	cd doc && make html
+	touch doc/build/html/.nojekyll
 
 #######################################
 ### Test targets
