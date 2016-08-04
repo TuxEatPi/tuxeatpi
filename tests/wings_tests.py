@@ -77,7 +77,7 @@ class Test(unittest.TestCase):
         self.eventer.stop()
 
     def test_wings1(self):
-        mytux = Tux(log_level=logging.DEBUG)
+        mytux = Tux('pingu', log_level=logging.DEBUG)
         mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
         # Test calibrate
         time.sleep(3)
@@ -97,7 +97,7 @@ class Test(unittest.TestCase):
         self.assertEqual(mytux.wings.get_position(), "up")
 
     def test_wings2(self):
-        mytux = Tux(log_level=logging.DEBUG)
+        mytux = Tux('pingu', log_level=logging.DEBUG)
         mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
         # Test calibrate
         time.sleep(3)
@@ -118,7 +118,7 @@ class Test(unittest.TestCase):
         self.assertEqual(event.name, 'right_switch')
 
     def test_wings3(self):
-        mytux = Tux(log_level=logging.DEBUG)
+        mytux = Tux('pingu', log_level=logging.DEBUG)
         mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
         # Test calibrate
         time.sleep(3)
