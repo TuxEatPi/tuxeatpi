@@ -126,8 +126,32 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tuxeatpi-components-base-module">
-<h1>tuxeatpi.components.base module<a class="headerlink" href="#tuxeatpi-components-base-module" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-tuxeatpi.components.base">
+<span id="tuxeatpi-components-base-module"></span><h1>tuxeatpi.components.base module<a class="headerlink" href="#module-tuxeatpi.components.base" title="Permalink to this headline">¶</a></h1>
+<p>Thie module contains basic and useful classes
+to create Tux component like wings, eyes, ...</p>
+<dl class="class">
+<dt id="tuxeatpi.components.base.BaseComponent">
+<em class="property">class </em><code class="descclassname">tuxeatpi.components.base.</code><code class="descname">BaseComponent</code><span class="sig-paren">(</span><em>pins</em>, <em>event_queue</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/base.html#BaseComponent"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.base.BaseComponent" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Parent class use for component like wings, eyes, ...</p>
+<p>Define some checks about component creation and
+switches function for handle input events</p>
+<dl class="attribute">
+<dt id="tuxeatpi.components.base.BaseComponent.pins">
+<code class="descname">pins</code><em class="property"> = None</em><a class="headerlink" href="#tuxeatpi.components.base.BaseComponent.pins" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="tuxeatpi.components.base.Event">
+<em class="property">class </em><code class="descclassname">tuxeatpi.components.base.</code><code class="descname">Event</code><span class="sig-paren">(</span><em>component</em>, <em>name</em>, <em>pin_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/components/base.html#Event"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.components.base.Event" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/2/library/functions.html#object" title="(in Python v2.7)"><code class="xref py py-class docutils literal"><span class="pre">object</span></code></a></p>
+<p>Event are created for each input event
+And store in Tux event queue</p>
+</dd></dl>
+
 </div>
 
 

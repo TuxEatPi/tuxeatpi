@@ -1,0 +1,358 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tuxeatpi.components.wings &mdash; Tux Eat Pi 1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Tux Eat Pi 1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Tux Eat Pi
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Tux Eat Pi</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>tuxeatpi.components.wings</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tuxeatpi.components.wings</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Wings component&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">threading</span> <span class="k">import</span> <span class="n">Timer</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">from</span> <span class="nn">RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
+<span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
+    <span class="c1"># Use fake GPIO</span>
+    <span class="kn">from</span> <span class="nn">GPIOSim.RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
+
+<span class="kn">from</span> <span class="nn">tuxeatpi.components.base</span> <span class="k">import</span> <span class="n">BaseComponent</span>
+
+
+<div class="viewcode-block" id="Wings"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings">[docs]</a><span class="k">class</span> <span class="nc">Wings</span><span class="p">(</span><span class="n">BaseComponent</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Define wings component</span>
+
+<span class="sd">    Wings use 4 pins:</span>
+
+<span class="sd">    - position:</span>
+<span class="sd">        * INPUT</span>
+<span class="sd">        * Help to determine wings position (&#39;up&#39; or &#39;down&#39;)</span>
+<span class="sd">    - left_switch:</span>
+<span class="sd">        * INPUT</span>
+<span class="sd">        * Event when use push the left wing</span>
+<span class="sd">    - right_switch</span>
+<span class="sd">        * INPUT</span>
+<span class="sd">        * Event when use push the right wing</span>
+<span class="sd">    - movement</span>
+<span class="sd">        * OUTPUT</span>
+<span class="sd">        * Use to start/stop wings movement</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># this will create attributes</span>
+    <span class="c1"># - pin_position</span>
+    <span class="c1"># - pin_left_switch</span>
+    <span class="n">pins</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;position&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;left_switch&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;right_switch&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="s1">&#39;movement&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">event_queue</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">BaseComponent</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">event_queue</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pins</span><span class="p">()</span>
+        <span class="c1"># Init private attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># Setup pins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pins</span><span class="p">()</span>
+        <span class="c1"># Calibrate wings position</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calibrate</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_setup_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Setup all needed pings&quot;&quot;&quot;</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
+        <span class="c1"># set position callback</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position_callback</span><span class="p">)</span>
+        <span class="c1"># set left swith callback</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+        <span class="c1"># set right swith callback</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_position_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0613</span>
+        <span class="sd">&quot;&quot;&quot;Callback function to handle wings position</span>
+<span class="sd">        The position is determive by the time between two</span>
+<span class="sd">        position event (two call to this function)</span>
+<span class="sd">        - A short time (power 5v and time &lt; 0.3 sec)</span>
+<span class="sd">          Means wings are UP and they are going DOWN</span>
+<span class="sd">        - A long time (power 5v and time &gt; 0.3 sec)</span>
+<span class="sd">          Means wings are DOWN and they are going UP</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># calibrate</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wings movement detected&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">:</span>
+                    <span class="c1"># Down - Going up</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Up - Going down</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
+            <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">-=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Save current position</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="s1">&#39;up&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s1">&#39;down&#39;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="s1">&#39;down&#39;</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s1">&#39;up&#39;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown Error&quot;</span><span class="p">)</span>
+            <span class="c1"># go to a wanted position</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+            <span class="c1"># move by count</span>
+            <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
+            <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+
+            <span class="c1"># decrease move count if needed</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">-=</span> <span class="mi">1</span>
+
+<div class="viewcode-block" id="Wings.get_position"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the current wings position</span>
+<span class="sd">        and calibrate them if not available</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_calibrate</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span></div>
+
+    <span class="k">def</span> <span class="nf">_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Calibrate wings position&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Wings.move_up"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_up">[docs]</a>    <span class="k">def</span> <span class="nf">move_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put wings to up position&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Wings.move_down"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_down">[docs]</a>    <span class="k">def</span> <span class="nf">move_down</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Put wings to down position&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Wings.move_time"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_time">[docs]</a>    <span class="k">def</span> <span class="nf">move_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move wings during until timeout&quot;&quot;&quot;</span>
+        <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
+        <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Wings.move_count"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_count">[docs]</a>    <span class="k">def</span> <span class="nf">move_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Move wings N times&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="n">count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
+
+<div class="viewcode-block" id="Wings.move_start"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_start">[docs]</a>    <span class="k">def</span> <span class="nf">move_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Start moving wings&quot;&quot;&quot;</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Wings.move_stop"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_stop">[docs]</a>    <span class="k">def</span> <span class="nf">move_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Stop moving wings&quot;&quot;&quot;</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span></div></div>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tux Eat Pi Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
