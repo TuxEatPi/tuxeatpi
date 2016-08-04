@@ -22,13 +22,16 @@ test:
   override:
     - pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
     - pylint --rcfile=.pylintrc -r no tuxeatpi
-    - nosetests --with-coverage --cover-html --cover-package=tuxeatpi tests -svd --with-xunit
-    - coverage run `which nosetests` tuxeatpi tests
+#    - coverage run `which nosetests` --with-html --with-xunit --with-coverage --cover-html --cover-package=tuxeatpi tuxeatpi tests
+    - coverage run `which nosetests` --with-html --with-xunit tuxeatpi tests
+    - coverage html --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*'
     - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/xunit/
     - cp nosetests.xml $CIRCLE_TEST_REPORTS/xunit/
-    - cp -r cover $CIRCLE_TEST_REPORTS/
+    - mkdir -p $CIRCLE_TEST_REPORTS/html/
+    - cp nosetests.html $CIRCLE_TEST_REPORTS/html/
+    - cp -r htmlcov $CIRCLE_TEST_REPORTS/coverage
 
 deployment:
   gh_pages:

@@ -43,4 +43,4 @@ test-run:
 	rm -rf .coverage cover/
 	pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
 	pylint --rcfile=.pylintrc -r no tuxeatpi
-	env/bin/nosetests --with-coverage --cover-html --cover-package=tuxeatpi tests -svd --with-xunit
+	env/bin/nosetests --with-coverage --cover-html --cover-package=tuxeatpi tests -svd --with-xunit --with-html

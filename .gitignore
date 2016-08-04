@@ -4,5 +4,7 @@ env
 doc/build
 *.egg-info/
 .coverage
-cover/
+htmlcov/
 nosetests.xml
+nosetests.html
+test-report/

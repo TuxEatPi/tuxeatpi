@@ -6,3 +6,4 @@ sphinx
 sphinx-rtd-theme
 https://github.com/TuxEatPi/GPIOSim/archive/master.zip
 coverage
+nose-htmloutput
