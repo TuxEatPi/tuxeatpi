@@ -82,6 +82,7 @@ class Wings(BaseComponent):
         """
         # calibrate
         self.logger.info("Wings movement detected")
+
         if self._calibration_node or self._position is None:
             now = time.time()
             if self._last_time_position is not None and now - self._last_time_position > 0.1:
@@ -97,6 +98,7 @@ class Wings(BaseComponent):
             # TODO check the <= condition validity with real tux
             if self._move_count <= 1 and self._wanted_position == self._position:
                 self._move_count = None
+                self._wanted_position = None
                 self._calibration_node = False
                 self.move_stop()
             else:
@@ -112,16 +114,20 @@ class Wings(BaseComponent):
             # go to a wanted position
             if self._wanted_position is not None and self._position is not None:
                 if self._position == self._wanted_position:
+                    self._move_count = None
                     self._wanted_position = None
+                    self._calibration_node = False
                     self.move_stop()
             # move by count
             # TODO check the <= condition validity with real tux
             elif isinstance(self._move_count, int) and self._move_count <= 1:
                 self._move_count = None
+                self._wanted_position = None
+                self._calibration_node = False
                 self.move_stop()
 
             # decrease move count if needed
-            if self._move_count is not None and self._move_count > 0:
+            if isinstance(self._move_count, int) and self._move_count > 1:
                 self._move_count -= 1
 
     def get_position(self):
@@ -136,7 +142,7 @@ class Wings(BaseComponent):
         """Calibrate wings position"""
         self._calibration_node = True
         self._wanted_position = "down"
-        self._move_count = 3
+        self._move_count = 6
         self.move_start()
 
     def move_up(self):
@@ -166,4 +172,4 @@ class Wings(BaseComponent):
 
     def move_stop(self):
         """Stop moving wings"""
-        GPIO.output(self.pins['movement'], GPIO.HIGH)
+        GPIO.output(self.pins['movement'], GPIO.LOW)
