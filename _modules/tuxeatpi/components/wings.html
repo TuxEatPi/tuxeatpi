@@ -209,6 +209,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># calibrate</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wings movement detected&quot;</span><span class="p">)</span>
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
@@ -224,6 +225,7 @@
             <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
             <span class="k">else</span><span class="p">:</span>
@@ -239,16 +241,20 @@
             <span class="c1"># go to a wanted position</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
             <span class="c1"># move by count</span>
             <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
 
             <span class="c1"># decrease move count if needed</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">-=</span> <span class="mi">1</span>
 
 <div class="viewcode-block" id="Wings.get_position"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.get_position">[docs]</a>    <span class="k">def</span> <span class="nf">get_position</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -263,7 +269,7 @@
         <span class="sd">&quot;&quot;&quot;Calibrate wings position&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">6</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Wings.move_up"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_up">[docs]</a>    <span class="k">def</span> <span class="nf">move_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -293,7 +299,7 @@
 
 <div class="viewcode-block" id="Wings.move_stop"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_stop">[docs]</a>    <span class="k">def</span> <span class="nf">move_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stop moving wings&quot;&quot;&quot;</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span></div></div>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span></div></div>
 </pre></div>
 
            </div>
