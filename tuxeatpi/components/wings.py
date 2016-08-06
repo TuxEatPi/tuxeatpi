@@ -41,6 +41,7 @@ class Wings(BaseComponent):
             }
 
     def __init__(self, pins, event_queue, logger):
+        logger.debug("Wings initialization")
         BaseComponent.__init__(self, pins, event_queue, logger)
         # Init private attributes
         self._position = None
@@ -56,6 +57,7 @@ class Wings(BaseComponent):
 
     def _setup_pins(self):
         """Setup all needed pings"""
+        self.logger.debug("Settings Wings pins")
         GPIO.setup(self.pins['movement'], GPIO.OUT, initial=GPIO.LOW)
         GPIO.setup(self.pins['position'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.pins['left_switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -88,19 +90,19 @@ class Wings(BaseComponent):
         - A long time (power 5v and time > 0.3 sec)
           Means wings are DOWN and they are going UP
         """
-		# Remove bad detection
+        # Remove bad detection
         now = time.time()
         if self._last_time_position is not None and now - self._last_time_position < 0.1:
             return
-		# Report good detection
+        # Report good detection
         self.logger.debug("Wings movement detected")
         if self._calibration_mode or self._position is None:
             # calibration
-			# first dectection
+            # first dectection
             if self._last_time_position is None:
                 self._last_time_position = now
                 return
-			# Determine up or down position based on time
+            # Determine up or down position based on time
             elif self._last_time_position is not None and now - self._last_time_position > 0.1:
                 if (now - self._last_time_position) > 0.3:
                     # Down - Going up
@@ -115,6 +117,7 @@ class Wings(BaseComponent):
                 self._wanted_position = None
                 self._calibration_mode = False
                 self.move_stop()
+                self.logger.debug("Wings calibration completed")
             else:
                 self._move_count -= 1
         else:
@@ -132,6 +135,7 @@ class Wings(BaseComponent):
                     self._wanted_position = None
                     self._calibration_mode = False
                     self.move_stop()
+                    self.logger.debug("Wings positionning done")
             # move by count
             # TODO check the <= condition validity with real tux
             elif isinstance(self._move_count, int) and self._move_count <= 1:
@@ -139,6 +143,7 @@ class Wings(BaseComponent):
                 self._wanted_position = None
                 self._calibration_mode = False
                 self.move_stop()
+                self.logger.debug("Wings moving count done")
 
             # decrease move count if needed
             if isinstance(self._move_count, int) and self._move_count > 1:
@@ -154,6 +159,7 @@ class Wings(BaseComponent):
 
     def _calibrate(self):
         """Calibrate wings position"""
+        self.logger.debug("Wings calibration starting")
         self._calibration_mode = True
         self._wanted_position = "down"
         self._move_count = 3
@@ -162,28 +168,34 @@ class Wings(BaseComponent):
     def move_up(self):
         """Put wings to up position"""
         self._wanted_position = "up"
+        self.logger.debug("Putting Wings to up position")
         self.move_start()
 
     def move_down(self):
         """Put wings to down position"""
         self._wanted_position = "down"
+        self.logger.debug("Putting Wings to down position")
         self.move_start()
 
     def move_time(self, timeout):
         """Move wings during until timeout"""
         timer = Timer(timeout, self.move_stop)
+        self.logger.debug("Set Wings movement for {} seconds".format(timeout))
         self.move_start()
         timer.start()
 
     def move_count(self, count):
         """Move wings N times"""
         self._move_count = count
+        self.logger.debug("Set Wings movement for {} times".format(self._move_count))
         self.move_start()
 
     def move_start(self):
         """Start moving wings"""
+        self.logger.debug("Wings movement starting")
         GPIO.output(self.pins['movement'], GPIO.HIGH)
 
     def move_stop(self):
         """Stop moving wings"""
+        self.logger.debug("Wings movement stopping")
         GPIO.output(self.pins['movement'], GPIO.LOW)
