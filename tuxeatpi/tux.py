@@ -33,8 +33,8 @@ class Tux(object):  # pylint: disable=R0903
         # Create components
         # Create wings
         self.wings_pins = {"left_switch": 17,
-                           "right_switch": 25,
-                           "position": 4,
+                           "right_switch": 4,
+                           "position": 25,
                            "movement": 22,
                            }
         self.wings = Wings(self.wings_pins, self.event_queue, self.logger)

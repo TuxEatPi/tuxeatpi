@@ -1,11 +1,12 @@
 #!/usr/env/bin python
 
 from tuxeatpi.tux import Tux
+import time
+import logging
 
-mytux = Tux()
+mytux = Tux("Pi-eater", logging.DEBUG)
 
-mytux.wings.move_up()
+while mytux.wings.get_position() is None or mytux.wings._calibration_mode:
+	time.sleep(1)
 
-#import time
-#time.sleep(40)
-
+time.sleep(1)

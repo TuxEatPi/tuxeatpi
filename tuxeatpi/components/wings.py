@@ -42,11 +42,10 @@ class Wings(BaseComponent):
 
     def __init__(self, pins, event_queue, logger):
         BaseComponent.__init__(self, pins, event_queue, logger)
-        self._setup_pins()
         # Init private attributes
         self._position = None
         self._last_time_position = None
-        self._calibration_node = False
+        self._calibration_mode = False
         self._wanted_position = None
         self._move_count = None
 
@@ -62,14 +61,23 @@ class Wings(BaseComponent):
         GPIO.setup(self.pins['left_switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         GPIO.setup(self.pins['right_switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         # set position callback
-        GPIO.add_event_detect(self.pins['position'], GPIO.RISING)
-        GPIO.add_event_callback(self.pins['position'], self._position_callback)
+        try:
+            GPIO.add_event_detect(self.pins['position'], GPIO.RISING)
+            GPIO.add_event_callback(self.pins['position'], self._position_callback)
+        except RuntimeError as exp:
+            self.logger.warning("Pin {}: {}".format(self.pins['position'], exp))
         # set left swith callback
-        GPIO.add_event_detect(self.pins['left_switch'], GPIO.RISING)
-        GPIO.add_event_callback(self.pins['left_switch'], self._switch)
+        try:
+            GPIO.add_event_detect(self.pins['left_switch'], GPIO.RISING)
+            GPIO.add_event_callback(self.pins['left_switch'], self._switch)
+        except RuntimeError as exp:
+            self.logger.warning("Pin {}: {}".format(self.pins['left_switch'], exp))
         # set right swith callback
-        GPIO.add_event_detect(self.pins['right_switch'], GPIO.RISING)
-        GPIO.add_event_callback(self.pins['right_switch'], self._switch)
+        try:
+            GPIO.add_event_detect(self.pins['right_switch'], GPIO.RISING)
+            GPIO.add_event_callback(self.pins['right_switch'], self._switch)
+        except RuntimeError as exp:
+            self.logger.warning("Pin {}: {}".format(self.pins['right_switch'], exp))
 
     def _position_callback(self, pin_id):  # pylint: disable=W0613
         """Callback function to handle wings position
@@ -80,12 +88,20 @@ class Wings(BaseComponent):
         - A long time (power 5v and time > 0.3 sec)
           Means wings are DOWN and they are going UP
         """
-        # calibrate
-        self.logger.info("Wings movement detected")
-
-        if self._calibration_node or self._position is None:
-            now = time.time()
-            if self._last_time_position is not None and now - self._last_time_position > 0.1:
+		# Remove bad detection
+        now = time.time()
+        if self._last_time_position is not None and now - self._last_time_position < 0.1:
+            return
+		# Report good detection
+        self.logger.debug("Wings movement detected")
+        if self._calibration_mode or self._position is None:
+            # calibration
+			# first dectection
+            if self._last_time_position is None:
+                self._last_time_position = now
+                return
+			# Determine up or down position based on time
+            elif self._last_time_position is not None and now - self._last_time_position > 0.1:
                 if (now - self._last_time_position) > 0.3:
                     # Down - Going up
                     self._position = "down"
@@ -93,13 +109,11 @@ class Wings(BaseComponent):
                     # Up - Going down
                     self._position = "up"
                 self._last_time_position = now
-            if self._last_time_position is None:
-                self._last_time_position = now
             # TODO check the <= condition validity with real tux
             if self._move_count <= 1 and self._wanted_position == self._position:
                 self._move_count = None
                 self._wanted_position = None
-                self._calibration_node = False
+                self._calibration_mode = False
                 self.move_stop()
             else:
                 self._move_count -= 1
@@ -116,14 +130,14 @@ class Wings(BaseComponent):
                 if self._position == self._wanted_position:
                     self._move_count = None
                     self._wanted_position = None
-                    self._calibration_node = False
+                    self._calibration_mode = False
                     self.move_stop()
             # move by count
             # TODO check the <= condition validity with real tux
             elif isinstance(self._move_count, int) and self._move_count <= 1:
                 self._move_count = None
                 self._wanted_position = None
-                self._calibration_node = False
+                self._calibration_mode = False
                 self.move_stop()
 
             # decrease move count if needed
@@ -134,15 +148,15 @@ class Wings(BaseComponent):
         """Return the current wings position
         and calibrate them if not available
         """
-        if self._position is None:
+        if self._position is None and self._calibration_mode is False:
             self._calibrate()
         return self._position
 
     def _calibrate(self):
         """Calibrate wings position"""
-        self._calibration_node = True
+        self._calibration_mode = True
         self._wanted_position = "down"
-        self._move_count = 6
+        self._move_count = 3
         self.move_start()
 
     def move_up(self):
