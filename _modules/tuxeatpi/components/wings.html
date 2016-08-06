@@ -168,12 +168,12 @@
             <span class="p">}</span>
 
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">event_queue</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings initialization&quot;</span><span class="p">)</span>
         <span class="n">BaseComponent</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pins</span><span class="p">,</span> <span class="n">event_queue</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_pins</span><span class="p">()</span>
         <span class="c1"># Init private attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
 
@@ -184,19 +184,29 @@
 
     <span class="k">def</span> <span class="nf">_setup_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Setup all needed pings&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Settings Wings pins&quot;</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">OUT</span><span class="p">,</span> <span class="n">initial</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setup</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">IN</span><span class="p">,</span> <span class="n">pull_up_down</span><span class="o">=</span><span class="n">GPIO</span><span class="o">.</span><span class="n">PUD_DOWN</span><span class="p">)</span>
         <span class="c1"># set position callback</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position_callback</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position_callback</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">exp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Pin </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">],</span> <span class="n">exp</span><span class="p">))</span>
         <span class="c1"># set left swith callback</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">exp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Pin </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;left_switch&#39;</span><span class="p">],</span> <span class="n">exp</span><span class="p">))</span>
         <span class="c1"># set right swith callback</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_detect</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">RISING</span><span class="p">)</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">add_event_callback</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">_switch</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">exp</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Pin </span><span class="si">{}</span><span class="s2">: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;right_switch&#39;</span><span class="p">],</span> <span class="n">exp</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">_position_callback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>  <span class="c1"># pylint: disable=W0613</span>
         <span class="sd">&quot;&quot;&quot;Callback function to handle wings position</span>
@@ -207,12 +217,20 @@
 <span class="sd">        - A long time (power 5v and time &gt; 0.3 sec)</span>
 <span class="sd">          Means wings are DOWN and they are going UP</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># calibrate</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Wings movement detected&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
+        <span class="c1"># Remove bad detection</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">&lt;</span> <span class="mf">0.1</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="c1"># Report good detection</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings movement detected&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># calibration</span>
+            <span class="c1"># first dectection</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
+                <span class="k">return</span>
+            <span class="c1"># Determine up or down position based on time</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">now</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.3</span><span class="p">:</span>
                     <span class="c1"># Down - Going up</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
@@ -220,14 +238,13 @@
                     <span class="c1"># Up - Going down</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
             <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings calibration completed&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">-=</span> <span class="mi">1</span>
         <span class="k">else</span><span class="p">:</span>
@@ -243,15 +260,17 @@
                 <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span><span class="p">:</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">False</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings positionning done&quot;</span><span class="p">)</span>
             <span class="c1"># move by count</span>
             <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="kc">None</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings moving count done&quot;</span><span class="p">)</span>
 
             <span class="c1"># decrease move count if needed</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
@@ -261,44 +280,51 @@
         <span class="sd">&quot;&quot;&quot;Return the current wings position</span>
 <span class="sd">        and calibrate them if not available</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_calibrate</span><span class="p">()</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span></div>
 
     <span class="k">def</span> <span class="nf">_calibrate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calibrate wings position&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_node</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings calibration starting&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">6</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
 
 <div class="viewcode-block" id="Wings.move_up"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_up">[docs]</a>    <span class="k">def</span> <span class="nf">move_up</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put wings to up position&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Putting Wings to up position&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Wings.move_down"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_down">[docs]</a>    <span class="k">def</span> <span class="nf">move_down</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put wings to down position&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Putting Wings to down position&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Wings.move_time"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_time">[docs]</a>    <span class="k">def</span> <span class="nf">move_time</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">timeout</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Move wings during until timeout&quot;&quot;&quot;</span>
         <span class="n">timer</span> <span class="o">=</span> <span class="n">Timer</span><span class="p">(</span><span class="n">timeout</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Set Wings movement for </span><span class="si">{}</span><span class="s2"> seconds&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">timeout</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
         <span class="n">timer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Wings.move_count"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_count">[docs]</a>    <span class="k">def</span> <span class="nf">move_count</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">count</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Move wings N times&quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="n">count</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Set Wings movement for </span><span class="si">{}</span><span class="s2"> times&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
 
 <div class="viewcode-block" id="Wings.move_start"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_start">[docs]</a>    <span class="k">def</span> <span class="nf">move_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Start moving wings&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings movement starting&quot;</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">HIGH</span><span class="p">)</span></div>
 
 <div class="viewcode-block" id="Wings.move_stop"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_stop">[docs]</a>    <span class="k">def</span> <span class="nf">move_stop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Stop moving wings&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings movement stopping&quot;</span><span class="p">)</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span></div></div>
 </pre></div>
 
