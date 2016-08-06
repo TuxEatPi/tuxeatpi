@@ -182,8 +182,10 @@
                 <span class="n">event_name</span> <span class="o">=</span> <span class="n">pin_name</span>
 
         <span class="k">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="n">event_pin_id</span><span class="p">:</span>
-            <span class="c1"># TODO make it WARNING</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Pin not found&quot;</span><span class="p">)</span>
+            <span class="c1"># It seems we got an event on a pin which is not registered</span>
+            <span class="c1"># This should be impossible</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;New event on pin </span><span class="si">{}</span><span class="s2">, but the pin doesn&#39;t seems register on this &quot;</span>
+                                <span class="s2">&quot;component: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">event_pin_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">))</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create event</span>
             <span class="n">event</span> <span class="o">=</span> <span class="n">Event</span><span class="p">(</span><span class="n">component</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">__name__</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="n">event_name</span><span class="p">,</span> <span class="n">pin_id</span><span class="o">=</span><span class="n">event_pin_id</span><span class="p">)</span>
