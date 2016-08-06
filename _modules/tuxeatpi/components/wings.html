@@ -231,7 +231,8 @@
                     <span class="c1"># Up - Going down</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s2">&quot;up&quot;</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_last_time_position</span> <span class="o">=</span> <span class="n">now</span>
-            <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
+            <span class="c1"># Stop calibration if our move count is 1 or less</span>
+            <span class="c1"># And position wanted is ok</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings calibration completed&quot;</span><span class="p">)</span>
@@ -251,8 +252,8 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings positionning done&quot;</span><span class="p">)</span>
-            <span class="c1"># move by count</span>
-            <span class="c1"># TODO check the &lt;= condition validity with real tux</span>
+            <span class="c1"># Move by count</span>
+            <span class="c1"># Stop move if our move count is 1 or less</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings moving count done&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">move_stop</span><span class="p">()</span>
