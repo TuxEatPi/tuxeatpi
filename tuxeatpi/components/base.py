@@ -55,8 +55,10 @@ class BaseComponent(object):  # pylint: disable=R0903
                 event_name = pin_name
 
         if event_name == event_pin_id:
-            # TODO make it WARNING
-            raise Exception("Pin not found")
+            # It seems we got an event on a pin which is not registered
+            # This should be impossible
+            self.logger.warning("New event on pin {}, but the pin doesn't seems register on this "
+                                "component: {}".format(event_pin_id, self.__class__.__name__))
         else:
             # Create event
             event = Event(component=self.__class__.__name__, name=event_name, pin_id=event_pin_id)
