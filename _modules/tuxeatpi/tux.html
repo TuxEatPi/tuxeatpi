@@ -127,8 +127,10 @@
   <h1>Source code for tuxeatpi.tux</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;TuxDroid class&quot;&quot;&quot;</span>
 
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">from</span> <span class="nn">queue</span> <span class="k">import</span> <span class="n">Queue</span>
+<span class="kn">import</span> <span class="nn">time</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
@@ -141,11 +143,12 @@
 <span class="kn">from</span> <span class="nn">tuxeatpi.components.wings</span> <span class="k">import</span> <span class="n">Wings</span>
 
 
-<div class="viewcode-block" id="Tux"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux">[docs]</a><span class="k">class</span> <span class="nc">Tux</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>  <span class="c1"># pylint: disable=R0903</span>
+<div class="viewcode-block" id="Tux"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux">[docs]</a><span class="k">class</span> <span class="nc">Tux</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tux droid new life class&quot;&quot;&quot;</span>
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
         <span class="c1"># Set attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="c1"># Voice attributes (Not implemented)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">&#39;Male&#39;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
@@ -167,7 +170,23 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">Wings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wings_pins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+<div class="viewcode-block" id="Tux.get_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">get_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return current uptime&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tux.show_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.show_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">show_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Show current uptime in readable string&quot;&quot;&quot;</span>
+        <span class="n">ret_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;{{}} </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;days&quot;</span><span class="p">,</span>
+                                                                 <span class="s2">&quot;minutes&quot;</span><span class="p">,</span>
+                                                                 <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
+                                                                 <span class="s2">&quot;microseconds&quot;</span><span class="p">]])</span>
+        <span class="n">uptime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_uptime</span><span class="p">()</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">ret_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uptime</span><span class="o">.</span><span class="n">days</span><span class="p">,</span>
+                             <span class="n">uptime</span><span class="o">.</span><span class="n">seconds</span> <span class="o">//</span> <span class="mi">60</span><span class="p">,</span>
+                             <span class="n">uptime</span><span class="o">.</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">60</span><span class="p">,</span>
+                             <span class="n">uptime</span><span class="o">.</span><span class="n">microseconds</span><span class="p">))</span></div></div>
 </pre></div>
 
            </div>
