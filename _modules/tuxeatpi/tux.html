@@ -138,16 +138,28 @@
     <span class="c1"># Use fake GPIO</span>
     <span class="kn">from</span> <span class="nn">GPIOSim.RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
     <span class="n">GPIO</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
+<span class="kn">import</span> <span class="nn">yaml</span>
 
 
 <span class="kn">from</span> <span class="nn">tuxeatpi.components.wings</span> <span class="k">import</span> <span class="n">Wings</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.components.base</span> <span class="k">import</span> <span class="n">PIN_IDS</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.error</span> <span class="k">import</span> <span class="n">ConfigError</span>
 
 
 <div class="viewcode-block" id="Tux"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux">[docs]</a><span class="k">class</span> <span class="nc">Tux</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Tux droid new life class&quot;&quot;&quot;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">log_level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">):</span>
-        <span class="c1"># Set attributes</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
+        <span class="c1"># Init attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pins</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Read config file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="n">config_file</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_read_conf</span><span class="p">()</span>
+        <span class="c1"># Set start time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting TuxDroid named &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="c1"># Voice attributes (Not implemented)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">&#39;Male&#39;</span>
@@ -157,20 +169,57 @@
         <span class="c1"># Init queue</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
         <span class="c1"># Init logging</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;TuxEatPi&quot;</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="n">log_level</span><span class="p">)</span>
         <span class="c1"># Create components</span>
         <span class="c1"># Create wings</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wings_pins</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;left_switch&quot;</span><span class="p">:</span> <span class="mi">17</span><span class="p">,</span>
-                           <span class="s2">&quot;right_switch&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">,</span>
-                           <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>
-                           <span class="s2">&quot;movement&quot;</span><span class="p">:</span> <span class="mi">22</span><span class="p">,</span>
-                           <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">Wings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wings_pins</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">Wings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;wings&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_read_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Read Tux configuration from yaml file</span>
+<span class="sd">        And set Tux attributes</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">raw_conf</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">fconf</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">raw_conf</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fconf</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">scanner</span><span class="o">.</span><span class="n">ScannerError</span> <span class="k">as</span> <span class="n">exp</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Yaml: </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exp</span><span class="p">)</span>
+        <span class="c1"># Check if &#39;tux&#39; is in configuration</span>
+        <span class="k">if</span> <span class="s2">&quot;tux&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_conf</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Root key of configuration file should be &#39;tux&#39;&quot;</span><span class="p">)</span>
+        <span class="c1"># Set attributes</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;voice&#39;</span><span class="p">,</span> <span class="s1">&#39;pins&#39;</span><span class="p">,</span> <span class="s1">&#39;log_level&#39;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tux&quot;</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">{}</span><span class="s2"> key in tux section&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
+            <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">raw_conf</span><span class="p">[</span><span class="s2">&quot;tux&quot;</span><span class="p">][</span><span class="n">attr</span><span class="p">])</span>
+        <span class="c1"># Set log</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span><span class="o">.</span><span class="n">upper</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad log level configuration configuration&quot;</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;TuxEatPi&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">setLevel</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">raw_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tux&quot;</span><span class="p">,</span> <span class="p">{})[</span><span class="s1">&#39;log_level&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">upper</span><span class="p">()))</span>
+        <span class="c1"># Check pins</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_check_pins</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_check_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Check pin configuration validity&quot;&quot;&quot;</span>
+        <span class="n">pin_id_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad pins configuration&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">component_pins</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">component_pins</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad pins component </span><span class="si">{}</span><span class="s2"> configuration&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pin_name</span><span class="p">,</span> <span class="n">pin_id</span> <span class="ow">in</span> <span class="n">component_pins</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pin_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad pin name </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">pin_name</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">pin_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">PIN_IDS</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad pin id for pin </span><span class="si">{}</span><span class="s2">:</span><span class="si">{}</span><span class="s2">. Should be in </span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                      <span class="n">component_name</span><span class="p">,</span> <span class="n">pin_name</span><span class="p">,</span> <span class="n">PIN_IDS</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">pin_id</span> <span class="ow">in</span> <span class="n">pin_id_list</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Bad pin definition: </span><span class="si">{}</span><span class="s2"> is used at least twice&quot;</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">)</span>
+                <span class="n">pin_id_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pin_id</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Tux.get_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">get_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return current uptime&quot;&quot;&quot;</span>
