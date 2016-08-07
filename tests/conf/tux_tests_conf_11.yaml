@@ -1,0 +1,12 @@
+# Bad component key names
+tux:
+    name: TuxDroid
+    gender: male
+    voice: 
+    log_level: DEBUG
+    pins:
+        wings:
+            bad_name: 17
+            right_switch: 4
+            position: 25
+            movement: 22

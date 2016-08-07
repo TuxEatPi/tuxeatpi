@@ -1,0 +1,12 @@
+# Bad component pin name
+tux:
+    name: TuxDroid
+    gender: male
+    voice:
+    log_level: DEBUG
+    pins:
+        wings:
+            17: 17
+            right_switch: 4
+            position: 25
+            movement: 22

@@ -1,0 +1,8 @@
+# Bad component pins config
+tux:
+    name: TuxDroid
+    gender: male
+    voice:
+    log_level: DEBUG
+    pins:
+        wings: bad pins

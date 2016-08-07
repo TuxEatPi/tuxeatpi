@@ -1,0 +1,11 @@
+# Missing main key (ei gender)
+tux:
+    name: TuxDroid
+    voice:
+    log_level: DEBUG
+    pins:
+        wings:
+            left_switch: 17
+            right_switch: 4
+            position: 25
+            movement: 22

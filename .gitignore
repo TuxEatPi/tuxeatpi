@@ -9,3 +9,4 @@ nosetests.xml
 nosetests.html
 test-report/
 cover/
+tuxeatpi-conf.yml

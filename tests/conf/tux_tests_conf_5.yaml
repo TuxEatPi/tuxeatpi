@@ -1,0 +1,12 @@
+#Bad log level
+tux:
+    name: TuxDroid
+    gender: male
+    voice:
+    log_level: badlevel
+    pins:
+        wings:
+            left_switch: 17
+            right_switch: 4
+            position: 25
+            movement: 22

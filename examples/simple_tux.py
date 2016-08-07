@@ -4,6 +4,7 @@ from tuxeatpi.tux import Tux
 import time
 import logging
 
+# FIXME
 mytux = Tux("Pi-eater", logging.DEBUG)
 
 while mytux.wings.get_position() is None or mytux.wings._calibration_mode:

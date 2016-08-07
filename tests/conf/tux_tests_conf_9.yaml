@@ -1,0 +1,12 @@
+# Bad pin id
+tux:
+    name: TuxDroid
+    gender: male
+    voice: 
+    log_level: DEBUG
+    pins:
+        wings:
+            left_switch: agfsag
+            right_switch: 4
+            position: 25
+            movement: 22

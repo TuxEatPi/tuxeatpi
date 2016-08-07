@@ -1,0 +1,7 @@
+# Pins is not a dict
+tux:
+    name: TuxDroid
+    gender: male
+    voice:
+    log_level: DEBUG
+    pins: badpins

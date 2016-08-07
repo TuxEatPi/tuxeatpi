@@ -1,5 +1,6 @@
 import unittest
 import logging
+from queue import Queue
 from threading import Thread
 import time
 
@@ -86,66 +87,82 @@ class WingsTests(unittest.TestCase):
 
     def test_wings(self):
         """Testing basic moving functions"""
-        mytux = Tux('pingu', log_level=logging.DEBUG)
-        mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
+        # init wings
+        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        event_queue = Queue()
+        logging.basicConfig()
+        logger = logging.getLogger(name="TuxEatPi")
+        logger.setLevel(logging.DEBUG)
+        wings = WingsTest(pins, event_queue, logger)
+
         # Test calibrate
         time.sleep(5)
-        self.assertEqual(mytux.wings.get_position(), "down")
+        self.assertEqual(wings.get_position(), "down")
 
         # Move up
-        mytux.wings.move_to_position("up")
+        wings.move_to_position("up")
         time.sleep(2)
-        self.assertEqual(mytux.wings.get_position(), "up")
+        self.assertEqual(wings.get_position(), "up")
         # Move down
-        mytux.wings.move_to_position("down")
+        wings.move_to_position("down")
         time.sleep(2)
-        self.assertEqual(mytux.wings.get_position(), "down")
+        self.assertEqual(wings.get_position(), "down")
         # Move 5 times
-        mytux.wings.move_count(5)
+        wings.move_count(5)
         time.sleep(5)
-        self.assertEqual(mytux.wings.get_position(), "up")
+        self.assertEqual(wings.get_position(), "up")
 
     def test_wings_moving(self):
         """Testing other moving functions"""
-        mytux = Tux('pingu', log_level=logging.DEBUG)
-        mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
+        # init wings
+        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        event_queue = Queue()
+        logging.basicConfig()
+        logger = logging.getLogger(name="TuxEatPi")
+        logger.setLevel(logging.DEBUG)
+        wings = WingsTest(pins, event_queue, logger)
         # Test calibrate
         time.sleep(5)
-        self.assertEqual(mytux.wings.get_position(), "down")
+        self.assertEqual(wings.get_position(), "down")
         # Test count
-        mytux.wings.move_count(3)
+        wings.move_count(3)
         time.sleep(3)
-        self.assertEqual(mytux.wings.get_position(), "up")
-        mytux.wings.move_count(2)
+        self.assertEqual(wings.get_position(), "up")
+        wings.move_count(2)
         time.sleep(2)
-        self.assertEqual(mytux.wings.get_position(), "up")
+        self.assertEqual(wings.get_position(), "up")
         # Test moving by time
-        mytux.wings.move_time(3)
+        wings.move_time(3)
         time.sleep(1)
-        self.assertTrue(mytux.wings.is_moving)
+        self.assertTrue(wings.is_moving)
         time.sleep(3)
-        self.assertFalse(mytux.wings.is_moving)
+        self.assertFalse(wings.is_moving)
         # Bad move
-        self.assertRaises(Exception, lambda: mytux.wings.move_to_position("bottom"))
+        self.assertRaises(Exception, lambda: wings.move_to_position("bottom"))
 
     def test_wings_push_switches(self):
         """Testing push switches"""
-        mytux = Tux('pingu', log_level=logging.DEBUG)
-        mytux.wings = WingsTest(mytux.wings.pins, mytux.wings.event_queue, mytux.wings.logger)
+        # init wings
+        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        event_queue = Queue()
+        logging.basicConfig()
+        logger = logging.getLogger(name="TuxEatPi")
+        logger.setLevel(logging.DEBUG)
+        wings = WingsTest(pins, event_queue, logger)
         # Test calibrate
         time.sleep(5)
-        self.assertEqual(mytux.wings.get_position(), "down")
+        self.assertEqual(wings.get_position(), "down")
 
         # test left switch event
-        mytux.wings.push_wing('left')
-        event = mytux.event_queue.get(timeout=5)
+        wings.push_wing('left')
+        event = event_queue.get(timeout=5)
         self.assertEqual(event.component, 'WingsTest')
-        self.assertEqual(event.pin_id, mytux.wings.pins.get('left_switch'))
+        self.assertEqual(event.pin_id, wings.pins.get('left_switch'))
         self.assertEqual(event.name, 'left_switch')
 
         # test left switch event
-        mytux.wings.push_wing('right')
-        event = mytux.event_queue.get(timeout=5)
+        wings.push_wing('right')
+        event = event_queue.get(timeout=5)
         self.assertEqual(event.component, 'WingsTest')
-        self.assertEqual(event.pin_id, mytux.wings.pins.get('right_switch'))
+        self.assertEqual(event.pin_id, wings.pins.get('right_switch'))
         self.assertEqual(event.name, 'right_switch')
