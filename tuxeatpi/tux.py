@@ -1,7 +1,9 @@
 """TuxDroid class"""
 
+from datetime import timedelta
 import logging
 from queue import Queue
+import time
 
 try:
     from RPi import GPIO
@@ -14,11 +16,12 @@ except RuntimeError:
 from tuxeatpi.components.wings import Wings
 
 
-class Tux(object):  # pylint: disable=R0903
+class Tux(object):
     """Tux droid new life class"""
     def __init__(self, name, log_level=logging.WARNING):
         # Set attributes
         self.name = name
+        self.start_time = time.time()
         # Voice attributes (Not implemented)
         self.gender = 'Male'
         self.voice = ''
@@ -41,3 +44,19 @@ class Tux(object):  # pylint: disable=R0903
 
     def __del__(self):
         GPIO.cleanup()
+
+    def get_uptime(self):
+        """Return current uptime"""
+        return timedelta(seconds=time.time() - self.start_time)
+
+    def show_uptime(self):
+        """Show current uptime in readable string"""
+        ret_str = ", ".join(["{{}} {}".format(data) for data in ["days",
+                                                                 "minutes",
+                                                                 "seconds",
+                                                                 "microseconds"]])
+        uptime = self.get_uptime()
+        print(ret_str.format(uptime.days,
+                             uptime.seconds // 60,
+                             uptime.seconds % 60,
+                             uptime.microseconds))
