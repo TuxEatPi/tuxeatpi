@@ -246,7 +246,7 @@
             <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="s1">&#39;down&#39;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">=</span> <span class="s1">&#39;up&#39;</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Unknown Error&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">WingsError</span><span class="p">(</span><span class="s2">&quot;Unknown Error&quot;</span><span class="p">)</span>
             <span class="c1"># Are we to a wanted position</span>
             <span class="c1"># Here self._position can not be None (see an if condition above)</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_position</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span><span class="p">:</span>
@@ -283,7 +283,7 @@
 <div class="viewcode-block" id="Wings.move_to_position"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_to_position">[docs]</a>    <span class="k">def</span> <span class="nf">move_to_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put wings to up position&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">position</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;up&quot;</span><span class="p">,</span> <span class="s2">&quot;down&quot;</span><span class="p">]:</span>
-            <span class="k">raise</span> <span class="ne">Exception</span><span class="p">(</span><span class="s2">&quot;Bad position </span><span class="si">{}</span><span class="s2">: should be &#39;up&#39; or &#39;down&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">position</span><span class="p">))</span>
+            <span class="k">raise</span> <span class="n">WingsError</span><span class="p">(</span><span class="s2">&quot;Bad position </span><span class="si">{}</span><span class="s2">: should be &#39;up&#39; or &#39;down&#39;&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">position</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="n">position</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Putting Wings to </span><span class="si">{}</span><span class="s2"> position&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">position</span><span class="p">))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span></div>
@@ -315,6 +315,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">is_moving</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">output</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;movement&#39;</span><span class="p">],</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">LOW</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="WingsError"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.WingsError">[docs]</a><span class="k">class</span> <span class="nc">WingsError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Base class for wings exceptions&quot;&quot;&quot;</span>
+    <span class="k">pass</span></div>
 </pre></div>
 
            </div>
