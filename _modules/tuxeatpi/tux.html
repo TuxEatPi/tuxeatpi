@@ -175,12 +175,17 @@
             <span class="c1"># Create wings</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">Wings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;wings&#39;</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Start fake eventer</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">Eventer</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
             <span class="c1"># Create fake wings</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">FakeWings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;wings&#39;</span><span class="p">],</span>  <span class="c1"># pylint: disable=R0204</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fake</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eventer&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">_read_conf</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>

@@ -12,11 +12,13 @@ Subpackages
 .. toctree::
 
     tuxeatpi.components
+    tuxeatpi.fake_components
 
 Submodules
 ----------
 
 .. toctree::
 
+   tuxeatpi.error
    tuxeatpi.tux
 
