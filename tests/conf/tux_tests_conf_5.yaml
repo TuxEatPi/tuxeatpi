@@ -4,6 +4,7 @@ tux:
     gender: male
     voice:
     log_level: badlevel
+    fake: True
     pins:
         wings:
             left_switch: 17

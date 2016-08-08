@@ -20,13 +20,9 @@ class TuxTests(unittest.TestCase):
         """Method called before each test function"""
         GPIO.cleanup()
         GPIO.init()
-        # Start GPIO eventer
-        self.eventer = GPIO.Eventer()
-        self.eventer.start()
 
     def tearDown(self):
         """Method called after each test function"""
-        self.eventer.stop()
         GPIO.cleanup()
 
     def test_tux(self):

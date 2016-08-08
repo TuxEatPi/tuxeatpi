@@ -15,6 +15,7 @@ import yaml
 
 
 from tuxeatpi.components.wings import Wings
+from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.components.base import PIN_IDS
 from tuxeatpi.error import ConfigError
 
@@ -27,6 +28,7 @@ class Tux(object):
         self.gender = None
         self.voice = None
         self.log_level = None
+        self.fake = False
         self.pins = {}
         # Read config file
         self.config_file = config_file
@@ -41,12 +43,22 @@ class Tux(object):
         GPIO.setmode(GPIO.BCM)
         # Init queue
         self.event_queue = Queue()
-        # Init logging
         # Create components
-        # Create wings
-        self.wings = Wings(self.pins['wings'], self.event_queue, self.logger)
+        if self.fake is False:
+            # Create wings
+            self.wings = Wings(self.pins['wings'], self.event_queue, self.logger)
+        else:
+            # Start fake eventer
+            self.eventer = GPIO.Eventer()
+            self.eventer.start()
+            # Create fake wings
+            self.wings = FakeWings(self.pins['wings'],  # pylint: disable=R0204
+                                   self.event_queue,
+                                   self.logger)
 
     def __del__(self):
+        if self.fake is True and hasattr(self, 'eventer'):
+            self.eventer.stop()
         GPIO.cleanup()
 
     def _read_conf(self):
@@ -63,13 +75,14 @@ class Tux(object):
         if "tux" not in raw_conf:
             raise ConfigError("Root key of configuration file should be 'tux'")
         # Set attributes
-        for attr in ('name', 'gender', 'voice', 'pins', 'log_level'):
+        for attr in ('name', 'gender', 'voice', 'pins', 'log_level', 'fake'):
             if attr not in raw_conf.get("tux"):
                 raise ConfigError("Missing {} key in tux section".format(attr))
             setattr(self, attr, raw_conf["tux"][attr])
         # Set log
         if not hasattr(logging, self.log_level.upper()):
             raise ConfigError("Bad log level configuration configuration")
+        # Init logging
         logging.basicConfig()
         self.logger = logging.getLogger(name="TuxEatPi")
         self.logger.setLevel(getattr(logging, raw_conf.get("tux", {})['log_level'].upper()))

@@ -3,6 +3,7 @@ tux:
     gender: male
     voice: 
     log_level: DEBUG
+    fake: True
     pins:
         wings:
             left_switch: 17

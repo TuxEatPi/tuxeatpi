@@ -1,7 +1,6 @@
 import unittest
 import logging
 from queue import Queue
-from threading import Thread
 import time
 
 try:
@@ -10,68 +9,10 @@ except RuntimeError:
     # Use fake GPIO
     from GPIOSim.RPi import GPIO
 
-from tests.utils import set_pin_value, push_switch
-from tuxeatpi.tux import Tux
-from tuxeatpi.components.wings import Wings
+from tuxeatpi.fake_components.wings import FakeWings
 
 
-class WingsMover(Thread):
-
-    def __init__(self, position_pin):
-        """Thread which simulate wings movement"""
-        Thread.__init__(self)
-        self.position_pin = position_pin
-
-    def stop(self):
-        """Stop moving wings"""
-        self.running = False
-
-    def run(self):
-        """Start moving wings"""
-        # Get pin_id from self.pins
-        pin_id = GPIO.GPIO_TO_PIN[self.position_pin]
-        self.running = True
-        while self.running:
-            if self.running:
-                set_pin_value(pin_id, 1)
-                time.sleep(0.1)
-            if self.running:
-                set_pin_value(pin_id, 0)
-                time.sleep(0.1)
-            if self.running:
-                set_pin_value(pin_id, 1)
-                time.sleep(0.1)
-            if self.running:
-                set_pin_value(pin_id, 0)
-                time.sleep(0.25)
-
-
-class WingsTest(Wings):
-    """Fake wings class"""
-
-    def __init__(self, pins, event_queue ,logger):
-        self.move_wings_thread = WingsMover(pins.get('position'))
-        Wings.__init__(self, pins, event_queue ,logger)
-
-    def move_start(self):
-        """Override move_start function for fake one"""
-        self.move_wings_thread = WingsMover(self.pins.get('position'))
-        self.move_wings_thread.start()
-        try:
-            super(WingsTest, self).move_start()
-        except Exception:
-            pass
-
-    def move_stop(self):
-        """Override move_stop function for fake one"""
-        self.move_wings_thread.stop()
-        super(WingsTest, self).move_stop()
-
-    def push_wing(self, side):
-        """Simulation push switch function"""
-        push_switch(GPIO.GPIO_TO_PIN[self.pins[side + '_switch']])
-
-class WingsTests(unittest.TestCase):
+class WingsTest(unittest.TestCase):
 
     def setUp(self):
         """Method called before each test function"""
@@ -93,7 +34,7 @@ class WingsTests(unittest.TestCase):
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = WingsTest(pins, event_queue, logger)
+        wings = FakeWings(pins, event_queue, logger)
 
         # Test calibrate
         time.sleep(5)
@@ -120,7 +61,7 @@ class WingsTests(unittest.TestCase):
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = WingsTest(pins, event_queue, logger)
+        wings = FakeWings(pins, event_queue, logger)
         # Test calibrate
         time.sleep(5)
         self.assertEqual(wings.get_position(), "down")
@@ -148,7 +89,7 @@ class WingsTests(unittest.TestCase):
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = WingsTest(pins, event_queue, logger)
+        wings = FakeWings(pins, event_queue, logger)
         # Test calibrate
         time.sleep(5)
         self.assertEqual(wings.get_position(), "down")
@@ -156,13 +97,13 @@ class WingsTests(unittest.TestCase):
         # test left switch event
         wings.push_wing('left')
         event = event_queue.get(timeout=5)
-        self.assertEqual(event.component, 'WingsTest')
+        self.assertEqual(event.component, 'FakeWings')
         self.assertEqual(event.pin_id, wings.pins.get('left_switch'))
         self.assertEqual(event.name, 'left_switch')
 
         # test left switch event
         wings.push_wing('right')
         event = event_queue.get(timeout=5)
-        self.assertEqual(event.component, 'WingsTest')
+        self.assertEqual(event.component, 'FakeWings')
         self.assertEqual(event.pin_id, wings.pins.get('right_switch'))
         self.assertEqual(event.name, 'right_switch')

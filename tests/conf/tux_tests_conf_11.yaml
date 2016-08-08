@@ -4,6 +4,7 @@ tux:
     gender: male
     voice: 
     log_level: DEBUG
+    fake: True
     pins:
         wings:
             bad_name: 17
