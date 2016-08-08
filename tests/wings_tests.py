@@ -9,6 +9,7 @@ except RuntimeError:
     # Use fake GPIO
     from GPIOSim.RPi import GPIO
 
+from tuxeatpi.components.wings import WingsError
 from tuxeatpi.fake_components.wings import FakeWings
 
 
@@ -79,7 +80,7 @@ class WingsTest(unittest.TestCase):
         time.sleep(3)
         self.assertFalse(wings.is_moving)
         # Bad move
-        self.assertRaises(Exception, lambda: wings.move_to_position("bottom"))
+        self.assertRaises(WingsError, lambda: wings.move_to_position("bottom"))
 
     def test_wings_push_switches(self):
         """Testing push switches"""

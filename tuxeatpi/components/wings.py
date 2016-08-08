@@ -119,7 +119,7 @@ class Wings(BaseComponent):
             elif self._position == 'down':
                 self._position = 'up'
             else:
-                raise Exception("Unknown Error")
+                raise WingsError("Unknown Error")
             # Are we to a wanted position
             # Here self._position can not be None (see an if condition above)
             if self._position == self._wanted_position:
@@ -156,7 +156,7 @@ class Wings(BaseComponent):
     def move_to_position(self, position):
         """Put wings to up position"""
         if position not in ["up", "down"]:
-            raise Exception("Bad position {}: should be 'up' or 'down'".format(position))
+            raise WingsError("Bad position {}: should be 'up' or 'down'".format(position))
         self._wanted_position = position
         self.logger.debug("Putting Wings to {} position".format(position))
         self.move_start()
@@ -188,3 +188,8 @@ class Wings(BaseComponent):
         self._calibration_mode = False
         self.is_moving = False
         GPIO.output(self.pins['movement'], GPIO.LOW)
+
+
+class WingsError(Exception):
+    """Base class for wings exceptions"""
+    pass
