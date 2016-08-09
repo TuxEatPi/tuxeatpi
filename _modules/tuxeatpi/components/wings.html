@@ -279,6 +279,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_wanted_position</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_move_count</span> <span class="o">=</span> <span class="mi">3</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">move_start</span><span class="p">()</span>
+        <span class="c1"># Wait for calibration</span>
+        <span class="k">while</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calibration_mode</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.5</span><span class="p">)</span>
+            <span class="c1"># TODO add timeout</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Waiting for wings calibration&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Wings calibration done&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Wings.move_to_position"><a class="viewcode-back" href="../../../refs/tuxeatpi.components.wings.html#tuxeatpi.components.wings.Wings.move_to_position">[docs]</a>    <span class="k">def</span> <span class="nf">move_to_position</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">position</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Put wings to up position&quot;&quot;&quot;</span>

@@ -137,7 +137,6 @@
 <span class="k">except</span> <span class="ne">RuntimeError</span><span class="p">:</span>
     <span class="c1"># Use fake GPIO</span>
     <span class="kn">from</span> <span class="nn">GPIOSim.RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
-    <span class="n">GPIO</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
 <span class="kn">import</span> <span class="nn">yaml</span>
 
 
@@ -178,6 +177,7 @@
             <span class="c1"># Start fake eventer</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span> <span class="o">=</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">Eventer</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+            <span class="n">GPIO</span><span class="o">.</span><span class="n">init</span><span class="p">()</span>
             <span class="c1"># Create fake wings</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">FakeWings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;wings&#39;</span><span class="p">],</span>  <span class="c1"># pylint: disable=R0204</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span>
