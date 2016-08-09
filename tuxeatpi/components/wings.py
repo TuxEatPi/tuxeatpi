@@ -152,6 +152,12 @@ class Wings(BaseComponent):
         self._wanted_position = "down"
         self._move_count = 3
         self.move_start()
+        # Wait for calibration
+        while self._calibration_mode is True:
+            time.sleep(0.5)
+            # TODO add timeout
+            self.logger.debug("Waiting for wings calibration")
+        self.logger.debug("Wings calibration done")
 
     def move_to_position(self, position):
         """Put wings to up position"""

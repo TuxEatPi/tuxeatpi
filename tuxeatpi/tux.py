@@ -10,7 +10,6 @@ try:
 except RuntimeError:
     # Use fake GPIO
     from GPIOSim.RPi import GPIO
-    GPIO.init()
 import yaml
 
 
@@ -51,6 +50,7 @@ class Tux(object):
             # Start fake eventer
             self.eventer = GPIO.Eventer()
             self.eventer.start()
+            GPIO.init()
             # Create fake wings
             self.wings = FakeWings(self.pins['wings'],  # pylint: disable=R0204
                                    self.event_queue,

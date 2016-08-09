@@ -36,9 +36,7 @@ class WingsTest(unittest.TestCase):
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
         wings = FakeWings(pins, event_queue, logger)
-
         # Test calibrate
-        time.sleep(5)
         self.assertEqual(wings.get_position(), "down")
 
         # Move up
@@ -64,7 +62,6 @@ class WingsTest(unittest.TestCase):
         logger.setLevel(logging.DEBUG)
         wings = FakeWings(pins, event_queue, logger)
         # Test calibrate
-        time.sleep(5)
         self.assertEqual(wings.get_position(), "down")
         # Test count
         wings.move_count(3)
@@ -92,7 +89,6 @@ class WingsTest(unittest.TestCase):
         logger.setLevel(logging.DEBUG)
         wings = FakeWings(pins, event_queue, logger)
         # Test calibrate
-        time.sleep(5)
         self.assertEqual(wings.get_position(), "down")
 
         # test left switch event

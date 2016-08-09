@@ -16,23 +16,15 @@ from tuxeatpi.error import ConfigError
 
 class TuxTests(unittest.TestCase):
 
-    def setUp(self):
-        """Method called before each test function"""
-        GPIO.cleanup()
-        GPIO.init()
-
-    def tearDown(self):
-        """Method called after each test function"""
-        GPIO.cleanup()
-
     def test_tux(self):
         """Basic Tests for Tux Class"""
         conf_file = "tests/conf/tux_tests_conf_1.yaml"
+        start_time = time.time()
         mytux = Tux(conf_file)
         # Test uptime
-        time.sleep(2)
         uptime = mytux.get_uptime()
-        self.assertEqual(uptime.seconds, 2)
+        end_time = time.time()
+        self.assertEqual(uptime.seconds, int(end_time - start_time))
         # Test show uptime
         # Save good stdout
         saved_stdout = sys.stdout
@@ -45,7 +37,7 @@ class TuxTests(unittest.TestCase):
         sys.stdout = saved_stdout
         # Get output
         output = out.getvalue().strip()
-        self.assertRegexpMatches(output, ", 2 seconds, ")
+        self.assertRegexpMatches(output, ", [1-9] seconds, ")
 
     def test_bad_conf(self):
         """Bad configuration for Tux class"""
