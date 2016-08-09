@@ -60,8 +60,6 @@ class Wings(BaseComponent):
         """Setup all needed pings"""
         self.logger.debug("Settings Wings pins")
         GPIO.setup(self.pins['movement'], GPIO.OUT, initial=GPIO.LOW)
-        GPIO.setup(self.pins['left_switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-        GPIO.setup(self.pins['right_switch'], GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
         for pin_name, callback in [('position', self._position_callback),
                                    ('left_switch', self._switch),
                                    ('right_switch', self._switch),
