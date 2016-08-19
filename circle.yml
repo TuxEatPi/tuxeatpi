@@ -13,6 +13,7 @@ machine:
 
 dependencies:
   pre:
+    - sudo apt-get install libsamplerate0-dev portaudio19-dev libspeexdsp-dev
     - pip install -r requirements-dev.txt --upgrade
     - pip install -r requirements.txt --upgrade
     - pip install codeclimate-test-reporter

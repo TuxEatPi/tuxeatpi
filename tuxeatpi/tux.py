@@ -14,6 +14,7 @@ import yaml
 
 
 from tuxeatpi.components.wings import Wings
+from tuxeatpi.components.voice import Voice
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.components.base import PIN_IDS
 from tuxeatpi.error import ConfigError
@@ -24,20 +25,18 @@ class Tux(object):
     def __init__(self, config_file):
         # Init attributes
         self.name = None
-        self.gender = None
-        self.voice = None
         self.log_level = None
         self.fake = False
         self.pins = {}
+        # Voice attributes
+        self.gender = None
+        self.speech = {}
         # Read config file
         self.config_file = config_file
         self._read_conf()
         # Set start time
         self.logger.debug("Starting TuxDroid named '%s'", self.name)
         self.start_time = time.time()
-        # Voice attributes (Not implemented)
-        self.gender = 'Male'
-        self.voice = ''
         # Set GPIO mode
         GPIO.setmode(GPIO.BCM)
         # Init queue
@@ -55,6 +54,8 @@ class Tux(object):
             self.wings = FakeWings(self.pins['wings'],  # pylint: disable=R0204
                                    self.event_queue,
                                    self.logger)
+        # Init voice
+        self.voice = Voice(self.speech, self.event_queue, self.logger)
 
     def __del__(self):
         if self.fake is True and hasattr(self, 'eventer'):
@@ -75,7 +76,7 @@ class Tux(object):
         if "tux" not in raw_conf:
             raise ConfigError("Root key of configuration file should be 'tux'")
         # Set attributes
-        for attr in ('name', 'gender', 'voice', 'pins', 'log_level', 'fake'):
+        for attr in ('name', 'gender', 'speech', 'pins', 'log_level', 'fake'):
             if attr not in raw_conf.get("tux"):
                 raise ConfigError("Missing {} key in tux section".format(attr))
             setattr(self, attr, raw_conf["tux"][attr])

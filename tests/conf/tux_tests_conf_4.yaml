@@ -1,7 +1,14 @@
 # Missing main key (ei gender)
 tux:
     name: TuxDroid
-    voice:
+    speech:
+        language: eng-USA
+        voice: tom
+        speex: False
+        opus: False
+        app_id: FAKE_APP_ID
+        app_key: FAKE_APP_KEY
+        url: https://ws.dev.nuance.com
     log_level: DEBUG
     fake: True
     pins:

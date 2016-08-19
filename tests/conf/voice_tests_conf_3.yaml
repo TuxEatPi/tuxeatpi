@@ -1,20 +1,19 @@
-# Bad component key names
 tux:
     name: TuxDroid
     gender: male
     speech:
-        language: eng-USA
+        language: bad-LAN
         voice: tom
         speex: False
         opus: False
         app_id: FAKE_APP_ID
-        app_key: FAKE_APP_KEY
+        app_key: FA1EA331E666
         url: https://ws.dev.nuance.com
     log_level: DEBUG
     fake: True
     pins:
         wings:
-            bad_name: 17
+            left_switch: 17
             right_switch: 4
             position: 25
             movement: 22
