@@ -40,9 +40,9 @@ class Wings(BaseComponent):
             'movement': None,
             }
 
-    def __init__(self, pins, event_queue, logger):
+    def __init__(self, settings, event_queue, logger):
         logger.debug("Wings initialization")
-        BaseComponent.__init__(self, pins, event_queue, logger)
+        BaseComponent.__init__(self, settings['pins']['wings'], event_queue, logger)
         # Init private attributes
         self._position = None
         self._last_time_position = None

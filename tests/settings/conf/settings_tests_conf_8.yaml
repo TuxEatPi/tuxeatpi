@@ -1,7 +1,8 @@
-# Pins is not a dict
+# Bad component pins config
 tux:
-    name: TuxDroid
-    gender: male
+    global:
+        name: TuxDroid
+        gender: male
     speech:
         language: eng-USA
         voice: tom
@@ -10,6 +11,8 @@ tux:
         app_id: FAKE_APP_ID
         app_key: FAKE_APP_KEY
         url: https://ws.dev.nuance.com
-    log_level: DEBUG
-    fake: True
-    pins: badpins
+    advanced:
+        log_level: DEBUG
+        fake: True
+    pins:
+        wings: bad pins

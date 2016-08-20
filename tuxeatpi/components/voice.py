@@ -1,13 +1,12 @@
 """Voice component"""
 
 import asyncio
-import binascii
+from binascii import unhexlify
 
 import pyaudio
 
 from tuxeatpi.components.base import BaseComponent
-from tuxeatpi.libs.voice import do_synthesis, VOICES
-from tuxeatpi.error import ConfigError
+from tuxeatpi.libs.voice import do_synthesis
 
 
 class Voice(BaseComponent):
@@ -18,41 +17,18 @@ class Voice(BaseComponent):
     # No pin
     pins = {}
 
-    def __init__(self, voice_conf, event_queue, logger):
+    def __init__(self, settings, event_queue, logger):
         logger.debug("Voice initialization")
         # Maybe the following line is useless ?
         BaseComponent.__init__(self, {}, event_queue, logger)
-
-        # Init attributes
-        self.language = None
-        self.voice = None
-        self.use_speex = None
-        self.use_opus = None
-        self.app_id = None
-        self.app_key = None
-        self.url = None
         # Init private attributes
+        self._settings = settings
         self._audio_player = pyaudio.PyAudio()
         self._speaking = False
         self._muted = False
-        # Check config and set attributes
-        self._check_config(voice_conf)
 
     def __del__(self):
         self._audio_player.terminate()
-
-    def _check_config(self, voice_conf):
-        """Check voice configuration and set object attributes"""
-        #  Check and Set attributes
-        for attr in ('language', 'voice', 'speex', 'opus', 'app_id', 'app_key', 'url'):
-            if attr not in voice_conf:
-                raise ConfigError("Missing {} key in voice section".format(attr))
-            setattr(self, attr, voice_conf[attr])
-        # Check lang
-        if voice_conf.get('language') not in VOICES:
-            raise ConfigError("Bad language. Must be:{}".format(VOICES.keys()))
-        elif voice_conf.get('voice') not in VOICES[voice_conf.get('language')]:
-            raise ConfigError("Bad voice. Must be:{}".format(VOICES[voice_conf.get('language')]))
 
     def is_mute(self):
         """Return the mute state"""
@@ -76,16 +52,16 @@ class Voice(BaseComponent):
             loop = asyncio.get_event_loop()
             self._speaking = True
             # TODO: try/except
-            loop.run_until_complete(do_synthesis(self.url + '/v1',
-                                                 self.app_id,
-                                                 binascii.unhexlify(self.app_key),
-                                                 self.language,
-                                                 self.voice,
+            loop.run_until_complete(do_synthesis(self._settings['speech']['url'] + '/v1',
+                                                 self._settings['speech']['app_id'],
+                                                 unhexlify(self._settings['speech']['app_key']),
+                                                 self._settings['speech']['language'],
+                                                 self._settings['speech']['voice'],
                                                  text,
                                                  self._audio_player,
                                                  self.logger,
-                                                 self.use_speex,
-                                                 self.use_opus,
+                                                 self._settings['speech']['speex'],
+                                                 self._settings['speech']['opus'],
                                                  ))
             self._speaking = False
 

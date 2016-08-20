@@ -1,15 +1,19 @@
+#Bad log level
 tux:
-    name: TuxDroid
-    gender: male
+    global:
+        name: TuxDroid
+        gender: male
     speech:
         language: eng-USA
+        voice: tom
         speex: False
         opus: False
         app_id: FAKE_APP_ID
-        app_key: FA1EA331E666
+        app_key: FAKE_APP_KEY
         url: https://ws.dev.nuance.com
-    log_level: DEBUG
-    fake: True
+    advanced:
+        log_level: badlevel
+        fake: True
     pins:
         wings:
             left_switch: 17

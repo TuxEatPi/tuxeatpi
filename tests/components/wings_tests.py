@@ -30,12 +30,12 @@ class WingsTest(unittest.TestCase):
     def test_wings(self):
         """Testing basic moving functions"""
         # init wings
-        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        settings = {"pins": {"wings": {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}}}
         event_queue = Queue()
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = FakeWings(pins, event_queue, logger)
+        wings = FakeWings(settings, event_queue, logger)
         # Test calibrate
         self.assertEqual(wings.get_position(), "down")
 
@@ -55,12 +55,12 @@ class WingsTest(unittest.TestCase):
     def test_wings_moving(self):
         """Testing other moving functions"""
         # init wings
-        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        settings = {"pins": {"wings": {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}}}
         event_queue = Queue()
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = FakeWings(pins, event_queue, logger)
+        wings = FakeWings(settings, event_queue, logger)
         # Test calibrate
         self.assertEqual(wings.get_position(), "down")
         # Test count
@@ -82,12 +82,12 @@ class WingsTest(unittest.TestCase):
     def test_wings_push_switches(self):
         """Testing push switches"""
         # init wings
-        pins = {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}
+        settings = {"pins": {"wings": {"left_switch": 17, "right_switch": 4, "position": 25, "movement": 22}}}
         event_queue = Queue()
         logging.basicConfig()
         logger = logging.getLogger(name="TuxEatPi")
         logger.setLevel(logging.DEBUG)
-        wings = FakeWings(pins, event_queue, logger)
+        wings = FakeWings(settings, event_queue, logger)
         # Test calibrate
         self.assertEqual(wings.get_position(), "down")
 
