@@ -30,10 +30,8 @@ class Settings(dict):
         """
         # Read file
         raw_conf = {}
-        if not os.path.exists(self.config_file):
-            raise SettingsError("{} does not exist".format(self.config_file))
         if not os.path.isfile(self.config_file):
-            raise SettingsError("{} is not a file".format(self.config_file))
+            raise SettingsError("Bad config file: {}".format(self.config_file))
         with open(self.config_file) as fconf:
             try:
                 raw_conf = yaml.load(fconf)

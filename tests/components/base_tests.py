@@ -38,11 +38,5 @@ class BaseComponentTests(unittest.TestCase):
         bad_pins2 = {4: 4, 22: 22}
         self.assertRaises(SettingsError, lambda: MyGoodComponent(bad_pins2, event_queue, logger))
         # Test 5
-        bad_pins4 = {"button1": 4, "button2": 9999}
-        self.assertRaises(SettingsError, lambda: MyGoodComponent(bad_pins4, event_queue, logger))
-        # Test 6
-        bad_pins5 = {"button1": 4, "button3": 22}
-        self.assertRaises(SettingsError, lambda: MyGoodComponent(bad_pins5, event_queue, logger))
-        # Test 7
-        bad_pins6 = {"button1": 4, "button2": 4}
-        self.assertRaises(SettingsError, lambda: MyGoodComponent(bad_pins6, event_queue, logger))
+        bad_pins3 = {"button1": 4, "button3": 22}
+        self.assertRaises(SettingsError, lambda: MyGoodComponent(bad_pins3, event_queue, logger))

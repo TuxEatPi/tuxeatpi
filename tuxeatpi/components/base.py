@@ -3,7 +3,7 @@ Thie module contains basic and useful classes
 to create Tux component like wings, eyes, ...
 """
 
-from tuxeatpi.libs.settings import SettingsError, PIN_IDS
+from tuxeatpi.libs.settings import SettingsError
 
 
 class BaseComponent(object):  # pylint: disable=R0903
@@ -18,25 +18,16 @@ class BaseComponent(object):  # pylint: disable=R0903
         # Check pin_name_list validity
         if not isinstance(self.pins, dict):
             raise SettingsError("Bad attribute definition: pins must be a dict")
-        for pin_name, pin_id in self.pins.items():
+        for pin_name in self.pins.keys():
             if not isinstance(pin_name, str):
                 raise SettingsError("Bad item definition in pin_name_list {}", pin_name)
         # Check pins validity
         if not isinstance(pins, dict):
             raise SettingsError("Bad attribute definition: pins")
-        for pin_name, pin_id in pins.items():
-            if not isinstance(pin_name, str):
-                raise SettingsError("Bad attribute definition: pins")
-            if pin_id not in PIN_IDS:
-                raise SettingsError("Bad pin id for pin {}. Should be in {}", pin_name, PIN_IDS)
         if set(pins.keys()) != set(self.pins.keys()):
             raise SettingsError("Your pin list should be {} for component {}",
                                 self.pins.keys(), self.__class__.__name__)
-        for pin_name1 in self.pins.keys():
-            for pin_name2 in self.pins.keys():
-                if pin_name1 != pin_name2 and pins[pin_name1] == pins[pin_name2]:
-                    raise SettingsError("Bad pin definition: {} and {} are on the same "
-                                        "pin id", pin_name1, pin_name2)
+
         # Set pins
         self.pins = pins
         # Set Event queue
