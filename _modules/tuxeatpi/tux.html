@@ -141,6 +141,7 @@
 
 
 <span class="kn">from</span> <span class="nn">tuxeatpi.components.wings</span> <span class="k">import</span> <span class="n">Wings</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.components.voice</span> <span class="k">import</span> <span class="n">Voice</span>
 <span class="kn">from</span> <span class="nn">tuxeatpi.fake_components.wings</span> <span class="k">import</span> <span class="n">FakeWings</span>
 <span class="kn">from</span> <span class="nn">tuxeatpi.components.base</span> <span class="k">import</span> <span class="n">PIN_IDS</span>
 <span class="kn">from</span> <span class="nn">tuxeatpi.error</span> <span class="k">import</span> <span class="n">ConfigError</span>
@@ -151,20 +152,18 @@
     <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file</span><span class="p">):</span>
         <span class="c1"># Init attributes</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">log_level</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fake</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">pins</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="c1"># Voice attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speech</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="c1"># Read config file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_file</span> <span class="o">=</span> <span class="n">config_file</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_read_conf</span><span class="p">()</span>
         <span class="c1"># Set start time</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Starting TuxDroid named &#39;</span><span class="si">%s</span><span class="s2">&#39;&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-        <span class="c1"># Voice attributes (Not implemented)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">gender</span> <span class="o">=</span> <span class="s1">&#39;Male&#39;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
         <span class="c1"># Set GPIO mode</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setmode</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span><span class="p">)</span>
         <span class="c1"># Init queue</span>
@@ -182,6 +181,8 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">FakeWings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="s1">&#39;wings&#39;</span><span class="p">],</span>  <span class="c1"># pylint: disable=R0204</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="c1"># Init voice</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="n">Voice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">speech</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fake</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eventer&#39;</span><span class="p">):</span>
@@ -202,7 +203,7 @@
         <span class="k">if</span> <span class="s2">&quot;tux&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_conf</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Root key of configuration file should be &#39;tux&#39;&quot;</span><span class="p">)</span>
         <span class="c1"># Set attributes</span>
-        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;voice&#39;</span><span class="p">,</span> <span class="s1">&#39;pins&#39;</span><span class="p">,</span> <span class="s1">&#39;log_level&#39;</span><span class="p">,</span> <span class="s1">&#39;fake&#39;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;gender&#39;</span><span class="p">,</span> <span class="s1">&#39;speech&#39;</span><span class="p">,</span> <span class="s1">&#39;pins&#39;</span><span class="p">,</span> <span class="s1">&#39;log_level&#39;</span><span class="p">,</span> <span class="s1">&#39;fake&#39;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">attr</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_conf</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;tux&quot;</span><span class="p">):</span>
                 <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;Missing </span><span class="si">{}</span><span class="s2"> key in tux section&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">attr</span><span class="p">))</span>
             <span class="nb">setattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="n">raw_conf</span><span class="p">[</span><span class="s2">&quot;tux&quot;</span><span class="p">][</span><span class="n">attr</span><span class="p">])</span>
