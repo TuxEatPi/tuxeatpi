@@ -57,11 +57,10 @@ class Voice(BaseComponent):
                                                  unhexlify(self._settings['speech']['app_key']),
                                                  self._settings['speech']['language'],
                                                  self._settings['speech']['voice'],
+                                                 self._settings['speech']['codec'],
                                                  text,
                                                  self._audio_player,
                                                  self.logger,
-                                                 self._settings['speech']['speex'],
-                                                 self._settings['speech']['opus'],
                                                  ))
             self._speaking = False
 

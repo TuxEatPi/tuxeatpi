@@ -42,7 +42,7 @@ class SettingsTests(unittest.TestCase):
         # Bad loglevel
         conf_file = "tests/settings/conf/settings_tests_conf_6.yaml"
         self.assertRaises(SettingsError, lambda: Settings(conf_file, logger))
-        # Bad speech:speex
+        # Bad advanced:fake
         conf_file = "tests/settings/conf/settings_tests_conf_7.yaml"
         self.assertRaises(SettingsError, lambda: Settings(conf_file, logger))
         # Bad component pins config

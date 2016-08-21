@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-from tuxeatpi.libs.voice import VOICES
+from tuxeatpi.libs.voice import VOICES, CODECS
 
 
 PIN_IDS = [4, 17, 22, 25]
@@ -81,12 +81,11 @@ class Settings(dict):
     def _check_speech(self):
         """Check speech section"""
         # Check key existences
-        self._check_missing_keys('speech', ('language', 'voice', 'speex', 'opus',
+        self._check_missing_keys('speech', ('language', 'voice', 'codec',
                                             'app_id', 'app_key', 'url'))
         self._check_choice('speech', 'language', VOICES.keys())
         self._check_choice('speech', 'voice', VOICES[self['speech']['language']])
-        self._check_bool('speech', 'speex')
-        self._check_bool('speech', 'opus')
+        self._check_choice('speech', 'codec', CODECS)
         self._check_str('speech', 'app_id')
         self._check_str('speech', 'app_key')
         self._check_str('speech', 'url')

@@ -14,8 +14,7 @@ tux:
     speech:
         app_id: FAKE_APP_ID
         app_key: FA1EA331E666
+        codec: wav
         language: eng-USA
-        opus: false
-        speex: false
         url: https://ws.dev.nuance.com
         voice: tom

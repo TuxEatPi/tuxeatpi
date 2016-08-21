@@ -30,6 +30,8 @@ AUDIO_TYPES = [
     'audio/16KADPCM;rate=16000'
 ]
 
+CODECS = ('wav', 'speex', 'opus')
+
 COMMANDS = [
     'NVC_ASR_CMD',
     'NVC_DATA_UPLOAD_CMD',
@@ -58,6 +60,7 @@ VOICES = {"eng-USA": ["allison",
                       "aurelie"
                       ]
           }
+
 
 # This is a fixed string (constant), used in the Websockets protocol handshake
 # in order to establish a conversation
@@ -138,20 +141,20 @@ class WebsocketConnection:
         self.connection.close()
 
 
-def do_synthesis(url, app_id, app_key, language, voice, input_text,
-                 audio_player, logger, use_speex=False, use_opus=False):
+def do_synthesis(url, app_id, app_key, language, voice, codec,
+                 input_text, audio_player, logger):
     """The TTS function using Nuance Communications services"""
 
-    if use_speex is True and speex is None:
+    if codec == "speex" and speex is None:
         print('ERROR: Speex encoding specified but python-speex module unavailable')
         return
-    elif use_opus is True and opus is None:
+    elif codec == "opus" and opus is None:
         print('ERROR: Opus encoding specified but python-opuslib module unavailable')
         return
 
-    if use_speex:
+    if codec == "speex":
         audio_type = 'audio/x-speex;mode=wb'
-    elif use_opus:
+    elif codec == "opus":
         audio_type = 'audio/opus;rate=16000'
     else:
         audio_type = 'audio/L16;rate=16000'
