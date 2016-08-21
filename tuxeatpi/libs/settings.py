@@ -132,6 +132,7 @@ class Settings(dict):
 
     def save(self):
         """Save settings on disk"""
+        self._check_conf()
         self.full_config["tux"] = dict(self)
         with open(self.config_file, "w") as fconfig:
             yaml.dump(self.full_config, fconfig, default_flow_style=False, indent=4)
