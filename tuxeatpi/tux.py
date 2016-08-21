@@ -50,7 +50,7 @@ class Tux(object):
         self.voice = Voice(self.settings, self.event_queue, self.logger)
 
     def __del__(self):
-        if self.settings['advanced']['fake'] is True and hasattr(self, 'eventer'):
+        if hasattr(self, 'eventer'):
             self.eventer.stop()
         GPIO.cleanup()
 
