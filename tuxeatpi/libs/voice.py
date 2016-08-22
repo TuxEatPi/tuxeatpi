@@ -55,10 +55,14 @@ VOICES = {"eng-USA": ["allison",
                       "zoe",
                       "tom",
                       ],
-          "fra-CAN": ["audrey-ml",
+          "fra-FRA": ["audrey-ml",
                       "thomas",
-                      "aurelie"
-                      ]
+                      "aurelie",
+                      ],
+          "fra-CAN": ["amelie",
+                      "chantal",
+                      "nicolas",
+                      ],
           }
 
 
