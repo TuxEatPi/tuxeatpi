@@ -48,11 +48,22 @@ class Tux(object):
                                    self.logger)
         # Init voice
         self.voice = Voice(self.settings, self.event_queue, self.logger)
+        # Birth
+        self._birth()
 
     def __del__(self):
         if hasattr(self, 'eventer'):
             self.eventer.stop()
         GPIO.cleanup()
+
+    def _birth(self):
+        """Save the first start timestamp to get the birthday"""
+        if 'birthday' not in self.settings['data']:
+            self.logger.info('This is a birth of a new TuxDroid')
+            self.settings['data']['birthday'] = time.time()
+            self.settings.save()
+        else:
+            self.logger.info('This TuxDroid is already born')
 
     def get_uptime(self):
         """Return current uptime"""

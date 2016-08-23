@@ -45,6 +45,9 @@ class Settings(dict):
         # Set values
         for key, value in raw_conf['tux'].items():
             self[key] = value
+        # Create data section if not exists
+        if 'data' not in self.keys():
+            self['data'] = {}
         # Check conf
         self._check_conf()
 
