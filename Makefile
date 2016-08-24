@@ -13,6 +13,19 @@ env-dev:
 	env/bin/pip3 install -r requirements.txt --upgrade --force-reinstall
 	env/bin/python setup.py develop
 
+#hotword:
+#	sudo apt-get install swig swig3.0 python-pyaudio python3-pyaudio sox libatlas-base-dev
+#	rm -rf hotword
+#	mkdir -p hotword
+#	cd hotword && git clone https://github.com/Kitt-AI/snowboy.git
+#	cd hotword/snowboy/ && git checkout devel
+#	cd hotword/snowboy/swig/Python && make
+#	cp hotword/snowboy/swig/Python/_snowboydetect.so tuxeatpi/hotword
+#	cp hotword/snowboy/swig/Python/snowboydetect.py tuxeatpi/hotword
+#	cp hotword/snowboy/examples/Python/snowboydecoder.py tuxeatpi/hotword
+#	rm -rf hotword
+
+
 #######################################
 ### Virtual env targets
 #######################################

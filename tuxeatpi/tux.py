@@ -1,6 +1,6 @@
 """TuxDroid class"""
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import logging
 from queue import Queue
 import time
@@ -13,6 +13,7 @@ except RuntimeError:
 
 from tuxeatpi.components.wings import Wings
 from tuxeatpi.components.voice import Voice
+from tuxeatpi.nlu.nlu import NLU
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings
 
@@ -48,6 +49,10 @@ class Tux(object):
                                    self.logger)
         # Init voice
         self.voice = Voice(self.settings, self.event_queue, self.logger)
+        # Add a shortcut to say function
+        self.say = self.voice.tts
+        # Init NLU
+        self.nlu = NLU(self)
         # Birth
         self._birth()
 
@@ -69,14 +74,10 @@ class Tux(object):
         """Return current uptime"""
         return timedelta(seconds=time.time() - self.start_time)
 
-    def show_uptime(self):
-        """Show current uptime in readable string"""
-        ret_str = ", ".join(["{{}} {}".format(data) for data in ["days",
-                                                                 "minutes",
-                                                                 "seconds",
-                                                                 "microseconds"]])
-        uptime = self.get_uptime()
-        print(ret_str.format(uptime.days,
-                             uptime.seconds // 60,
-                             uptime.seconds % 60,
-                             uptime.microseconds))
+    def get_birthday(self):
+        """Return the tux birthday"""
+        return datetime.fromtimestamp(self.settings['data']['birthday'])
+
+    def get_name(self):
+        """Return Tux name"""
+        return self.settings['global']['name']

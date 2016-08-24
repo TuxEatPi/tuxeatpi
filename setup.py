@@ -17,6 +17,7 @@ The end goal is to keep Tux's basic functionnality:
 
 packages = ['tuxeatpi',
             'tuxeatpi.libs',
+            'tuxeatpi.nlu',
             'tuxeatpi.components',
             'tuxeatpi.fake_components',
             ]

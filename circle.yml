@@ -13,7 +13,7 @@ machine:
 
 dependencies:
   pre:
-    - sudo apt-get install libsamplerate0-dev portaudio19-dev libspeexdsp-dev
+    - sudo apt-get install libsamplerate0-dev portaudio19-dev libspeexdsp-dev jackd1
     - pip install -r requirements-dev.txt --upgrade
     - pip install -r requirements.txt --upgrade
     - pip install codeclimate-test-reporter
@@ -24,6 +24,8 @@ test:
     - pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
     - pylint --rcfile=.pylintrc -r no tuxeatpi
 #    - coverage run `which nosetests` --with-html --with-xunit --with-coverage --cover-html --cover-package=tuxeatpi tuxeatpi tests
+    - find tests -name "*.yaml" -exec sed -i "s/FAKE_APP_ID/$NUANCE_APP_ID/g" {} \;
+    - find tests -name "*.yaml" -exec sed -i "s/FAKE_APP_KEY/$NUANCE_APP_KEY/g" {} \;
     - coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests 
     - coverage html --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*'
     - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter

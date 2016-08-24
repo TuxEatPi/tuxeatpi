@@ -2,6 +2,7 @@ from io import StringIO
 import logging
 import sys
 import time
+from datetime import timedelta
 import unittest
 
 try:
@@ -25,19 +26,9 @@ class TuxTests(unittest.TestCase):
         uptime = mytux.get_uptime()
         end_time = time.time()
         self.assertEqual(uptime.seconds, int(end_time - start_time))
-        # Test show uptime
-        # Save good stdout
-        saved_stdout = sys.stdout
-        # Override stdout
-        out = StringIO()
-        sys.stdout = out
-        # Show uptime in our custom stdout
-        mytux.show_uptime()
-        # Reset stdout
-        sys.stdout = saved_stdout
-        # Get output
-        output = out.getvalue().strip()
-        self.assertRegexpMatches(output, ", [1-9] seconds, ")
+        # Test get uptime
+        uptime = mytux.get_uptime()
+        self.assertGreater(uptime, timedelta(seconds=0))
 
     def ftest_bad_conf(self):
         """Bad configuration for Tux class"""

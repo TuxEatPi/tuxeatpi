@@ -34,4 +34,4 @@ class VoiceTests(unittest.TestCase):
         # Test speaking
         self.assertEqual(voice.is_speaking(), False, "Bad speaking state")
         # Test tts
-        self.assertRaises(RuntimeError, lambda: voice.tts("hello world"))
+        self.assertRaises(ValueError, lambda: voice.tts("hello world"))
