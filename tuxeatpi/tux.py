@@ -14,6 +14,7 @@ except RuntimeError:
 
 from tuxeatpi.components.wings import Wings
 from tuxeatpi.voice.voice import Voice
+from tuxeatpi.nlu.nlu import NLU
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings
 
@@ -35,6 +36,7 @@ class Tux(object):
         # Init queues
         self.event_queue = queue.Queue()
         self.tts_queue = multiprocessing.Queue()
+        self.nlu_queue = multiprocessing.Queue()
         # Create components
         if self.settings['advanced']['fake'] is False:
             # Create wings
@@ -51,6 +53,9 @@ class Tux(object):
         # Init voice
         self.voice = Voice(self.settings, self.tts_queue, self.logger)
         self.voice.start()
+        # Init nlu
+        self.nlu = NLU(self.settings, self.nlu_queue, self.logger)
+        self.nlu.start()
         # Birth
         self._birth()
 
@@ -59,6 +64,8 @@ class Tux(object):
             self.eventer.stop()
         if hasattr(self, 'voice'):
             self.voice.stop()
+        if hasattr(self, 'nlu'):
+            self.nlu.stop()
         GPIO.cleanup()
 
     def _birth(self):
@@ -78,6 +85,15 @@ class Tux(object):
         """
         self.logger.debug("Add %s to tts queue", text)
         self.tts_queue.put(text)
+
+    def understand_text(self, text, say_it=False):
+        """Try to understand text
+
+        Add text to the nlu queue,
+        it will be processed by the nlu object
+        """
+        self.logger.debug("Add say_it=%s - %s to nlu queue", say_it, text)
+        self.tts_queue.put((say_id, text))
 
     def get_uptime(self):
         """Return current uptime"""

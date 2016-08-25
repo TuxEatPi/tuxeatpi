@@ -13,9 +13,6 @@ class Voice(Process):
 
     For now voice use Nuance communications services
     """
-    # No pin
-    pins = {}
-
     def __init__(self, settings, tts_queue, logger):
         Process.__init__(self)
         logger.debug("Voice initialization")
