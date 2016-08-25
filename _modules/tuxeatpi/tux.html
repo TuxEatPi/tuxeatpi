@@ -175,11 +175,22 @@
                                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
         <span class="c1"># Init voice</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="n">Voice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="c1"># Birth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_birth</span><span class="p">()</span>
 
     <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eventer&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">_birth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Save the first start timestamp to get the birthday&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="s1">&#39;birthday&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;This is a birth of a new TuxDroid&#39;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;birthday&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;This TuxDroid is already born&#39;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="Tux.get_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">get_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return current uptime&quot;&quot;&quot;</span>
