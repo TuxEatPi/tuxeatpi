@@ -2,8 +2,9 @@
 
 from datetime import timedelta
 import logging
-from queue import Queue
+import queue
 import time
+import multiprocessing
 
 try:
     from RPi import GPIO
@@ -12,7 +13,7 @@ except RuntimeError:
     from GPIOSim.RPi import GPIO
 
 from tuxeatpi.components.wings import Wings
-from tuxeatpi.components.voice import Voice
+from tuxeatpi.voice.voice import Voice
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings
 
@@ -31,8 +32,9 @@ class Tux(object):
         self.start_time = time.time()
         # Set GPIO mode
         GPIO.setmode(GPIO.BCM)
-        # Init queue
-        self.event_queue = Queue()
+        # Init queues
+        self.event_queue = queue.Queue()
+        self.tts_queue = multiprocessing.Queue()
         # Create components
         if self.settings['advanced']['fake'] is False:
             # Create wings
@@ -47,13 +49,16 @@ class Tux(object):
                                    self.event_queue,
                                    self.logger)
         # Init voice
-        self.voice = Voice(self.settings, self.event_queue, self.logger)
+        self.voice = Voice(self.settings, self.tts_queue, self.logger)
+        self.voice.start()
         # Birth
         self._birth()
 
     def __del__(self):
         if hasattr(self, 'eventer'):
             self.eventer.stop()
+        if hasattr(self, 'voice'):
+            self.voice.stop()
         GPIO.cleanup()
 
     def _birth(self):
@@ -64,6 +69,15 @@ class Tux(object):
             self.settings.save()
         else:
             self.logger.info('This TuxDroid is already born')
+
+    def say(self, text):
+        """Say text
+
+        Add text to the tts queue,
+        it will be processed by the voice object
+        """
+        self.logger.debug("Add %s to tts queue", text)
+        self.tts_queue.put(text)
 
     def get_uptime(self):
         """Return current uptime"""

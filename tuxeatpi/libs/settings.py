@@ -5,7 +5,7 @@ import os
 import yaml
 
 
-from tuxeatpi.libs.voice import VOICES, CODECS
+from tuxeatpi.voice.common import VOICES, CODECS
 
 
 PIN_IDS = [4, 17, 22, 25]

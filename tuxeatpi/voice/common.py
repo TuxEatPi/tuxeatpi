@@ -1,6 +1,7 @@
 """Utils functions for Nuance Communications TTS services"""
 # Get from https://github.com/Fadyazmy/harrawr/blob/master/wsclient.py
 
+import asyncio
 import base64
 import binascii
 import hashlib
@@ -8,8 +9,7 @@ import json
 import os
 import urllib.parse
 
-import asyncio
-
+import pyaudio
 import aiohttp
 from aiohttp import websocket
 
@@ -146,8 +146,10 @@ class WebsocketConnection:
 
 
 def do_synthesis(url, app_id, app_key, language, voice, codec,
-                 input_text, audio_player, logger):
+                 input_text, logger):
     """The TTS function using Nuance Communications services"""
+
+    audio_player = pyaudio.PyAudio()
 
     if codec == "speex" and speex is None:
         print('ERROR: Speex encoding specified but python-speex module unavailable')
@@ -246,6 +248,7 @@ def do_synthesis(url, app_id, app_key, language, voice, codec,
     client.close()
     stream.stop_stream()
     stream.close()
+    audio_player.terminate()
 
 
 def _get_opus_decoder_func(decoder):

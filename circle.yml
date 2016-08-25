@@ -23,8 +23,9 @@ test:
   override:
     - pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
     - pylint --rcfile=.pylintrc -r no tuxeatpi
-#    - coverage run `which nosetests` --with-html --with-xunit --with-coverage --cover-html --cover-package=tuxeatpi tuxeatpi tests
     - coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests 
+    - coverage combine
+    - coverage report
     - coverage html --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*'
     - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter
   post:

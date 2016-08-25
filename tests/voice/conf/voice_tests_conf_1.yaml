@@ -2,6 +2,7 @@ tux:
     advanced:
         fake: true
         log_level: DEBUG
+    data: {}
     global:
         gender: male
         name: TuxDroid
