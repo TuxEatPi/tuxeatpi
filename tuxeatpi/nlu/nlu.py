@@ -5,10 +5,7 @@ from binascii import unhexlify
 from queue import Empty
 from multiprocessing import Process
 
-import pyaudio
-
 from tuxeatpi.nlu.common import understand_text
-from tuxeatpi.nlu.tux import NLUTux
 
 
 class NLU(Process):
@@ -16,21 +13,35 @@ class NLU(Process):
 
     For now NLU use Nuance communications services
     """
-    def __init__(self, tuxdroid):
-        tuxdroid.logger.debug("NLU initialization")
-        # Set queue
-        self.nlu_queue = tuxdroid.nlu_queue
+    def __init__(self, settings, action_queue, nlu_queue, tts_queue, logger):
+        Process.__init__(self)
+        logger.debug("NLU initialization")
+        # Set queues
+        self.nlu_queue = nlu_queue
+        self.tts_queue = tts_queue
+        self.action_queue = action_queue
         # Set logger
-        self.logger = tuxdroid.logger
+        self.logger = logger
         # Init private attributes
-        self._settings = tuxdroid.settings
-        self.say = tuxdroid.say
-        self._audio_player = pyaudio.PyAudio()
+        self._settings = settings
         self._speaking = False
         self._muted = False
         self._must_run = False
-        # Get all NLU actions
-        self.actions = {NLUTux.prefix: NLUTux(tuxdroid)}
+
+    def _say(self, text):
+        """Put text in tts queue"""
+        self.nlu_queue.put(text)
+
+    def _run_action(self, action, method, args, print_it=False, text_it=True, say_it=False):
+        """Put action in action queue"""
+        data = {"action": action,
+                "method": method,
+                "args": args,
+                "print_it": print_it,
+                "text_it": text_it,
+                "say_it": say_it,
+                }
+        self.action_queue.put(data)
 
     def misunderstand(self, confidence, text_it=False, say_it=False):
         """bad understanding"""
@@ -43,7 +54,7 @@ class NLU(Process):
             msg = "Sorry, I just don't get it"
             self.logger.warning("NLU: misunderstood: {}".format(msg))
         if say_it is True:
-            self.say(msg)
+            self._say(msg)
         if text_it is True:
             return msg
             # TODO say it
@@ -61,7 +72,7 @@ class NLU(Process):
             try:
                 say_it, text = self.nlu_queue.get(timeout=1)
             except Empty:
-                self.logger.debug("No text received")
+                # self.logger.debug("No text to understand received")
                 continue
             self.logger.debug("Text received: {}".format(text))
             self.logger.debug("Say_it received: {}".format(say_it))
@@ -69,16 +80,18 @@ class NLU(Process):
             self._understanding = True
             # TODO: try/except
             speech_args = self._settings['speech']
-            ret = loop.run_until_complete(understand_text(speech_args['url'],
-                                                          speech_args['app_id'],
-                                                          unhexlify(speech_args['app_key']),
-                                                          # context_tag=credentials['context_tag'],
-                                                          "master",
-                                                          text,
-                                                          speech_args['language'],
-                                                          self.logger,
-                                                          ))
+            ret = loop.run_until_complete(
+                understand_text(speech_args['url'],
+                                speech_args['app_id'],
+                                unhexlify(speech_args['app_key']),
+                                # context_tag=credentials['context_tag'],
+                                "master",
+                                text,
+                                speech_args['language'],
+                                self.logger,
+                                ))
             self._understanding = False
+            self.logger.debug("Result: {}".format(ret))
             interpretations = ret.get("nlu_interpretation_results", {}).\
                 get("payload", {}).get("interpretations", {})
             # TODO: what about if len(interpretations) > 1 ??
@@ -99,16 +112,10 @@ class NLU(Process):
                         self.logger.critical("BAD Intent name: {}".format(intent.get("value")))
                         return self.misunderstand(0, True, say_it)
                     # Run function with parameters
-                    key, method = intent.get("value").split("__")
-                    if key in self.actions and hasattr(self.actions[key], method):
-                        # TODO add parameters
-                        return getattr(self.actions[key], method)(text_it=True, say_it=say_it)
-                    else:
-                        # Missing function
-                        self.logger.warning("NLU: understood but no function registered "
-                                            "for {}".format(intent.get("value")))
-                        # TODO say: Understood, bu I don't know what do...
-                        # Please write to the tuxeatpi Team
+                    action, method = intent.get("value").split("__")
+                    # Run action
+                    # TODO add parameters
+                    self._run_action(action, method, {}, False, True, say_it)
 
 
 class NLUError(Exception):

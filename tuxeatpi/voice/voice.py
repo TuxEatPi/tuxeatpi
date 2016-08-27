@@ -55,7 +55,7 @@ class Voice(Process):
             try:
                 text = self.tts_queue.get(timeout=1)
             except Empty:
-                self.logger.debug("No text received")
+                # self.logger.debug("No text received")
                 continue
             self.logger.debug("Text received: {}".format(text))
             if not self._muted:

@@ -43,6 +43,6 @@ test-run:
 	rm -rf .coverage cover/
 	pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
 	pylint --rcfile=.pylintrc -r no tuxeatpi
-	env/bin/coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests
+	env/bin/coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests -svd 
 	env/bin/coverage combine
 	env/bin/coverage report

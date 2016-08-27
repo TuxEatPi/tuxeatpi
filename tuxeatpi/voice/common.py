@@ -4,14 +4,11 @@
 import asyncio
 import base64
 import binascii
-import hashlib
-import json
 import os
 import urllib.parse
 
 import pyaudio
 import aiohttp
-from aiohttp import websocket
 
 try:
     import speex
@@ -22,6 +19,8 @@ try:
     import opuslib.api as opus
 except ImportError:
     opus = None
+
+from tuxeatpi.libs.websocket import AbstractWebsocketConnection
 
 AUDIO_TYPES = [
     'audio/x-speex;mode=wb',
@@ -66,83 +65,31 @@ VOICES = {"eng-USA": ["allison",
           }
 
 
-# This is a fixed string (constant), used in the Websockets protocol handshake
-# in order to establish a conversation
-WS_KEY = b"258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
-
-
-class WebsocketConnection:
+class WebsocketConnection(AbstractWebsocketConnection):
     """WebSocket connection object to handle Nuance server communications"""
-    MSG_JSON = 1
-    MSG_AUDIO = 2
+
+    def __init__(self, url, logger):
+        AbstractWebsocketConnection.__init__(self, url, logger)
 
     @asyncio.coroutine
-    def connect(self, url, app_id, app_key):
+    def connect(self, app_id, app_key, use_plaintext=True):
         """Connect to the server"""
         sec_key = base64.b64encode(os.urandom(16))
 
         params = {'app_id': app_id, 'algorithm': 'key', 'app_key': binascii.hexlify(app_key)}
 
-        response = yield from aiohttp.request(
-            'get', url + '?' + urllib.parse.urlencode(params),
-            headers={
-                'UPGRADE': 'WebSocket',
-                'CONNECTION': 'Upgrade',
-                'SEC-WEBSOCKET-VERSION': '13',
-                'SEC-WEBSOCKET-KEY': sec_key.decode(),
-            })
+        response = yield from aiohttp.request('get',
+                                              self.url + '?' + urllib.parse.urlencode(params),
+                                              headers={'UPGRADE': 'WebSocket',
+                                                       'CONNECTION': 'Upgrade',
+                                                       'SEC-WEBSOCKET-VERSION': '13',
+                                                       'SEC-WEBSOCKET-KEY': sec_key.decode(),
+                                                       })
 
         if response.status != 101:
-            info = "%s %s\n" % (response.status, response.reason)
-            for (key, val) in response.headers.items():
-                info += '%s: %s\n' % (key, val)
-            info += '\n%s' % (yield from response.read()).decode('utf-8')
+            self._handle_response_101(response)
 
-            if response.status == 401:
-                raise RuntimeError("Authorization failure:\n%s" % info)
-            elif response.status >= 500 and response.status < 600:
-                raise RuntimeError("Server error:\n%s" % info)
-            elif response.headers.get('upgrade', '').lower() != 'websocket':
-                raise ValueError("Handshake error - Invalid upgrade header")
-            elif response.headers.get('connection', '').lower() != 'upgrade':
-                raise ValueError("Handshake error - Invalid connection header")
-            else:
-                raise ValueError("Handshake error: Invalid response status:\n%s" % info)
-
-        # Using WS_KEY in handshake
-        key = response.headers.get('sec-websocket-accept', '').encode()
-        match = base64.b64encode(hashlib.sha1(sec_key + WS_KEY).digest())
-        if key != match:
-            raise ValueError("Handshake error - Invalid challenge response")
-
-        # switch to websocket protocol
-        self.connection = response.connection
-        self.stream = self.connection.reader.set_parser(websocket.WebSocketParser)
-        self.writer = websocket.WebSocketWriter(self.connection.writer)
-        self.response = response
-
-    @asyncio.coroutine
-    def receive(self):
-        """Handle server response"""
-        wsmsg = yield from self.stream.read()
-        if wsmsg.tp == 1:
-            return (self.MSG_JSON, json.loads(wsmsg.data))
-        else:
-            return (self.MSG_AUDIO, wsmsg.data)
-
-    def send_message(self, msg):
-        """Send json message to the server"""
-        self.writer.send(json.dumps(msg))
-
-    def send_audio(self, audio):
-        """Send audio to the server"""
-        self.writer.send(audio, binary=True)
-
-    def close(self):
-        """Close WebSocket connection"""
-        self.writer.close()
-        self.response.close()
-        self.connection.close()
+        self._handshake(response, sec_key)
 
 
 def do_synthesis(url, app_id, app_key, language, voice, codec,
@@ -165,8 +112,8 @@ def do_synthesis(url, app_id, app_key, language, voice, codec,
     else:
         audio_type = 'audio/L16;rate=16000'
 
-    client = WebsocketConnection()
-    yield from client.connect(url, app_id, app_key)
+    client = WebsocketConnection(url, logger)
+    yield from client.connect(app_id, app_key)
 
     client.send_message({
         'message': 'connect',

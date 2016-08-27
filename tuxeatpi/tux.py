@@ -1,6 +1,6 @@
 """TuxDroid class"""
 
-from datetime import timedelta
+from datetime import timedelta, datetime
 import logging
 import queue
 import time
@@ -14,6 +14,7 @@ except RuntimeError:
 
 from tuxeatpi.components.wings import Wings
 from tuxeatpi.voice.voice import Voice
+from tuxeatpi.actionner.actionner import Actionner
 from tuxeatpi.nlu.nlu import NLU
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings
@@ -37,6 +38,7 @@ class Tux(object):
         self.event_queue = queue.Queue()
         self.tts_queue = multiprocessing.Queue()
         self.nlu_queue = multiprocessing.Queue()
+        self.action_queue = multiprocessing.Queue()
         # Create components
         if self.settings['advanced']['fake'] is False:
             # Create wings
@@ -50,22 +52,31 @@ class Tux(object):
             self.wings = FakeWings(self.settings,  # pylint: disable=R0204
                                    self.event_queue,
                                    self.logger)
+        # Init action
+        self.actionner = Actionner(self)
+        self.actionner.start()
         # Init voice
         self.voice = Voice(self.settings, self.tts_queue, self.logger)
         self.voice.start()
         # Init nlu
-        self.nlu = NLU(self.settings, self.nlu_queue, self.logger)
+        self.nlu = NLU(self.settings, self.action_queue, self.nlu_queue,
+                       self.tts_queue, self.logger)
         self.nlu.start()
         # Birth
         self._birth()
 
     def __del__(self):
+        self.tts_queue.close()
+        self.nlu_queue.close()
+        self.action_queue.close()
         if hasattr(self, 'eventer'):
             self.eventer.stop()
         if hasattr(self, 'voice'):
             self.voice.stop()
         if hasattr(self, 'nlu'):
             self.nlu.stop()
+        if hasattr(self, 'acttionner'):
+            self.actionner.stop()
         GPIO.cleanup()
 
     def _birth(self):
@@ -93,20 +104,17 @@ class Tux(object):
         it will be processed by the nlu object
         """
         self.logger.debug("Add say_it=%s - %s to nlu queue", say_it, text)
-        self.tts_queue.put((say_id, text))
+        self.nlu_queue.put((say_it, text))
+        # TODO get answer
 
     def get_uptime(self):
         """Return current uptime"""
         return timedelta(seconds=time.time() - self.start_time)
 
-    def show_uptime(self):
-        """Show current uptime in readable string"""
-        ret_str = ", ".join(["{{}} {}".format(data) for data in ["days",
-                                                                 "minutes",
-                                                                 "seconds",
-                                                                 "microseconds"]])
-        uptime = self.get_uptime()
-        print(ret_str.format(uptime.days,
-                             uptime.seconds // 60,
-                             uptime.seconds % 60,
-                             uptime.microseconds))
+    def get_birthday(self):
+        """Return the tux birthday"""
+        return datetime.fromtimestamp(self.settings['data']['birthday'])
+
+    def get_name(self):
+        """Return Tux name"""
+        return self.settings['global']['name']

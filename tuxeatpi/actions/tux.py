@@ -1,23 +1,34 @@
-"""NLU Tux actions"""
+"""Tux action"""
 
 
-class NLUAction(object):  # pylint: disable=R0903
+class Action(object):  # pylint: disable=R0903
     """Base class for all NLU Actions"""
 
     def __init__(self, tuxdroid):
         self.tuxdroid = tuxdroid
+        self.logger = tuxdroid.logger
+
+        if not hasattr(self, 'prefix') or self.prefix == "":
+            raise ActionError("Action prefix not defined")
 
 
-class NLUTux(NLUAction):
+class ActionError(Exception):
+    """Base class for Action exceptions"""
+    pass
+
+
+class TuxAction(Action):
     """Class for NLU actions TuxDroid related"""
 
     prefix = "tux"
 
     def __init__(self, tuxdroid):
-        NLUAction.__init__(self, tuxdroid)
+        Action.__init__(self, tuxdroid)
 
+    # @asyncio.coroutine
     def get_name(self, print_it=False, text_it=False, say_it=False):
         """Return the tux name"""
+        self.logger.debug("TuxAction: get_name")
         name = self.tuxdroid.get_name()
         text = "My name is {}".format(name)
         if print_it is True:

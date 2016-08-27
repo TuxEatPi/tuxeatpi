@@ -38,4 +38,5 @@ class VoiceTests(unittest.TestCase):
         tts_queue.put("hello world")
         time.sleep(2)
         voice.stop()
+        tts_queue.close()
 #        self.assertRaises(RuntimeError, lambda: tts_queue.put("hello world"))
