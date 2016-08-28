@@ -127,10 +127,11 @@
   <h1>Source code for tuxeatpi.tux</h1><div class="highlight"><pre>
 <span></span><span class="sd">&quot;&quot;&quot;TuxDroid class&quot;&quot;&quot;</span>
 
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">timedelta</span><span class="p">,</span> <span class="n">datetime</span>
 <span class="kn">import</span> <span class="nn">logging</span>
-<span class="kn">from</span> <span class="nn">queue</span> <span class="k">import</span> <span class="n">Queue</span>
+<span class="kn">import</span> <span class="nn">queue</span>
 <span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">multiprocessing</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span> <span class="nn">RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
@@ -139,7 +140,9 @@
     <span class="kn">from</span> <span class="nn">GPIOSim.RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
 
 <span class="kn">from</span> <span class="nn">tuxeatpi.components.wings</span> <span class="k">import</span> <span class="n">Wings</span>
-<span class="kn">from</span> <span class="nn">tuxeatpi.components.voice</span> <span class="k">import</span> <span class="n">Voice</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.voice.voice</span> <span class="k">import</span> <span class="n">Voice</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.actionner.actionner</span> <span class="k">import</span> <span class="n">Actionner</span>
+<span class="kn">from</span> <span class="nn">tuxeatpi.nlu.nlu</span> <span class="k">import</span> <span class="n">NLU</span>
 <span class="kn">from</span> <span class="nn">tuxeatpi.fake_components.wings</span> <span class="k">import</span> <span class="n">FakeWings</span>
 <span class="kn">from</span> <span class="nn">tuxeatpi.libs.settings</span> <span class="k">import</span> <span class="n">Settings</span>
 
@@ -158,8 +161,11 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
         <span class="c1"># Set GPIO mode</span>
         <span class="n">GPIO</span><span class="o">.</span><span class="n">setmode</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">BCM</span><span class="p">)</span>
-        <span class="c1"># Init queue</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span> <span class="o">=</span> <span class="n">Queue</span><span class="p">()</span>
+        <span class="c1"># Init queues</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tts_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_queue</span> <span class="o">=</span> <span class="n">multiprocessing</span><span class="o">.</span><span class="n">Queue</span><span class="p">()</span>
         <span class="c1"># Create components</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;advanced&#39;</span><span class="p">][</span><span class="s1">&#39;fake&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
             <span class="c1"># Create wings</span>
@@ -173,15 +179,33 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">wings</span> <span class="o">=</span> <span class="n">FakeWings</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span>  <span class="c1"># pylint: disable=R0204</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="c1"># Init action</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionner</span> <span class="o">=</span> <span class="n">Actionner</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">actionner</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="c1"># Init voice</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="n">Voice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">event_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span> <span class="o">=</span> <span class="n">Voice</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">tts_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">voice</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
+        <span class="c1"># Init nlu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span> <span class="o">=</span> <span class="n">NLU</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">action_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">nlu_queue</span><span class="p">,</span>
+                       <span class="bp">self</span><span class="o">.</span><span class="n">tts_queue</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span><span class="o">.</span><span class="n">start</span><span class="p">()</span>
         <span class="c1"># Birth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_birth</span><span class="p">()</span>
 
-    <span class="k">def</span> <span class="nf">__del__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Tux.shutdown"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.shutdown">[docs]</a>    <span class="k">def</span> <span class="nf">shutdown</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Shutdown all processes&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tts_queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu_queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action_queue</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;eventer&#39;</span><span class="p">):</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">eventer</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;voice&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">voice</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;nlu&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">nlu</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s1">&#39;actionner&#39;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">actionner</span><span class="o">.</span><span class="n">stop</span><span class="p">()</span>
+        <span class="n">GPIO</span><span class="o">.</span><span class="n">cleanup</span><span class="p">()</span></div>
 
     <span class="k">def</span> <span class="nf">_birth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Save the first start timestamp to get the birthday&quot;&quot;&quot;</span>
@@ -192,21 +216,36 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s1">&#39;This TuxDroid is already born&#39;</span><span class="p">)</span>
 
+<div class="viewcode-block" id="Tux.say"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.say">[docs]</a>    <span class="k">def</span> <span class="nf">say</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Say text</span>
+
+<span class="sd">        Add text to the tts queue,</span>
+<span class="sd">        it will be processed by the voice object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Add </span><span class="si">%s</span><span class="s2"> to tts queue&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">tts_queue</span><span class="o">.</span><span class="n">put</span><span class="p">(</span><span class="n">text</span><span class="p">)</span></div>
+
+<div class="viewcode-block" id="Tux.understand_text"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.understand_text">[docs]</a>    <span class="k">def</span> <span class="nf">understand_text</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">say_it</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Try to understand text</span>
+
+<span class="sd">        Add text to the nlu queue,</span>
+<span class="sd">        it will be processed by the nlu object</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Add say_it=</span><span class="si">%s</span><span class="s2"> - </span><span class="si">%s</span><span class="s2"> to nlu queue&quot;</span><span class="p">,</span> <span class="n">say_it</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">nlu_queue</span><span class="o">.</span><span class="n">put</span><span class="p">((</span><span class="n">say_it</span><span class="p">,</span> <span class="n">text</span><span class="p">))</span></div>
+        <span class="c1"># TODO get answer</span>
+
 <div class="viewcode-block" id="Tux.get_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">get_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return current uptime&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">seconds</span><span class="o">=</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_time</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Tux.show_uptime"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.show_uptime">[docs]</a>    <span class="k">def</span> <span class="nf">show_uptime</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Show current uptime in readable string&quot;&quot;&quot;</span>
-        <span class="n">ret_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="s2">&quot;{{}} </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;days&quot;</span><span class="p">,</span>
-                                                                 <span class="s2">&quot;minutes&quot;</span><span class="p">,</span>
-                                                                 <span class="s2">&quot;seconds&quot;</span><span class="p">,</span>
-                                                                 <span class="s2">&quot;microseconds&quot;</span><span class="p">]])</span>
-        <span class="n">uptime</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_uptime</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">ret_str</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">uptime</span><span class="o">.</span><span class="n">days</span><span class="p">,</span>
-                             <span class="n">uptime</span><span class="o">.</span><span class="n">seconds</span> <span class="o">//</span> <span class="mi">60</span><span class="p">,</span>
-                             <span class="n">uptime</span><span class="o">.</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">60</span><span class="p">,</span>
-                             <span class="n">uptime</span><span class="o">.</span><span class="n">microseconds</span><span class="p">))</span></div></div>
+<div class="viewcode-block" id="Tux.get_birthday"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_birthday">[docs]</a>    <span class="k">def</span> <span class="nf">get_birthday</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return the tux birthday&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">][</span><span class="s1">&#39;birthday&#39;</span><span class="p">])</span></div>
+
+<div class="viewcode-block" id="Tux.get_name"><a class="viewcode-back" href="../../refs/tuxeatpi.tux.html#tuxeatpi.tux.Tux.get_name">[docs]</a>    <span class="k">def</span> <span class="nf">get_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Return Tux name&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">settings</span><span class="p">[</span><span class="s1">&#39;global&#39;</span><span class="p">][</span><span class="s1">&#39;name&#39;</span><span class="p">]</span></div></div>
 </pre></div>
 
            </div>
