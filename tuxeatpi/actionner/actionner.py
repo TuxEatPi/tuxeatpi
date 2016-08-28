@@ -31,11 +31,7 @@ class Actionner(Process):
     def stop(self):
         """Stop process"""
         self._must_run = False
-        self.action_queue.close()
-        self.tts_queue.close()
-        self.nlu_queue.close()
         self.terminate()
-        "EEE"
 
     def run(self):
         """Action to launch"""
@@ -45,6 +41,7 @@ class Actionner(Process):
                 action_dict = self.action_queue.get(timeout=1)
             except Empty:
                 self.logger.debug("No action received")
+                print("No action received")
                 continue
             self.logger.debug("Action received: {}".format(action_dict))
             self._actionning = True

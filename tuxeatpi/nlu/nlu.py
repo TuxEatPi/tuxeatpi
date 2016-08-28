@@ -62,7 +62,6 @@ class NLU(Process):
     def stop(self):
         """Stop NLU process"""
         self._must_run = False
-        self.nlu_queue.close()
         self.terminate()
 
     def run(self):

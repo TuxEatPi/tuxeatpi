@@ -26,7 +26,7 @@ class TuxTests(unittest.TestCase):
         uptime = mytux.get_uptime()
         end_time = time.time()
         self.assertEqual(uptime.seconds, int(end_time - start_time), "Bad uptime")
-        del mytux
+        mytux.shutdown()
 
     def ftest_bad_conf(self):
         """Bad configuration for Tux class"""

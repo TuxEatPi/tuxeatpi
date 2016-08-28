@@ -45,7 +45,6 @@ class Voice(Process):
     def stop(self):
         """Stop process"""
         self._must_run = False
-        self.tts_queue.close()
         self.terminate()
 
     def run(self):

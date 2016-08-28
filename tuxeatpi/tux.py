@@ -65,7 +65,8 @@ class Tux(object):
         # Birth
         self._birth()
 
-    def __del__(self):
+    def shutdown(self):
+        """Shutdown all processes"""
         self.tts_queue.close()
         self.nlu_queue.close()
         self.action_queue.close()
@@ -75,7 +76,7 @@ class Tux(object):
             self.voice.stop()
         if hasattr(self, 'nlu'):
             self.nlu.stop()
-        if hasattr(self, 'acttionner'):
+        if hasattr(self, 'actionner'):
             self.actionner.stop()
         GPIO.cleanup()
 
