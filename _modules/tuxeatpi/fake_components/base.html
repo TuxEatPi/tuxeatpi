@@ -130,27 +130,14 @@
 <span class="kn">import</span> <span class="nn">time</span>
 
 <span class="c1"># Use fake GPIO</span>
-<span class="kn">from</span> <span class="nn">GPIOSim.RPi</span> <span class="k">import</span> <span class="n">GPIO</span>
-
-
-<div class="viewcode-block" id="set_pin_value"><a class="viewcode-back" href="../../../refs/tuxeatpi.fake_components.base.html#tuxeatpi.fake_components.base.set_pin_value">[docs]</a><span class="k">def</span> <span class="nf">set_pin_value</span><span class="p">(</span><span class="n">pin</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Simulate pin value changing</span>
-<span class="sd">    setting pin value in GPIOSim ini file</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">GPIO</span><span class="o">.</span><span class="n">PARSER</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">WORK_FILE</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">GPIO</span><span class="o">.</span><span class="n">PARSER</span><span class="o">.</span><span class="n">has_section</span><span class="p">(</span><span class="n">pin</span><span class="p">):</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">PARSER</span><span class="o">.</span><span class="n">add_section</span><span class="p">(</span><span class="n">pin</span><span class="p">)</span>
-
-    <span class="n">GPIO</span><span class="o">.</span><span class="n">PARSER</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">pin</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">GPIO</span><span class="o">.</span><span class="n">WORK_FILE</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">configfile</span><span class="p">:</span>
-        <span class="n">GPIO</span><span class="o">.</span><span class="n">PARSER</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">configfile</span><span class="p">)</span></div>
+<span class="kn">import</span> <span class="nn">GPIOSim.RPi.in_mem</span> <span class="k">as</span> <span class="nn">GPIO</span>
 
 
 <div class="viewcode-block" id="push_switch"><a class="viewcode-back" href="../../../refs/tuxeatpi.fake_components.base.html#tuxeatpi.fake_components.base.push_switch">[docs]</a><span class="k">def</span> <span class="nf">push_switch</span><span class="p">(</span><span class="n">pin_id</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Simulate switch pushing&quot;&quot;&quot;</span>
-    <span class="n">set_pin_value</span><span class="p">(</span><span class="n">pin_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">set_pin_value</span><span class="p">(</span><span class="n">pin_id</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
     <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mf">0.1</span><span class="p">)</span>
-    <span class="n">set_pin_value</span><span class="p">(</span><span class="n">pin_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
+    <span class="n">GPIO</span><span class="o">.</span><span class="n">set_pin_value</span><span class="p">(</span><span class="n">pin_id</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span></div>
 </pre></div>
 
            </div>
