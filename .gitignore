@@ -10,3 +10,5 @@ nosetests.html
 test-report/
 cover/
 tuxeatpi-conf.yml
+build/
+dist
