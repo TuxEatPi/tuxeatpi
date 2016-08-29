@@ -5,11 +5,6 @@ import time
 from datetime import timedelta
 import unittest
 
-try:
-    from RPi import GPIO
-except RuntimeError:
-    # Use fake GPIO
-    from GPIOSim.RPi import GPIO
 
 from tuxeatpi.tux import Tux
 from tuxeatpi.libs.settings import SettingsError

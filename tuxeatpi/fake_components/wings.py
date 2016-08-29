@@ -4,10 +4,11 @@ from threading import Thread
 import time
 
 # Use fake GPIO
-from GPIOSim.RPi import GPIO
+import GPIOSim.RPi.in_mem as GPIO
+
 
 from tuxeatpi.components.wings import Wings
-from tuxeatpi.fake_components.base import set_pin_value, push_switch
+from tuxeatpi.fake_components.base import push_switch
 
 
 class FakeWings(Wings):
@@ -53,14 +54,14 @@ class FakeWingsMover(Thread):
         self.running = True
         while self.running:
             if self.running:
-                set_pin_value(pin_id, 1)
+                GPIO.set_pin_value(pin_id, 1)
                 time.sleep(0.1)
             if self.running:
-                set_pin_value(pin_id, 0)
+                GPIO.set_pin_value(pin_id, 0)
                 time.sleep(0.1)
             if self.running:
-                set_pin_value(pin_id, 1)
+                GPIO.set_pin_value(pin_id, 1)
                 time.sleep(0.1)
             if self.running:
-                set_pin_value(pin_id, 0)
+                GPIO.set_pin_value(pin_id, 0)
                 time.sleep(0.25)

@@ -4,12 +4,6 @@ import logging
 from threading import Thread
 import time
 
-try:
-    from RPi import GPIO
-except RuntimeError:
-    # Use fake GPIO
-    from GPIOSim.RPi import GPIO
-
 from tuxeatpi.components.base import BaseComponent
 from tuxeatpi.libs.settings import SettingsError
 

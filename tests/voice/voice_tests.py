@@ -5,12 +5,6 @@ import sys
 import time
 import unittest
 
-try:
-    from RPi import GPIO
-except RuntimeError:
-    # Use fake GPIO
-    from GPIOSim.RPi import GPIO
-
 from tuxeatpi.voice.voice import Voice
 from tuxeatpi.libs.settings import Settings
 

@@ -7,7 +7,7 @@ try:
     from RPi import GPIO
 except RuntimeError:
     # Use fake GPIO
-    from GPIOSim.RPi import GPIO
+    import GPIOSim.RPi.in_mem as GPIO
 
 from tuxeatpi.components.base import BaseComponent
 

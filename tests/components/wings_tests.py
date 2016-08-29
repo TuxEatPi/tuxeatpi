@@ -7,7 +7,7 @@ try:
     from RPi import GPIO
 except RuntimeError:
     # Use fake GPIO
-    from GPIOSim.RPi import GPIO
+    import GPIOSim.RPi.in_mem as GPIO
 
 from tuxeatpi.components.wings import WingsError
 from tuxeatpi.fake_components.wings import FakeWings
@@ -17,14 +17,13 @@ class WingsTest(unittest.TestCase):
 
     def setUp(self):
         """Method called before each test function"""
-        GPIO.cleanup()
         GPIO.init()
-        # Start GPIO eventer
         self.eventer = GPIO.Eventer()
         self.eventer.start()
 
     def tearDown(self):
         """Method called after each test function"""
+        GPIO.cleanup()
         self.eventer.stop()
 
     def test_wings(self):

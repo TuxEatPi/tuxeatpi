@@ -10,7 +10,7 @@ try:
     from RPi import GPIO
 except RuntimeError:
     # Use fake GPIO
-    from GPIOSim.RPi import GPIO
+    import GPIOSim.RPi.in_mem as GPIO
 
 from tuxeatpi.components.wings import Wings
 from tuxeatpi.voice.voice import Voice
@@ -44,14 +44,14 @@ class Tux(object):
             # Create wings
             self.wings = Wings(self.settings, self.event_queue, self.logger)
         else:
-            # Start fake eventer
+            # Create fake wings
+            GPIO.init()
             self.eventer = GPIO.Eventer()
             self.eventer.start()
-            GPIO.init()
-            # Create fake wings
             self.wings = FakeWings(self.settings,  # pylint: disable=R0204
                                    self.event_queue,
                                    self.logger)
+
         # Init action
         self.actionner = Actionner(self)
         self.actionner.start()
