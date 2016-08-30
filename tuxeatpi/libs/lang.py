@@ -12,11 +12,16 @@ def load_languages():
     TODO: make it more dynamic
     """
     # Prepare
-    gettext.bindtextdomain('tuxeatpi', 'locale')
+    gettext.bindtextdomain('tuxeatpi', 'tuxeatpi/locale')
     gettext.textdomain('tuxeatpi')
     # Load languages
-    _lang_en = gettext.translation('tuxeatpi', localedir='locale', languages=['en'], fallback=True)
-    _lang_fr = gettext.translation('tuxeatpi', localedir='locale', languages=['fr'])
+    _lang_en = gettext.translation('tuxeatpi',
+                                   localedir='tuxeatpi/locale',
+                                   languages=['en'],
+                                   fallback=True)
+    _lang_fr = gettext.translation('tuxeatpi',
+                                   localedir='tuxeatpi/locale',
+                                   languages=['fr'])
     # Put languages in dict
     LANGUAGES['eng-USA'] = _lang_en
     LANGUAGES['fra-FRA'] = _lang_fr

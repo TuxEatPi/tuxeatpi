@@ -5,36 +5,30 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-08-29 23:44-0400\n"
-"PO-Revision-Date: 2016-08-29 22:46-0400\n"
+"POT-Creation-Date: 2016-08-30 17:25-0400\n"
+"PO-Revision-Date: 2016-08-29 23:41-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
-"Language: fr_FR\n"
+"Language: en_US\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
 "X-Generator: Poedit 1.8.8\n"
-"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: tuxeatpi/actions/tux.py:35
+#: tuxeatpi/actions/tux.py:34
 msgid "My name is {}"
-msgstr "Mon nom est {}"
+msgstr "My name is {}"
 
-#: tuxeatpi/actions/tux.py:46
+#: tuxeatpi/actions/tux.py:45
 msgid "I'm born on {}"
-msgstr "Je suis né {}"
+msgstr "I'm born on {}"
 
 #: tuxeatpi/nlu/nlu.py:51
 msgid "I need a confirmation, Could you repeat please ?"
-msgstr "J'ai besoin d'une confirmation, Pouvez vous répéter s'il vous plait ?"
+msgstr "I need a confirmation, Could you repeat please ?"
 
 #: tuxeatpi/nlu/nlu.py:55
 msgid "Sorry, I just don't get it"
-msgstr "Désolé, je ne comprends pas"
-
-#~ msgid "Hello World"
-#~ msgstr "Bonjour le monde"
-
-#~ msgid "Hello world"
-#~ msgstr "Bonjour le monde"
+msgstr "Sorry, I just don't get it"

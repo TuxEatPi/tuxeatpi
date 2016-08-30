@@ -39,13 +39,13 @@ doc-generate:
 ### Test targets
 #######################################
 lang-scan:
-	pygettext3.5 --output-dir=locale/  -k gtt -va -x tuxeatpi/libs/lang.py tuxeatpi/*.py tuxeatpi/*/*.py
-	cd locale && msgmerge --update --no-fuzzy-matching --backup=off en/LC_MESSAGES/tuxeatpi.po messages.pot
-	cd locale && msgmerge --update --no-fuzzy-matching --backup=off fr/LC_MESSAGES/tuxeatpi.po messages.pot
+	pygettext3.5 --output-dir=tuxeatpi/locale/  -k gtt -va -x tuxeatpi/libs/lang.py tuxeatpi/*.py tuxeatpi/*/*.py
+	cd tuxeatpi/locale && msgmerge --update --no-fuzzy-matching --backup=off en/LC_MESSAGES/tuxeatpi.po messages.pot
+	cd tuxeatpi/locale && msgmerge --update --no-fuzzy-matching --backup=off fr/LC_MESSAGES/tuxeatpi.po messages.pot
 
 lang-gen:
-	cd locale/fr/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
-	cd locale/en/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
+	cd tuxeatpi/locale/fr/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
+	cd tuxeatpi/locale/en/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
 
 #######################################
 ### Test targets
