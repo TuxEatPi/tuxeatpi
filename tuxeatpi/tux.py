@@ -25,6 +25,7 @@ class Tux(object):
     def __init__(self, config_file):
         # Init logging
         logging.basicConfig()
+
         self.logger = logging.getLogger(name="TuxEatPi")
         # Get settings
         self.settings = Settings(config_file, self.logger)

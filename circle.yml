@@ -21,6 +21,7 @@ dependencies:
 
 test:
   override:
+    - make lang-gen
     - pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
     - pylint --rcfile=.pylintrc -r no tuxeatpi
     - coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests 

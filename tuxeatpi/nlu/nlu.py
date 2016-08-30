@@ -2,10 +2,11 @@
 
 import asyncio
 from binascii import unhexlify
-from queue import Empty
 from multiprocessing import Process
+from queue import Empty
 
 from tuxeatpi.nlu.common import understand_text
+from tuxeatpi.libs.lang import gtt
 
 
 class NLU(Process):
@@ -30,7 +31,7 @@ class NLU(Process):
 
     def _say(self, text):
         """Put text in tts queue"""
-        self.nlu_queue.put(text)
+        self.tts_queue.put(text)
 
     def _run_action(self, action, method, args, print_it=False, text_it=True, say_it=False):
         """Put action in action queue"""
@@ -47,11 +48,11 @@ class NLU(Process):
         """bad understanding"""
         # TODO add text_it and say_it
         if confidence < 0.8 and confidence > 0.5:
-            msg = "I need a confirmation, Could you repeat please ?"
+            msg = gtt("I need a confirmation, Could you repeat please ?")
             self.logger.warning("NLU: misunderstood: {}".format(msg))
-            # TODO ask to repeat
+            # TODO ask a confirmation
         if confidence < 0.5:
-            msg = "Sorry, I just don't get it"
+            msg = gtt("Sorry, I just don't get it")
             self.logger.warning("NLU: misunderstood: {}".format(msg))
         if say_it is True:
             self._say(msg)

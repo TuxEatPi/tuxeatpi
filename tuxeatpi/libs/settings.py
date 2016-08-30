@@ -6,6 +6,7 @@ import yaml
 
 
 from tuxeatpi.voice.common import VOICES, CODECS
+from tuxeatpi.libs.lang import set_language
 
 
 PIN_IDS = [4, 17, 22, 25]
@@ -135,7 +136,11 @@ class Settings(dict):
 
     def save(self):
         """Save settings on disk"""
+        # Check config
         self._check_conf()
+        # Update language selection
+        set_language(self['speech']['language'])
+        # Save it
         self.full_config["tux"] = dict(self)
         with open(self.config_file, "w") as fconfig:
             yaml.dump(self.full_config, fconfig, default_flow_style=False, indent=4)

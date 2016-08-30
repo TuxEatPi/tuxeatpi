@@ -1,5 +1,7 @@
 """Tux action"""
 
+from tuxeatpi.libs.lang import gtt
+
 
 class Action(object):  # pylint: disable=R0903
     """Base class for all NLU Actions"""
@@ -30,7 +32,7 @@ class TuxAction(Action):
         """Return the tux name"""
         self.logger.debug("TuxAction: get_name")
         name = self.tuxdroid.get_name()
-        text = "My name is {}".format(name)
+        text = gtt("My name is {}").format(name)
         if print_it is True:
             print(text)
         if say_it is True:
@@ -41,7 +43,7 @@ class TuxAction(Action):
     def get_birthday(self, print_it=False, text_it=False, say_it=False):
         """Return the tux birthday"""
         birthday_str = self.tuxdroid.get_birthday().strftime("%B %-d, %Y at %I:%M %p")
-        text = "I'm born on {}".format(birthday_str)
+        text = gtt("I'm born on {}").format(birthday_str)
         if print_it is True:
             print(text)
         if say_it is True:
@@ -62,7 +64,7 @@ class TuxAction(Action):
         if minutes <= 1:
             text += " {} minute".format(minutes)
         elif minutes > 1:
-            text += " {} minute".format(minutes)
+            text += " {} minutes".format(minutes)
         if seconds <= 1:
             text += " {} second".format(seconds)
         elif minutes > 1:

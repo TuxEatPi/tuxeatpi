@@ -38,6 +38,18 @@ doc-generate:
 #######################################
 ### Test targets
 #######################################
+lang-scan:
+	pygettext3.5 --output-dir=locale/  -k gtt -va -x tuxeatpi/libs/lang.py tuxeatpi/*.py tuxeatpi/*/*.py
+	cd locale && msgmerge --update --no-fuzzy-matching --backup=off en/LC_MESSAGES/tuxeatpi.po messages.pot
+	cd locale && msgmerge --update --no-fuzzy-matching --backup=off fr/LC_MESSAGES/tuxeatpi.po messages.pot
+
+lang-gen:
+	cd locale/fr/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
+	cd locale/en/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
+
+#######################################
+### Test targets
+#######################################
 
 test-run:
 	rm -rf .coverage cover/

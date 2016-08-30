@@ -50,6 +50,7 @@ class Voice(Process):
     def run(self):
         """Text to speech"""
         self._must_run = True
+        loop = asyncio.get_event_loop()
         while self._must_run:
             try:
                 text = self.tts_queue.get(timeout=1)
@@ -59,7 +60,6 @@ class Voice(Process):
             self.logger.debug("Text received: {}".format(text))
             if not self._muted:
                 self._speaking = True
-                loop = asyncio.get_event_loop()
                 # TODO: try/except
                 try:
                     loop.run_until_complete(
@@ -74,8 +74,8 @@ class Voice(Process):
                                      ))
                 except Exception as exp:  # pylint: disable=W0703
                     self.logger.critical(exp)
-                loop.stop()
                 self._speaking = False
+        loop.stop()
 
 
 class VoicesError(Exception):

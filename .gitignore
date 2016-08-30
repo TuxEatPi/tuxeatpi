@@ -12,3 +12,5 @@ cover/
 tuxeatpi-conf.yml
 build/
 dist
+locale/messages.pot
+*.mo
