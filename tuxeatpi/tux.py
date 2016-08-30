@@ -1,5 +1,6 @@
 """TuxDroid class"""
 
+import copy
 from datetime import timedelta, datetime
 import logging
 import queue
@@ -17,7 +18,7 @@ from tuxeatpi.voice.voice import Voice
 from tuxeatpi.actionner.actionner import Actionner
 from tuxeatpi.nlu.nlu import NLU
 from tuxeatpi.fake_components.wings import FakeWings
-from tuxeatpi.libs.settings import Settings
+from tuxeatpi.libs.settings import Settings, SettingsError
 
 
 class Tux(object):
@@ -120,3 +121,23 @@ class Tux(object):
     def get_name(self):
         """Return Tux name"""
         return self.settings['global']['name']
+
+    def update_setting(self, settings):
+        """Update settings and save it on disk
+
+        If new settings are bad, old settings are keeped
+        and the function returns False
+
+        Otherwise, its returns True and use new ones
+        """
+        self.logger.debug("Updating settings")
+        old_settings = copy.copy(self.settings)
+        self.settings.update(settings)
+        try:
+            self.logger.debug("Update settings OK")
+            self.settings.save()
+            return True
+        except SettingsError:
+            self.settings.update(old_settings)
+            self.logger.debug("Update settings Failed")
+            return False

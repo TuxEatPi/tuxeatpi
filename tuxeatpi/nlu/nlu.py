@@ -16,13 +16,13 @@ class NLU(Process):
     """
     def __init__(self, settings, action_queue, nlu_queue, tts_queue, logger):
         Process.__init__(self)
-        logger.debug("NLU initialization")
+        # Set logger
+        self.logger = logger.getChild("NLU")
+        self.logger.debug("Initialization")
         # Set queues
         self.nlu_queue = nlu_queue
         self.tts_queue = tts_queue
         self.action_queue = action_queue
-        # Set logger
-        self.logger = logger
         # Init private attributes
         self._settings = settings
         self._speaking = False
@@ -72,8 +72,10 @@ class NLU(Process):
             try:
                 say_it, text = self.nlu_queue.get(timeout=1)
             except Empty:
-                # self.logger.debug("No text to understand received")
+                self.logger.debug("No text to understand received")
                 continue
+            # Reload config from file because we are in an other Process
+            self._settings.reload()
             self.logger.debug("Text received: {}".format(text))
             self.logger.debug("Say_it received: {}".format(say_it))
             loop = asyncio.get_event_loop()
@@ -102,19 +104,19 @@ class NLU(Process):
                 # TODO log arguments
                 if intent.get("value") == "NO_MATCH":
                     # I don't understand :/
-                    return self.misunderstand(0, True, say_it)
+                    self.misunderstand(0, True, say_it)
                 elif intent.get("confidence") < 0.8:
                     # I'm not sure to undestand :/
-                    return self.misunderstand(intent.get("confidence"), True, say_it)
+                    self.misunderstand(intent.get("confidence"), True, say_it)
                 else:
                     # Check intent name
                     if len(intent.get("value").split("__")) != 2:
                         self.logger.critical("BAD Intent name: {}".format(intent.get("value")))
-                        return self.misunderstand(0, True, say_it)
+                        self.misunderstand(0, True, say_it)
                     # Run function with parameters
                     action, method = intent.get("value").split("__")
                     # Run action
-                    # TODO add parameters
+                    # TODO add parameters from NLU response
                     self._run_action(action, method, {}, False, True, say_it)
 
 

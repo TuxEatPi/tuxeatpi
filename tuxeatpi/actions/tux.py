@@ -27,7 +27,6 @@ class TuxAction(Action):
     def __init__(self, tuxdroid):
         Action.__init__(self, tuxdroid)
 
-    # @asyncio.coroutine
     def get_name(self, print_it=False, text_it=False, say_it=False):
         """Return the tux name"""
         self.logger.debug("TuxAction: get_name")

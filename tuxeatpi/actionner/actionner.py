@@ -12,14 +12,14 @@ class Actionner(Process):
     """
     def __init__(self, tuxdroid):
         Process.__init__(self)
-        tuxdroid.logger.debug("Voice initialization")
+        # Set logger
+        self.logger = tuxdroid.logger.getChild("Actionner")
+        self.logger.debug("Initialization")
         # Set queue
         self.tuxdroid = tuxdroid
         self.tts_queue = tuxdroid.tts_queue
         self.nlu_queue = tuxdroid.nlu_queue
         self.action_queue = tuxdroid.action_queue
-        # Set logger
-        self.logger = tuxdroid.logger
         # Init private attributes
         # self._settings = tuxdroid.settings
         self._must_run = False
@@ -41,12 +41,12 @@ class Actionner(Process):
                 action_dict = self.action_queue.get(timeout=1)
             except Empty:
                 self.logger.debug("No action received")
-                print("No action received")
                 continue
+            # Reload config from file because we are in an other Process
+            self.tuxdroid.settings.reload()
+
             self.logger.debug("Action received: {}".format(action_dict))
             self._actionning = True
-            # loop = asyncio.get_event_loop()
-            # TODO: try/except
             # Get action module
             module_action = action_dict['action']
             # Get action class
@@ -71,12 +71,11 @@ class Actionner(Process):
                               class_action, method_name, action_args)
             self.logger.debug("Action %s with args %s", action_func, action_args)
             # run action
+            # TODO put it in coroutine or thread
+            # in order to get this call none-blocking
             action_func(**action_args)
-            # loop.ensure_future(action_func(**action_args))
-            # except Exception as exp:  # pylint: disable=W0703
-            #     self.logger.critical(exp)
-            # loop.stop()
             self._actionning = False
+            # TODO Delete action obj ?
 
 
 class ActionError(Exception):

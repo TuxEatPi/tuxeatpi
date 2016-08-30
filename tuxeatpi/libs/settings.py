@@ -21,36 +21,9 @@ class Settings(dict):
         dict.__init__(self)
         self.config_file = config_file
         self.logger = logger
-        self._read_conf()
+        self.reload()
         # Rewrite it to get the right format
         self.save()
-
-    def _read_conf(self):
-        """Read Tux configuration from yaml file
-        And set config values
-        """
-        # Read file
-        raw_conf = {}
-        if not os.path.isfile(self.config_file):
-            raise SettingsError("Bad config file: {}".format(self.config_file))
-        with open(self.config_file) as fconf:
-            try:
-                raw_conf = yaml.load(fconf)
-            except yaml.scanner.ScannerError as exp:
-                raise SettingsError("Yaml: {}", exp)
-        # Check if 'tux' is in configuration
-        if "tux" not in raw_conf:
-            raise SettingsError("Root key of configuration file should be 'tux'")
-        # Save entire configuration
-        self.full_config = raw_conf
-        # Set values
-        for key, value in raw_conf['tux'].items():
-            self[key] = value
-        # Create data section if not exists
-        if 'data' not in self.keys():
-            self['data'] = {}
-        # Check conf
-        self._check_conf()
 
     def _check_conf(self):
         """Check settings validity"""
@@ -133,6 +106,35 @@ class Settings(dict):
         for key in keys:
             if key not in self[section]:
                 raise SettingsError("Missing {} key in {} section".format(key, section))
+
+    def reload(self):
+        """Read Tux configuration from yaml file
+        And set config values
+        """
+        # Read file
+        raw_conf = {}
+        if not os.path.isfile(self.config_file):
+            raise SettingsError("Bad config file: {}".format(self.config_file))
+        with open(self.config_file) as fconf:
+            try:
+                raw_conf = yaml.load(fconf)
+            except yaml.scanner.ScannerError as exp:
+                raise SettingsError("Yaml: {}", exp)
+        # Check if 'tux' is in configuration
+        if "tux" not in raw_conf:
+            raise SettingsError("Root key of configuration file should be 'tux'")
+        # Save entire configuration
+        self.full_config = raw_conf
+        # Set values
+        for key, value in raw_conf['tux'].items():
+            self[key] = value
+        # Create data section if not exists
+        if 'data' not in self.keys():
+            self['data'] = {}
+        # Check conf
+        self._check_conf()
+        # Update language selection
+        set_language(self['speech']['language'])
 
     def save(self):
         """Save settings on disk"""

@@ -15,11 +15,11 @@ class Voice(Process):
     """
     def __init__(self, settings, tts_queue, logger):
         Process.__init__(self)
-        logger.debug("Voice initialization")
+        # Set logger
+        self.logger = logger.getChild("Voice")
+        self.logger.debug("Initialization")
         # Set queue
         self.tts_queue = tts_queue
-        # Set logger
-        self.logger = logger
         # Init private attributes
         self._settings = settings
         self._speaking = False
@@ -57,7 +57,10 @@ class Voice(Process):
             except Empty:
                 # self.logger.debug("No text received")
                 continue
-            self.logger.debug("Text received: {}".format(text))
+            # Reload config from file because we are in an other Process
+            self._settings.reload()
+            self.logger.debug("Language: %s", self._settings['speech']['language'])
+            self.logger.debug("Text received: %s", text)
             if not self._muted:
                 self._speaking = True
                 # TODO: try/except
