@@ -6,12 +6,16 @@ tuxeatpi
     :target: https://circleci.com/gh/TuxEatPi/tuxeatpi/tree/master
 
 .. image:: https://codeclimate.com/github/TuxEatPi/tuxeatpi/badges/gpa.svg
-   :target: https://codeclimate.com/github/TuxEatPi/tuxeatpi
-   :alt: Code Climate
+    :target: https://codeclimate.com/github/TuxEatPi/tuxeatpi
+    :alt: Code Climate
 
 .. image:: https://codeclimate.com/github/TuxEatPi/tuxeatpi/badges/coverage.svg
-   :target: https://codeclimate.com/github/TuxEatPi/tuxeatpi/coverage
-   :alt: Test Coverage
+    :target: https://codeclimate.com/github/TuxEatPi/tuxeatpi/coverage
+    :alt: Test Coverage
+
+.. image:: http://readthedocs.org/projects/tuxeatpi/badge/?version=latest
+    :target: http://tuxeatpi.readthedocs.io/en/latest/?badge=latest
+    :alt: Documentation Status
 
 Poor Tux needs a new heart. We do that by feeding it a raspberrypi.
 
@@ -34,7 +38,7 @@ Other features considered:
 Documentation
 #############
 
-https://tuxeatpi.github.io/tuxeatpi
+http://tuxeatpi.readthedocs.io/en/latest/?badge=latest
 
 
 Set dev env
