@@ -1,0 +1,9 @@
+# Main
+RPi.GPIO
+PyYAML
+# Audio
+aiohttp==0.16.2
+asyncio==3.4.3
+https://github.com/TuxEatPi/GPIOSim/archive/master.zip
+sphinx-rtd-theme
+Sphinx==1.4.5

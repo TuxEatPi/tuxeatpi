@@ -19,13 +19,15 @@ def load_languages():
                                    localedir='tuxeatpi/locale',
                                    languages=['en'],
                                    fallback=True)
-    _lang_fr = gettext.translation('tuxeatpi',
-                                   localedir='tuxeatpi/locale',
-                                   languages=['fr'])
-    # Put languages in dict
     LANGUAGES['eng-USA'] = _lang_en
-    LANGUAGES['fra-FRA'] = _lang_fr
-    LANGUAGES['fra-CAN'] = _lang_fr
+    try:
+        _lang_fr = gettext.translation('tuxeatpi',
+                                       localedir='tuxeatpi/locale',
+                                       languages=['fr'])
+        LANGUAGES['fra-FRA'] = _lang_fr
+        LANGUAGES['fra-CAN'] = _lang_fr
+    except OSError:
+        pass
 
 
 def set_language(lang):

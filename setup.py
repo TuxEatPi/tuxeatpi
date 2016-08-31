@@ -21,6 +21,7 @@ packages = ['tuxeatpi',
             'tuxeatpi.nlu',
             'tuxeatpi.actionner',
             'tuxeatpi.actions',
+            'tuxeatpi.hotword',
             'tuxeatpi.components',
             'tuxeatpi.fake_components',
             ]

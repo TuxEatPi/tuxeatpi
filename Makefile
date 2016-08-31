@@ -19,6 +19,7 @@ env-dev:
 env:
 	virtualenv -p /usr/bin/python3 env
 	env/bin/pip3 install RPi.GPIO
+	env/bin/pip3 install -r requirements.txt
 
 tux_example:
 	env/bin/python examples/simple_tux_with_gpiosim.py
