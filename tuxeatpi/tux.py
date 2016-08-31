@@ -56,7 +56,7 @@ class Tux(object):
                                    self.logger)
 
         # hotword
-        self.hotword = HotWord(self.settings, self.logger)
+        self.hotword = HotWord(self.settings, self.tts_queue, self.logger)
         self.hotword.start()
         # Init action
         self.actionner = Actionner(self)

@@ -6,17 +6,20 @@ from multiprocessing import Process
 import pyaudio
 from pocketsphinx.pocketsphinx import Decoder
 
+from tuxeatpi.libs.lang import gtt
+
 
 class HotWord(Process):
     """Define hotword component
 
     For now hotword uses pocketsphinx with speech_recognition
     """
-    def __init__(self, settings, logger):
+    def __init__(self, settings, tts_queue, logger):
         Process.__init__(self)
         # Set logger
         self.logger = logger.getChild("Hotword")
         self.logger.debug("Initialization")
+        self.tts_queue = tts_queue
         # Init private attributes
         self._settings = settings
         self._must_run = True
@@ -28,6 +31,7 @@ class HotWord(Process):
         """Set decoder config"""
         # prepare config
         self._hotword = self._settings['hotword']['hotword']
+        self._answer = self._settings['hotword']['answer']
         acoustic_model = os.path.join(self._settings['hotword']['model_dir'],
                                       self._settings['speech']['language'],
                                       'acoustic-model',
@@ -60,6 +64,7 @@ class HotWord(Process):
     def run(self):
         """Text to speech"""
         rerun = True
+        self._must_run = True
         self.logger.debug("starting listening hotword %s", self._hotword)
         while rerun:
             rerun = False
@@ -75,6 +80,7 @@ class HotWord(Process):
                 self._decoder.process_raw(buf, False, False)
                 if self._decoder.hyp() and self._decoder.hyp().hypstr == self._hotword:
                     self.logger.debug("Hotword detected")
+                    self.tts_queue.put(gtt(self._answer))
                     # TODO run nlu audio detection
                     rerun = True
                     break

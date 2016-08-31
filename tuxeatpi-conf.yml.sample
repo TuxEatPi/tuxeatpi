@@ -1,21 +1,24 @@
 tux:
-    name: TuxDroid
-    gender: male
-    speech:
-        language: eng-USA
-        voice: tom
-        speex: False
-        opus: False
-        app_id: FAKE_APP_ID
-        app_key: FAKE_APP_KEY
-        url: https://ws.dev.nuance.com
-    log_level: DEBUG
-    fake: True
+    advanced:
+        fake: true
+        log_level: DEBUG
+    global:
+        gender: male
+        name: TuxDroid
+    hotword:
+        answer: yes
+        hotword: hello
+        model_dir: pocketsphinx-data
     pins:
         wings:
             left_switch: 17
-            right_switch: 4
-            position: 25
             movement: 22
-
-
+            position: 25
+            right_switch: 4
+    speech:
+        app_id: FAKE_APP_ID
+        app_key: FAKE_APP_KEY
+        codec: wav
+        language: eng-USA
+        url: https://ws.dev.nuance.com
+        voice: tom
