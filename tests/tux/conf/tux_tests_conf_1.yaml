@@ -6,6 +6,7 @@ tux:
         gender: male
         name: TuxDroid
     hotword:
+        answer: "yes"
         hotword: hello
         model_dir: pocketsphinx-data
     pins:

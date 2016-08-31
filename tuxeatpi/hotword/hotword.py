@@ -23,6 +23,7 @@ class HotWord(Process):
         # Init private attributes
         self._settings = settings
         self._must_run = True
+        self._rerun = True
         self._config = Decoder.default_config()
         if not self.prepare_decoder():
             self._must_run = False
@@ -59,15 +60,16 @@ class HotWord(Process):
     def stop(self):
         """Stop process"""
         self._must_run = False
+        self._rerun = False
         self.terminate()
 
     def run(self):
         """Text to speech"""
-        rerun = True
+        self._rerun = True
         self._must_run = True
         self.logger.debug("starting listening hotword %s", self._hotword)
-        while rerun:
-            rerun = False
+        while self._rerun:
+            self._rerun = False
             self._paudio = pyaudio.PyAudio()
             stream = self._paudio.open(format=pyaudio.paInt16, channels=1, rate=16000,
                                        input=True, frames_per_buffer=1024)
@@ -82,7 +84,7 @@ class HotWord(Process):
                     self.logger.debug("Hotword detected")
                     self.tts_queue.put(gtt(self._answer))
                     # TODO run nlu audio detection
-                    rerun = True
+                    self._rerun = True
                     break
             self._decoder.end_utt()
 
