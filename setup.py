@@ -37,10 +37,6 @@ setup(
     url="https://github.com/TuxEatPi/tuxeatpi",
     download_url="https://github.com/TuxEatPi/tuxeatpi/archive/0.0.1.tar.gz",
     package_data={'': ['LICENSE.txt'], 'tuxeatpi': ['locale/*/LC_MESSAGES/tuxeatpi.po']},
-#    data_files = [('locale', ['locale/fr/LC_MESSAGES/tuxeatpi.po',
- #                             'locale/en/LC_MESSAGES/tuxeatpi.po',
- #                             ]
- #                  )],
     package_dir={'tuxeatpi': 'tuxeatpi'},
     include_package_data=True,
     license='Apache 2.0',

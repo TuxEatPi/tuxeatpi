@@ -47,6 +47,24 @@ lang-gen:
 	cd tuxeatpi/locale/fr/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
 	cd tuxeatpi/locale/en/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
 
+hotword-fr:
+	# Get acoustic model fr
+	mkdir -p pocketsphinx-data/fra-FRA/
+	ln -s fra-FRA pocketsphinx-data/fra-CAN
+	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/cmusphinx-fr-ptm-5.2.tar.gz/download" -O pocketsphinx-data/fra-FRA/cmusphinx-fr-ptm-5.2.tar.gz
+	cd pocketsphinx-data/fra-FRA/ && tar vxf cmusphinx-fr-ptm-5.2.tar.gz && mv cmusphinx-*-5.2 acoustic-model && rm -f cmusphinx-*-5.2.tar.gz
+	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/fr-small.lm.bin/download" -O pocketsphinx-data/fra-FRA/language-model.lm.bin
+	# Get dict
+	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/fr.dict/download" -O pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
+
+hotword-en:
+	# Get acoustic model en
+	mkdir -p pocketsphinx-data
+	cp -r `python -c "import speech_recognition as sr;import os;print(os.path.dirname(os.path.abspath(sr.__file__)))"`/pocketsphinx-data/en-US pocketsphinx-data/eng-USA
+
+hotword-clean:
+	rm -rf pocketsphinx-data
+
 #######################################
 ### Test targets
 #######################################

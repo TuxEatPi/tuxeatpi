@@ -17,6 +17,7 @@ from tuxeatpi.components.wings import Wings
 from tuxeatpi.voice.voice import Voice
 from tuxeatpi.actionner.actionner import Actionner
 from tuxeatpi.nlu.nlu import NLU
+from tuxeatpi.hotword.hotword import HotWord
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings, SettingsError
 
@@ -54,6 +55,9 @@ class Tux(object):
                                    self.event_queue,
                                    self.logger)
 
+        # hotword
+        self.hotword = HotWord(self.settings, self.logger)
+        self.hotword.start()
         # Init action
         self.actionner = Actionner(self)
         self.actionner.start()
@@ -80,6 +84,8 @@ class Tux(object):
             self.nlu.stop()
         if hasattr(self, 'actionner'):
             self.actionner.stop()
+        if hasattr(self, 'hotword'):
+            self.hotword.stop()
         GPIO.cleanup()
 
     def _birth(self):

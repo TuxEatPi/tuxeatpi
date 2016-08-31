@@ -5,6 +5,9 @@ tux:
     global:
         gender: male
         name: TuxDroid
+    hotword:
+        hotword: hello
+        model_dir: pocketsphinx-data
     pins:
         wings:
             left_switch: 17

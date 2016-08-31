@@ -28,7 +28,7 @@ class Settings(dict):
     def _check_conf(self):
         """Check settings validity"""
         # Check main keys
-        for key in ['global', 'advanced', 'pins', 'speech']:
+        for key in ['global', 'advanced', 'pins', 'speech', 'hotword']:
             if key not in self:
                 raise SettingsError("Missing {} key".format(key))
         # Check sections

@@ -3,6 +3,9 @@ tux:
         fake: true
         log_level: DEBUG
     data: {}
+    hotword:
+        hotword: hello
+        model_dir: pocketsphinx-data
     global:
         gender: male
         name: TuxDroid
