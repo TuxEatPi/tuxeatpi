@@ -8,7 +8,7 @@
   
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <title>tuxeatpi &mdash; Tux Eat Pi 1 documentation</title>
+  <title>tuxeatpi.hotword.hotword module &mdash; Tux Eat Pi 1 documentation</title>
   
 
   
@@ -81,7 +81,7 @@
             
                 <!-- Local TOC -->
                 <div class="local-toc"><ul>
-<li><a class="reference internal" href="#">tuxeatpi</a></li>
+<li><a class="reference internal" href="#">tuxeatpi.hotword.hotword module</a></li>
 </ul>
 </div>
             
@@ -112,11 +112,11 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
-    <li>tuxeatpi</li>
+    <li>tuxeatpi.hotword.hotword module</li>
       <li class="wy-breadcrumbs-aside">
         
           
-            <a href="../_sources/refs/modules.txt" rel="nofollow"> View page source</a>
+            <a href="../_sources/refs/tuxeatpi.hotword.hotword.txt" rel="nofollow"> View page source</a>
           
         
       </li>
@@ -126,54 +126,42 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
             
-  <div class="section" id="tuxeatpi">
-<h1>tuxeatpi<a class="headerlink" href="#tuxeatpi" title="Permalink to this headline">¶</a></h1>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="tuxeatpi.html">tuxeatpi package</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="tuxeatpi.html#subpackages">Subpackages</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.actionner.html">tuxeatpi.actionner package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.actionner.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.actions.html">tuxeatpi.actions package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.actions.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.components.html">tuxeatpi.components package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.components.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.fake_components.html">tuxeatpi.fake_components package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.fake_components.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.hotword.html">tuxeatpi.hotword package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.hotword.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.libs.html">tuxeatpi.libs package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.libs.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.nlu.html">tuxeatpi.nlu package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.nlu.html#submodules">Submodules</a></li>
-</ul>
-</li>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.voice.html">tuxeatpi.voice package</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="tuxeatpi.voice.html#submodules">Submodules</a></li>
-</ul>
-</li>
-</ul>
-</li>
-<li class="toctree-l2"><a class="reference internal" href="tuxeatpi.html#submodules">Submodules</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="tuxeatpi.tux.html">tuxeatpi.tux module</a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-</div>
+  <div class="section" id="module-tuxeatpi.hotword.hotword">
+<span id="tuxeatpi-hotword-hotword-module"></span><h1>tuxeatpi.hotword.hotword module<a class="headerlink" href="#module-tuxeatpi.hotword.hotword" title="Permalink to this headline">¶</a></h1>
+<p>Hotword component</p>
+<dl class="class">
+<dt id="tuxeatpi.hotword.hotword.HotWord">
+<em class="property">class </em><code class="descclassname">tuxeatpi.hotword.hotword.</code><code class="descname">HotWord</code><span class="sig-paren">(</span><em>settings</em>, <em>logger</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/hotword/hotword.html#HotWord"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.hotword.hotword.HotWord" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">multiprocessing.context.Process</span></code></p>
+<p>Define hotword component</p>
+<p>For now hotword uses pocketsphinx with speech_recognition</p>
+<dl class="method">
+<dt id="tuxeatpi.hotword.hotword.HotWord.prepare_decoder">
+<code class="descname">prepare_decoder</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/hotword/hotword.html#HotWord.prepare_decoder"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.hotword.hotword.HotWord.prepare_decoder" title="Permalink to this definition">¶</a></dt>
+<dd><p>Set decoder config</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.hotword.hotword.HotWord.run">
+<code class="descname">run</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/hotword/hotword.html#HotWord.run"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.hotword.hotword.HotWord.run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Text to speech</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="tuxeatpi.hotword.hotword.HotWord.stop">
+<code class="descname">stop</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/tuxeatpi/hotword/hotword.html#HotWord.stop"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.hotword.hotword.HotWord.stop" title="Permalink to this definition">¶</a></dt>
+<dd><p>Stop process</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="tuxeatpi.hotword.hotword.HotWordError">
+<em class="property">exception </em><code class="descclassname">tuxeatpi.hotword.hotword.</code><code class="descname">HotWordError</code><a class="reference internal" href="../_modules/tuxeatpi/hotword/hotword.html#HotWordError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#tuxeatpi.hotword.hotword.HotWordError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal"><span class="pre">Exception</span></code></p>
+<p>Base class for voice exceptions</p>
+</dd></dl>
+
 </div>
 
 

@@ -1,0 +1,396 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>tuxeatpi.voice.common &mdash; Tux Eat Pi 1 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../../_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Tux Eat Pi 1 documentation" href="../../../index.html"/>
+        <link rel="up" title="Module code" href="../../index.html"/> 
+
+  
+  <script src="../../../_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="../../../index.html" class="icon icon-home"> Tux Eat Pi
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.1
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <!-- Local TOC -->
+                <div class="local-toc"></div>
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../../index.html">Tux Eat Pi</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../../index.html">Module code</a> &raquo;</li>
+      
+    <li>tuxeatpi.voice.common</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <h1>Source code for tuxeatpi.voice.common</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Utils functions for Nuance Communications TTS services&quot;&quot;&quot;</span>
+<span class="c1"># Get from https://github.com/Fadyazmy/harrawr/blob/master/wsclient.py</span>
+
+<span class="kn">import</span> <span class="nn">asyncio</span>
+<span class="kn">import</span> <span class="nn">base64</span>
+<span class="kn">import</span> <span class="nn">binascii</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">urllib.parse</span>
+
+<span class="kn">import</span> <span class="nn">pyaudio</span>
+<span class="kn">import</span> <span class="nn">aiohttp</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">speex</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">speex</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">opuslib.api</span> <span class="k">as</span> <span class="nn">opus</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="n">opus</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="kn">from</span> <span class="nn">tuxeatpi.libs.websocket</span> <span class="k">import</span> <span class="n">AbstractWebsocketConnection</span>
+
+<span class="n">AUDIO_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;audio/x-speex;mode=wb&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;audio/opus;rate=16000&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;audio/L16;rate=16000&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;audio/16KADPCM;rate=16000&#39;</span>
+<span class="p">]</span>
+
+<span class="n">CODECS</span> <span class="o">=</span> <span class="p">(</span><span class="s1">&#39;wav&#39;</span><span class="p">,</span> <span class="s1">&#39;speex&#39;</span><span class="p">,</span> <span class="s1">&#39;opus&#39;</span><span class="p">)</span>
+
+<span class="n">COMMANDS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;NVC_ASR_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NVC_DATA_UPLOAD_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NVC_RESET_USER_PROFILE_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NVC_TTS_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NDMP_TTS_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DRAGON_NLU_ASR_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DRAGON_NLU_APPSERVER_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DRAGON_NLU_DATA_UPLOAD_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;DRAGON_NLU_RESET_USER_PROFILE_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NDSP_ASR_APP_CMD&#39;</span>
+    <span class="s1">&#39;NDSP_APP_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NDSP_UPLOAD_DATA_CMD&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;NDSP_DELETE_ALL_DATA_CMD&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">VOICES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;eng-USA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;allison&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;ava&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;samantha&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;susan&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;zoe&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;tom&quot;</span><span class="p">,</span>
+                      <span class="p">],</span>
+          <span class="s2">&quot;fra-FRA&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audrey-ml&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;thomas&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;aurelie&quot;</span><span class="p">,</span>
+                      <span class="p">],</span>
+          <span class="s2">&quot;fra-CAN&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;amelie&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;chantal&quot;</span><span class="p">,</span>
+                      <span class="s2">&quot;nicolas&quot;</span><span class="p">,</span>
+                      <span class="p">],</span>
+          <span class="p">}</span>
+
+
+<div class="viewcode-block" id="WebsocketConnection"><a class="viewcode-back" href="../../../refs/tuxeatpi.voice.common.html#tuxeatpi.voice.common.WebsocketConnection">[docs]</a><span class="k">class</span> <span class="nc">WebsocketConnection</span><span class="p">(</span><span class="n">AbstractWebsocketConnection</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;WebSocket connection object to handle Nuance server communications&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+        <span class="n">AbstractWebsocketConnection</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+
+    <span class="nd">@asyncio</span><span class="o">.</span><span class="n">coroutine</span>
+<div class="viewcode-block" id="WebsocketConnection.connect"><a class="viewcode-back" href="../../../refs/tuxeatpi.voice.common.html#tuxeatpi.voice.common.WebsocketConnection.connect">[docs]</a>    <span class="k">def</span> <span class="nf">connect</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app_key</span><span class="p">,</span> <span class="n">use_plaintext</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Connect to the server&quot;&quot;&quot;</span>
+        <span class="n">sec_key</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">urandom</span><span class="p">(</span><span class="mi">16</span><span class="p">))</span>
+
+        <span class="n">params</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;app_id&#39;</span><span class="p">:</span> <span class="n">app_id</span><span class="p">,</span> <span class="s1">&#39;algorithm&#39;</span><span class="p">:</span> <span class="s1">&#39;key&#39;</span><span class="p">,</span> <span class="s1">&#39;app_key&#39;</span><span class="p">:</span> <span class="n">binascii</span><span class="o">.</span><span class="n">hexlify</span><span class="p">(</span><span class="n">app_key</span><span class="p">)}</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="k">yield from</span> <span class="n">aiohttp</span><span class="o">.</span><span class="n">request</span><span class="p">(</span><span class="s1">&#39;get&#39;</span><span class="p">,</span>
+                                              <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">+</span> <span class="s1">&#39;?&#39;</span> <span class="o">+</span> <span class="n">urllib</span><span class="o">.</span><span class="n">parse</span><span class="o">.</span><span class="n">urlencode</span><span class="p">(</span><span class="n">params</span><span class="p">),</span>
+                                              <span class="n">headers</span><span class="o">=</span><span class="p">{</span><span class="s1">&#39;UPGRADE&#39;</span><span class="p">:</span> <span class="s1">&#39;WebSocket&#39;</span><span class="p">,</span>
+                                                       <span class="s1">&#39;CONNECTION&#39;</span><span class="p">:</span> <span class="s1">&#39;Upgrade&#39;</span><span class="p">,</span>
+                                                       <span class="s1">&#39;SEC-WEBSOCKET-VERSION&#39;</span><span class="p">:</span> <span class="s1">&#39;13&#39;</span><span class="p">,</span>
+                                                       <span class="s1">&#39;SEC-WEBSOCKET-KEY&#39;</span><span class="p">:</span> <span class="n">sec_key</span><span class="o">.</span><span class="n">decode</span><span class="p">(),</span>
+                                                       <span class="p">})</span>
+
+        <span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="mi">101</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_handle_response_101</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_handshake</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="n">sec_key</span><span class="p">)</span></div></div>
+
+
+<div class="viewcode-block" id="do_synthesis"><a class="viewcode-back" href="../../../refs/tuxeatpi.voice.common.html#tuxeatpi.voice.common.do_synthesis">[docs]</a><span class="k">def</span> <span class="nf">do_synthesis</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">app_id</span><span class="p">,</span> <span class="n">app_key</span><span class="p">,</span> <span class="n">language</span><span class="p">,</span> <span class="n">voice</span><span class="p">,</span> <span class="n">codec</span><span class="p">,</span>
+                 <span class="n">input_text</span><span class="p">,</span> <span class="n">logger</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The TTS function using Nuance Communications services&quot;&quot;&quot;</span>
+
+    <span class="n">audio_player</span> <span class="o">=</span> <span class="n">pyaudio</span><span class="o">.</span><span class="n">PyAudio</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;speex&quot;</span> <span class="ow">and</span> <span class="n">speex</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Speex encoding specified but python-speex module unavailable&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">elif</span> <span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;opus&quot;</span> <span class="ow">and</span> <span class="n">opus</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Opus encoding specified but python-opuslib module unavailable&#39;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;speex&quot;</span><span class="p">:</span>
+        <span class="n">audio_type</span> <span class="o">=</span> <span class="s1">&#39;audio/x-speex;mode=wb&#39;</span>
+    <span class="k">elif</span> <span class="n">codec</span> <span class="o">==</span> <span class="s2">&quot;opus&quot;</span><span class="p">:</span>
+        <span class="n">audio_type</span> <span class="o">=</span> <span class="s1">&#39;audio/opus;rate=16000&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">audio_type</span> <span class="o">=</span> <span class="s1">&#39;audio/L16;rate=16000&#39;</span>
+
+    <span class="n">client</span> <span class="o">=</span> <span class="n">WebsocketConnection</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">logger</span><span class="p">)</span>
+    <span class="k">yield from</span> <span class="n">client</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">app_id</span><span class="p">,</span> <span class="n">app_key</span><span class="p">)</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">({</span>
+        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;connect&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;codec&#39;</span><span class="p">:</span> <span class="n">audio_type</span><span class="p">,</span>
+        <span class="s1">&#39;device_id&#39;</span><span class="p">:</span> <span class="s1">&#39;f0350aa9d98047a4b63d72ca5bfdf509&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;user_id&#39;</span><span class="p">:</span> <span class="s1">&#39;35228eb1afb54a3f8ba83754445a197c&#39;</span>
+    <span class="p">})</span>
+
+    <span class="n">_</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="k">yield from</span> <span class="n">client</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+    <span class="c1"># Should be a connected message</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+    <span class="c1"># synthesize</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">({</span>
+        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;query_begin&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transaction_id&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+        <span class="s1">&#39;command&#39;</span><span class="p">:</span> <span class="s1">&#39;NVC_TTS_CMD&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;language&#39;</span><span class="p">:</span> <span class="n">language</span><span class="p">,</span>
+        <span class="s1">&#39;tts_voice&#39;</span><span class="p">:</span> <span class="n">voice</span><span class="p">,</span>
+    <span class="p">})</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">({</span>
+        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;query_parameter&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transaction_id&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+
+        <span class="s1">&#39;parameter_name&#39;</span><span class="p">:</span> <span class="s1">&#39;TEXT_TO_READ&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;parameter_type&#39;</span><span class="p">:</span> <span class="s1">&#39;dictionary&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;dictionary&#39;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s1">&#39;audio_id&#39;</span><span class="p">:</span> <span class="mi">789</span><span class="p">,</span>
+            <span class="s1">&#39;tts_input&#39;</span><span class="p">:</span> <span class="n">input_text</span><span class="p">,</span>
+            <span class="s1">&#39;tts_type&#39;</span><span class="p">:</span> <span class="s1">&#39;text&#39;</span>
+        <span class="p">}</span>
+    <span class="p">})</span>
+
+    <span class="n">client</span><span class="o">.</span><span class="n">send_message</span><span class="p">({</span>
+        <span class="s1">&#39;message&#39;</span><span class="p">:</span> <span class="s1">&#39;query_end&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;transaction_id&#39;</span><span class="p">:</span> <span class="mi">123</span><span class="p">,</span>
+    <span class="p">})</span>
+
+    <span class="c1"># Create stream player</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">audio_player</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="nb">format</span><span class="o">=</span><span class="n">audio_player</span><span class="o">.</span><span class="n">get_format_from_width</span><span class="p">(</span><span class="mi">2</span><span class="p">),</span>
+                               <span class="c1"># format=p.get_format_from_width(wf.getsampwidth()),</span>
+                               <span class="n">channels</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                               <span class="c1"># channels=wf.getnchannels(),</span>
+                               <span class="n">rate</span><span class="o">=</span><span class="mi">16000</span><span class="p">,</span>
+                               <span class="c1"># rate=wf.getframerate(),</span>
+                               <span class="n">output</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Prepare decoder</span>
+    <span class="k">if</span> <span class="n">audio_type</span> <span class="o">==</span> <span class="s1">&#39;audio/L16;rate=16000&#39;</span><span class="p">:</span>
+        <span class="n">decoder_func</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">audio_type</span> <span class="o">==</span> <span class="s1">&#39;audio/x-speex;mode=wb&#39;</span><span class="p">:</span>
+        <span class="n">decoder</span> <span class="o">=</span> <span class="n">speex</span><span class="o">.</span><span class="n">WBDecoder</span><span class="p">()</span>  <span class="c1"># pylint: disable=E1101  ; I don&#39;t know why...</span>
+        <span class="n">decoder_func</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">decode</span>
+    <span class="k">elif</span> <span class="n">audio_type</span> <span class="o">==</span> <span class="s1">&#39;audio/opus;rate=16000&#39;</span><span class="p">:</span>
+        <span class="n">decoder</span> <span class="o">=</span> <span class="n">opus</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="mi">16000</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">decoder_func</span> <span class="o">=</span> <span class="n">_get_opus_decoder_func</span><span class="p">(</span><span class="n">decoder</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># TODO raise Error</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;ERROR: Need to implement encoding for </span><span class="si">%s</span><span class="s1">!&#39;</span> <span class="o">%</span> <span class="n">audio_type</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Read and play sound</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="n">msg_type</span><span class="p">,</span> <span class="n">msg</span> <span class="o">=</span> <span class="k">yield from</span> <span class="n">client</span><span class="o">.</span><span class="n">receive</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">msg_type</span> <span class="o">==</span> <span class="n">client</span><span class="o">.</span><span class="n">MSG_JSON</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">msg</span><span class="p">[</span><span class="s1">&#39;message&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;query_end&#39;</span><span class="p">:</span>
+                <span class="k">break</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">decoder_func</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="n">decoder_func</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Start sentence&quot;</span><span class="p">)</span>
+            <span class="n">stream</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;End sentence&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Close stream and client</span>
+    <span class="n">client</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">stop_stream</span><span class="p">()</span>
+    <span class="n">stream</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+    <span class="n">audio_player</span><span class="o">.</span><span class="n">terminate</span><span class="p">()</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_opus_decoder_func</span><span class="p">(</span><span class="n">decoder</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Create function for Opus codec&quot;&quot;&quot;</span>
+    <span class="k">def</span> <span class="nf">decoder_func</span><span class="p">(</span><span class="n">msg</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Opus decoder function&quot;&quot;&quot;</span>
+        <span class="n">opus</span><span class="o">.</span><span class="n">decoder</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">decoder</span><span class="p">,</span> <span class="n">msg</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">msg</span><span class="p">),</span> <span class="mi">1920</span><span class="p">,</span> <span class="kc">False</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">decoder_func</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Tux Eat Pi Team.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../../',
+            VERSION:'1',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../../_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
