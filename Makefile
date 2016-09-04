@@ -3,7 +3,7 @@
 ### Dev targets
 #######################################
 dep-dev:
-	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk
+	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk libspeex-dev swig libpulse-dev libspeexdsp-dev
 #   Not sure of that one
 #	sudo apt-get install python3-dev
 
@@ -47,6 +47,13 @@ lang-scan:
 lang-gen:
 	cd tuxeatpi/locale/fr/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
 	cd tuxeatpi/locale/en/LC_MESSAGES/ && msgfmt tuxeatpi.po -o tuxeatpi.mo
+
+set-locales:
+	sudo sed -i 's/# \(en_US.UTF-8 .*\)/\1/g' /etc/locale.gen
+	sudo sed -i 's/# \(en_CA.UTF-8 .*\)/\1/g' /etc/locale.gen
+	sudo sed -i 's/# \(fr_FR.UTF-8 .*\)/\1/g' /etc/locale.gen
+	sudo sed -i 's/# \(fr_CA.UTF-8 .*\)/\1/g' /etc/locale.gen
+	sudo locale-gen
 
 hotword-fr:
 	# Get acoustic model fr
