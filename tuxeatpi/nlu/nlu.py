@@ -10,7 +10,7 @@ from tuxeatpi.libs.lang import gtt
 
 
 class NLU(Process):
-    """Define voice component
+    """Define NLU component
 
     For now NLU use Nuance communications services
     """

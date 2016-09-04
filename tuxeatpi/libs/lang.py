@@ -1,8 +1,16 @@
 """Module handling i18n and l10n for tuxeatpi"""
 import gettext
+import locale
 
 
-LANGUAGES = {}
+LANGUAGES = {'eng-USA': {'gettext': None,
+                         'locale': 'en_US.UTF-8'},
+             'fra-FRA': {'gettext': None,
+                         'locale': 'fr_FR.UTF-8'},
+             'fra-CAN': {'gettext': None,
+                         'locale': 'fr_CA.UTF-8'},
+             }
+
 _GTT = None
 
 
@@ -19,13 +27,13 @@ def load_languages():
                                    localedir='tuxeatpi/locale',
                                    languages=['en'],
                                    fallback=True)
-    LANGUAGES['eng-USA'] = _lang_en
+    LANGUAGES['eng-USA']['gettext'] = _lang_en
     try:
         _lang_fr = gettext.translation('tuxeatpi',
                                        localedir='tuxeatpi/locale',
                                        languages=['fr'])
-        LANGUAGES['fra-FRA'] = _lang_fr
-        LANGUAGES['fra-CAN'] = _lang_fr
+        LANGUAGES['fra-FRA']['gettext'] = _lang_fr
+        LANGUAGES['fra-CAN']['gettext'] = _lang_fr
     except OSError:
         pass
 
@@ -35,8 +43,10 @@ def set_language(lang):
     global _GTT  # pylint: disable=W0603
     if lang not in LANGUAGES:
         raise Exception("Language not supported")
-    LANGUAGES[lang].install('tuxeatpi')
-    _GTT = LANGUAGES[lang].gettext
+    LANGUAGES[lang]['gettext'].install('tuxeatpi')
+    _GTT = LANGUAGES[lang]['gettext'].gettext
+    # TODO
+    locale.setlocale(locale.LC_TIME, LANGUAGES[lang]['locale'])
 
 
 def gtt(message):

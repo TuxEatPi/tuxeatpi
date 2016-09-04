@@ -8,3 +8,4 @@ pyaudio==0.2.8
 git+https://github.com/NuanceDev/pyspeex.git@0.9.0#egg=pyspeex
 SpeechRecognition==3.4.6
 pocketsphinx==0.1.1
+agecalc==3.5.2

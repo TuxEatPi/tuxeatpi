@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-08-30 17:25-0400\n"
-"PO-Revision-Date: 2016-08-29 22:46-0400\n"
+"POT-Creation-Date: 2016-09-03 18:20-0400\n"
+"PO-Revision-Date: 2016-09-04 10:29-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -23,13 +23,53 @@ msgstr "Mon nom est {}"
 
 #: tuxeatpi/actions/tux.py:45
 msgid "I'm born on {}"
-msgstr "Je suis né {}"
+msgstr "Je suis né le {}"
 
-#: tuxeatpi/nlu/nlu.py:51
+#: tuxeatpi/actions/tux.py:85
+msgid "I'm {} day old"
+msgstr "J'ai {} jour"
+
+#: tuxeatpi/actions/tux.py:87
+msgid "I'm {} days old"
+msgstr "J'ai {} jours"
+
+#: tuxeatpi/actions/tux.py:89
+msgid "I'm {} month old"
+msgstr "J'ai {} mois"
+
+#: tuxeatpi/actions/tux.py:91
+msgid "I'm {} months old"
+msgstr "J'ai {} mois"
+
+#: tuxeatpi/actions/tux.py:94
+msgid "I'm {} year"
+msgstr "J'ai {} an"
+
+#: tuxeatpi/actions/tux.py:96
+msgid "I'm {} year and {} month"
+msgstr "J'ai {} an et {} mois"
+
+#: tuxeatpi/actions/tux.py:98
+msgid "I'm {} year and {} months"
+msgstr "J'ai {} an et {} mois"
+
+#: tuxeatpi/actions/tux.py:101
+msgid "I'm {} years"
+msgstr "J'ai {} ans"
+
+#: tuxeatpi/actions/tux.py:103
+msgid "I'm {} years and {} month"
+msgstr "J'ai {} ans et {} mois"
+
+#: tuxeatpi/actions/tux.py:105
+msgid "I'm {} years and {} months"
+msgstr "J'ai {} ans et {} mois"
+
+#: tuxeatpi/hotword/hotword.py:86 tuxeatpi/nlu/nlu.py:51
 msgid "I need a confirmation, Could you repeat please ?"
 msgstr "J'ai besoin d'une confirmation, Pouvez vous répéter s'il vous plait ?"
 
-#: tuxeatpi/nlu/nlu.py:55
+#: tuxeatpi/hotword/hotword.py:90 tuxeatpi/nlu/nlu.py:55
 msgid "Sorry, I just don't get it"
 msgstr "Désolé, je ne comprends pas"
 

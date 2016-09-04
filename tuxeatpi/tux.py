@@ -3,9 +3,11 @@
 import copy
 from datetime import timedelta, datetime
 import logging
+import multiprocessing
 import queue
 import time
-import multiprocessing
+
+import agecalc
 
 try:
     from RPi import GPIO
@@ -56,7 +58,7 @@ class Tux(object):
                                    self.logger)
 
         # hotword
-        self.hotword = HotWord(self.settings, self.tts_queue, self.logger)
+        self.hotword = HotWord(self.settings, self.action_queue, self.tts_queue, self.logger)
         self.hotword.start()
         # Init action
         self.actionner = Actionner(self)
@@ -121,8 +123,26 @@ class Tux(object):
         return timedelta(seconds=time.time() - self.start_time)
 
     def get_birthday(self):
-        """Return the tux birthday"""
+        """Return Tux birthday"""
         return datetime.fromtimestamp(self.settings['data']['birthday'])
+
+    def get_age(self):
+        """Return Tux age"""
+        birth_day = datetime.fromtimestamp(self.settings['data']['birthday'])
+        now = datetime.now()
+        tux_age = agecalc.AgeCalc(birth_day.day, birth_day.month, birth_day.year)
+
+        years = None
+        months = None
+        days = None
+        if birth_day - now < timedelta(days=30):
+            delta = now - birth_day
+            days = delta.days
+        else:
+            years = tux_age.age_years_months['years']
+            months = tux_age.age_years_months['months']
+        self.logger.debug("age: %s, %s, %s", years, months, days)
+        return (years, months, days)
 
     def get_name(self):
         """Return Tux name"""

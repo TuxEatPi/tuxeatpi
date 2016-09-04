@@ -75,3 +75,39 @@ class TuxAction(Action):
             self.tuxdroid.say(text)
         if text_it is True:
             return text
+
+    def get_age(self, print_it=False, text_it=False, say_it=False):
+        """Return tux age"""
+        years, months, days = self.tuxdroid.get_age()
+
+        if years is None and months is None:
+            if days <= 1:
+                text = gtt("I'm {} day old").format(days)
+            else:
+                text = gtt("I'm {} days old").format(days)
+        elif years == 0:
+            if months == 1:
+                text = gtt("I'm {} month old").format(months)
+            else:
+                text = gtt("I'm {} months old").format(months)
+        elif years == 1:
+            if months == 0:
+                text = gtt("I'm {} year").format(years, months)
+            elif months == 1:
+                text = gtt("I'm {} year and {} month").format(years, months)
+            else:
+                text = gtt("I'm {} year and {} months").format(years, months)
+        else:
+            if months == 0:
+                text = gtt("I'm {} years").format(years, months)
+            elif months == 1:
+                text = gtt("I'm {} years and {} month").format(years, months)
+            else:
+                text = gtt("I'm {} years and {} months").format(years, months)
+
+        if print_it is True:
+            print(text)
+        if say_it is True:
+            self.tuxdroid.say(text)
+        if text_it is True:
+            return text

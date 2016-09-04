@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-08-30 17:25-0400\n"
+"POT-Creation-Date: 2016-09-03 18:20-0400\n"
 "PO-Revision-Date: 2016-08-29 23:41-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -25,10 +25,50 @@ msgstr "My name is {}"
 msgid "I'm born on {}"
 msgstr "I'm born on {}"
 
-#: tuxeatpi/nlu/nlu.py:51
+#: tuxeatpi/actions/tux.py:85
+msgid "I'm {} day old"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:87
+msgid "I'm {} days old"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:89
+msgid "I'm {} month old"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:91
+msgid "I'm {} months old"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:94
+msgid "I'm {} year"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:96
+msgid "I'm {} year and {} month"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:98
+msgid "I'm {} year and {} months"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:101
+msgid "I'm {} years"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:103
+msgid "I'm {} years and {} month"
+msgstr ""
+
+#: tuxeatpi/actions/tux.py:105
+msgid "I'm {} years and {} months"
+msgstr ""
+
+#: tuxeatpi/hotword/hotword.py:86 tuxeatpi/nlu/nlu.py:51
 msgid "I need a confirmation, Could you repeat please ?"
 msgstr "I need a confirmation, Could you repeat please ?"
 
-#: tuxeatpi/nlu/nlu.py:55
+#: tuxeatpi/hotword/hotword.py:90 tuxeatpi/nlu/nlu.py:55
 msgid "Sorry, I just don't get it"
 msgstr "Sorry, I just don't get it"
