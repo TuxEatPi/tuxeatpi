@@ -18,8 +18,8 @@ except RuntimeError:
 from tuxeatpi.components.wings import Wings
 from tuxeatpi.voice.voice import Voice
 from tuxeatpi.actionner.actionner import Actionner
-from tuxeatpi.nlu.nlu import NLU
-from tuxeatpi.hotword.hotword import HotWord
+from tuxeatpi.nlu.text import NLUText
+from tuxeatpi.nlu.audio import NLUAudio
 from tuxeatpi.fake_components.wings import FakeWings
 from tuxeatpi.libs.settings import Settings, SettingsError
 
@@ -57,19 +57,20 @@ class Tux(object):
                                    self.event_queue,
                                    self.logger)
 
-        # hotword
-        self.hotword = HotWord(self.settings, self.action_queue, self.tts_queue, self.logger)
-        self.hotword.start()
+        # Int Nlu audio
+        self.nlu_audio = NLUAudio(self.settings, self.action_queue,
+                                  self.tts_queue, self.logger)
+        self.nlu_audio.start()
         # Init action
         self.actionner = Actionner(self)
         self.actionner.start()
         # Init voice
         self.voice = Voice(self.settings, self.tts_queue, self.logger)
         self.voice.start()
-        # Init nlu
-        self.nlu = NLU(self.settings, self.action_queue, self.nlu_queue,
-                       self.tts_queue, self.logger)
-        self.nlu.start()
+        # Init nlu text
+        self.nlu_text = NLUText(self.settings, self.action_queue, self.nlu_queue,
+                                self.tts_queue, self.logger)
+        self.nlu_text.start()
         # Birth
         self._birth()
 
@@ -82,12 +83,12 @@ class Tux(object):
             self.eventer.stop()
         if hasattr(self, 'voice'):
             self.voice.stop()
-        if hasattr(self, 'nlu'):
-            self.nlu.stop()
+        if hasattr(self, 'nlu_text'):
+            self.nlu_text.stop()
+        if hasattr(self, 'nlu_audio'):
+            self.nlu_audio.stop()
         if hasattr(self, 'actionner'):
             self.actionner.stop()
-        if hasattr(self, 'hotword'):
-            self.hotword.stop()
         GPIO.cleanup()
 
     def _birth(self):

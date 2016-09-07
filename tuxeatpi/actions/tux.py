@@ -1,5 +1,8 @@
 """Tux action"""
 
+from datetime import datetime
+
+
 from tuxeatpi.libs.lang import gtt
 
 
@@ -105,6 +108,17 @@ class TuxAction(Action):
             else:
                 text = gtt("I'm {} years and {} months").format(years, months)
 
+        if print_it is True:
+            print(text)
+        if say_it is True:
+            self.tuxdroid.say(text)
+        if text_it is True:
+            return text
+
+    def get_time(self, print_it=False, text_it=False, say_it=False):
+        """Return current time"""
+        now = datetime.now()
+        text = now.strftime("%I:%M %p")
         if print_it is True:
             print(text)
         if say_it is True:
