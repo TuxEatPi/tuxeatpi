@@ -9,6 +9,7 @@ tux:
         app_id: FAKE_APP_ID
         app_key: FAKE_APP_KEY
         url: https://ws.dev.nuance.com
+        hotword: "yes"
     log_level: DEBUG
     fake: True
     pins:

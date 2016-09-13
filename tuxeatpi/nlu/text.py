@@ -62,11 +62,12 @@ class NLUText(NLUBase):
                     if len(intent.get("value").split("__")) != 2:
                         self.logger.critical("BAD Intent name: {}".format(intent.get("value")))
                         self._misunderstand(0, True, say_it)
-                    # Run function with parameters
-                    action, method = intent.get("value").split("__")
-                    # Run action
-                    # TODO add parameters from NLU response
-                    self._run_action(action, method, {}, False, True, say_it)
+                    else:
+                        # Run function with parameters
+                        action, method = intent.get("value").split("__")
+                        # Run action
+                        # TODO add parameters from NLU response
+                        self._run_action(action, method, {}, False, True, say_it)
 
 
 class NLUError(Exception):

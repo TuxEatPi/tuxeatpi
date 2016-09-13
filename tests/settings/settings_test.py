@@ -11,7 +11,7 @@ from tuxeatpi.libs.settings import Settings, SettingsError
 class SettingsTests(unittest.TestCase):
 
     def test_bad_conf(self):
-        """Bad configuration for Tux class"""
+        """Bad configuration for Settings class"""
         logger = logging.getLogger(name="TestLogger")
         # No file
         conf_file = "tests/settings/conf/no_file.yaml"
@@ -55,3 +55,16 @@ class SettingsTests(unittest.TestCase):
         # Bad pins section
         conf_file = "tests/settings/conf/settings_tests_conf_12.yaml"
         self.assertRaises(SettingsError, lambda: Settings(conf_file, logger))
+        # Bad pins section
+        conf_file = "tests/settings/conf/settings_tests_conf_13.yaml"
+        self.assertRaises(SettingsError, lambda: Settings(conf_file, logger))
+        # Bad pins section
+        conf_file = "tests/settings/conf/settings_tests_conf_14.yaml"
+        self.assertRaises(SettingsError, lambda: Settings(conf_file, logger))
+
+    def test_good_conf(self):
+        """Good configuration for Settings class"""
+        logger = logging.getLogger(name="TestLogger")
+        # Good confi
+        conf_file = "tests/settings/conf/settings_tests_conf_15.yaml"
+        Settings(conf_file, logger)

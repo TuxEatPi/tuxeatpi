@@ -248,4 +248,4 @@ class NLUBase(Process):
     def stop(self):
         """Stop NLU process"""
         self._must_run = False
-        self.terminate()
+        # self.terminate()

@@ -14,4 +14,6 @@ tux:
     advanced:
         log_level: DEBUG
         fake: True
-    pins: badpins
+    pins:
+        wings:
+            4: badpin

@@ -28,7 +28,7 @@ class Settings(dict):
     def _check_conf(self):
         """Check settings validity"""
         # Check main keys
-        for key in ['global', 'advanced', 'pins', 'speech', 'hotword']:
+        for key in ['global', 'advanced', 'pins', 'speech']:
             if key not in self:
                 raise SettingsError("Missing {} key".format(key))
         # Check sections
@@ -58,7 +58,7 @@ class Settings(dict):
     def _check_speech(self):
         """Check speech section"""
         # Check key existences
-        self._check_missing_keys('speech', ('language', 'voice', 'codec',
+        self._check_missing_keys('speech', ('language', 'voice', 'codec', 'hotword',
                                             'app_id', 'app_key', 'url'))
         self._check_choice('speech', 'language', VOICES.keys())
         self._check_choice('speech', 'voice', VOICES[self['speech']['language']])
@@ -66,6 +66,7 @@ class Settings(dict):
         self._check_str('speech', 'app_id')
         self._check_str('speech', 'app_key')
         self._check_str('speech', 'url')
+        self._check_str('speech', 'hotword')
 
     def _check_pins(self):
         """Check pin configuration validity"""

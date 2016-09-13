@@ -18,6 +18,7 @@ dependencies:
     - pip install -r requirements.txt --upgrade
     - pip install codeclimate-test-reporter
     - python setup.py install
+    - make hotword
 
 test:
   override:

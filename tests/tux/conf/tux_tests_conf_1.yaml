@@ -2,13 +2,11 @@ tux:
     advanced:
         fake: true
         log_level: DEBUG
+    data:
+        birthday: 1473713243.88349
     global:
         gender: male
         name: TuxDroid
-    hotword:
-        answer: "yes"
-        hotword: hello
-        model_dir: pocketsphinx-data
     pins:
         wings:
             left_switch: 17
@@ -19,6 +17,7 @@ tux:
         app_id: FAKE_APP_ID
         app_key: FA1EA331E666
         codec: wav
+        hotword: hello
         language: eng-USA
         url: https://ws.dev.nuance.com
         voice: tom

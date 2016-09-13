@@ -11,7 +11,7 @@ from tuxeatpi.libs.settings import Settings
 
 class VoiceTests(unittest.TestCase):
 
-    def test_voice(self):
+    def dtest_voice(self):
         """Basic Voice Tests"""
         logger = logging.getLogger(name="TestLogger")
         conf_file = "tests/voice/conf/voice_tests_conf_1.yaml"

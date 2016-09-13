@@ -2,7 +2,8 @@ tux:
     advanced:
         fake: true
         log_level: DEBUG
-    data: {}
+    data:
+        birthday: 1473716045.0199971
     global:
         gender: male
         name: TuxDroid

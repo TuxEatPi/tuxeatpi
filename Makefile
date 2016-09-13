@@ -55,6 +55,8 @@ set-locales:
 	sudo sed -i 's/# \(fr_CA.UTF-8 .*\)/\1/g' /etc/locale.gen
 	sudo locale-gen
 
+hotword: hotword-en hotword-fr
+
 hotword-fr:
 	# Get acoustic model fr
 	mkdir -p pocketsphinx-data/fra-FRA/
@@ -77,10 +79,17 @@ hotword-clean:
 ### Test targets
 #######################################
 
-test-run:
+test-run: test-syntax test-unit
+
+test-syntax:
 	rm -rf .coverage cover/
 	pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
 	pylint --rcfile=.pylintrc -r no tuxeatpi
-	env/bin/coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests -svd 
-	env/bin/coverage combine
-	env/bin/coverage report
+
+test-unit:
+	rm -rf .coverage nosetest.xml nosetests.html htmlcov
+	#env/bin/coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests -svd 
+	nosetests --with-coverage --cover-erase --cover-package=tuxeatpi --with-html --with-xunit tuxeatpi tests -svd 
+	coverage combine
+	coverage html
+	#coverage report

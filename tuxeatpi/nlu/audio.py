@@ -39,17 +39,20 @@ class NLUAudio(NLUBase):
     def _prepare_decoder(self):
         """Set decoder config"""
         # prepare config
-        self._hotword = self._settings['hotword']['hotword']
-        self._answer = self._settings['hotword']['answer']
-        acoustic_model = os.path.join(self._settings['hotword']['model_dir'],
+        self._hotword = self._settings['speech']['hotword']
+        # self._answer = self._settings['hotword']['answer']
+        if not os.path.isdir("pocketsphinx-data"):
+            raise HotWordError("Missing pocketsphinx-data folder. Please run `make hotword`")
+
+        acoustic_model = os.path.join("pocketsphinx-data",
                                       self._settings['speech']['language'],
                                       'acoustic-model',
                                       )
-        language_model = os.path.join(self._settings['hotword']['model_dir'],
+        language_model = os.path.join("pocketsphinx-data",
                                       self._settings['speech']['language'],
                                       'language-model.lm.bin',
                                       )
-        pocket_dict = os.path.join(self._settings['hotword']['model_dir'],
+        pocket_dict = os.path.join("pocketsphinx-data",
                                    self._settings['speech']['language'],
                                    'pronounciation-dictionary.dict',
                                    )
@@ -84,15 +87,20 @@ class NLUAudio(NLUBase):
         f_ans.close()
 
     def run(self):
-        """Text to speech"""
+        """Listen for NLU"""
         self._rerun = True
         self._must_run = True
         self.logger.debug("starting listening hotword %s", self._hotword)
         while self._rerun:
             self._rerun = False
             self._paudio = pyaudio.PyAudio()
-            stream = self._paudio.open(format=pyaudio.paInt16, channels=1, rate=16000,
-                                       input=True, frames_per_buffer=1024)
+            try:
+                stream = self._paudio.open(format=pyaudio.paInt16, channels=1, rate=16000,
+                                           input=True, frames_per_buffer=1024)
+            except OSError:
+                self.logger.warning("No audio device found can not listen for NLU")
+                self.logger.warning("Disabling NLU audio")
+                return
             stream.start_stream()
             self._paudio.get_default_input_device_info()
 
@@ -207,13 +215,13 @@ def understand_audio(loop, url, app_id, app_key, context_tag=None,  # pylint: di
 
     if rate >= 16000:
         if rate != 16000:
-            resampler = speex.SpeexResampler(1, rate, 16000)
+            resampler = speex.SpeexResampler(1, rate, 16000)  # pylint: disable=E1101
     else:
         if rate != 8000:
-            resampler = speex.SpeexResampler(1, rate, 8000)
+            resampler = speex.SpeexResampler(1, rate, 8000)  # pylint: disable=E1101
 
     audio_type = 'audio/x-speex;mode=wb'
-    encoder = speex.WBEncoder()
+    encoder = speex.WBEncoder()  # pylint: disable=E1101
 
     # Websocket client
     client = WebsocketConnection(url, logger)
