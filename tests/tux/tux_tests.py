@@ -23,7 +23,7 @@ class TuxTests(unittest.TestCase):
         self.assertEqual(uptime.seconds, int(end_time - start_time), "Bad uptime")
         mytux.shutdown()
 
-    def ftest_bad_conf(self):
+    def test_bad_conf(self):
         """Bad configuration for Tux class"""
         # Yaml not valid
         conf_file = "tests/conf/tux_tests_conf_2.yaml"

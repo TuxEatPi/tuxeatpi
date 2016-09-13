@@ -93,13 +93,15 @@ class NLUAudio(NLUBase):
         self.logger.debug("starting listening hotword %s", self._hotword)
         while self._rerun:
             self._rerun = False
-            self._paudio = pyaudio.PyAudio()
             try:
+                self._paudio = pyaudio.PyAudio()
                 stream = self._paudio.open(format=pyaudio.paInt16, channels=1, rate=16000,
                                            input=True, frames_per_buffer=1024)
             except OSError:
                 self.logger.warning("No audio device found can not listen for NLU")
                 self.logger.warning("Disabling NLU audio")
+                self._must_run = False
+                self._rerun = False
                 return
             stream.start_stream()
             self._paudio.get_default_input_device_info()

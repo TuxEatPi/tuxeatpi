@@ -25,9 +25,9 @@ test:
     - make lang-gen
     - pep8 --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
     - pylint --rcfile=.pylintrc -r no tuxeatpi
-    - coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests 
+    - nosetests --with-coverage --cover-erase --cover-package=tuxeatpi --with-html --with-xunit tuxeatpi tests -svd 
     - coverage combine
-    - coverage report
+    - coverage report --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*'
     - coverage html --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*'
     - CODECLIMATE_REPO_TOKEN=${CODECLIMATE_REPO_TOKEN} codeclimate-test-reporter
   post:
