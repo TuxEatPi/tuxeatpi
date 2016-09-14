@@ -11,10 +11,21 @@ class Action(object):  # pylint: disable=R0903
 
     def __init__(self, tuxdroid):
         self.tuxdroid = tuxdroid
-        self.logger = tuxdroid.logger
-
+        # Handle prefix
         if not hasattr(self, 'prefix') or self.prefix == "":
             raise ActionError("Action prefix not defined")
+        # Handle tux mode
+        self._old_mode = self.tuxdroid.mode
+        self.tuxdroid.mode = self.prefix
+        # Handle logger
+        action_logger = tuxdroid.logger.getChild('Action')
+        self.logger = action_logger.getChild('')
+        # Logger
+        self.logger.info("Entering from `%s` mode to `%s` mode", self._old_mode, self.tuxdroid.mode)
+
+    def __del__(self):
+        self.logger.info("Entering from `%s` mode to `%s` mode", self.tuxdroid.mode, self._old_mode)
+        self.tuxdroid.mode = self._old_mode
 
 
 class ActionError(Exception):

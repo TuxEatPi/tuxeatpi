@@ -39,6 +39,8 @@ class Tux(object):
         self.start_time = time.time()
         # Set GPIO mode
         GPIO.setmode(GPIO.BCM)
+        # Init tux mode
+        self.mode = multiprocessing.Array('c', b'default')
         # Init queues
         self.event_queue = queue.Queue()
         self.tts_queue = multiprocessing.Queue()
