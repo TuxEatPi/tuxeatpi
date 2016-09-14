@@ -19,7 +19,7 @@ class Action(object):  # pylint: disable=R0903
         self.tuxdroid.mode = self.prefix
         # Handle logger
         action_logger = tuxdroid.logger.getChild('Action')
-        self.logger = action_logger.getChild('')
+        self.logger = action_logger.getChild(self.prefix)
         # Logger
         self.logger.info("Entering from `%s` mode to `%s` mode", self._old_mode, self.tuxdroid.mode)
 
@@ -130,6 +130,21 @@ class TuxAction(Action):
         """Return current time"""
         now = datetime.now()
         text = now.strftime("%I:%M %p")
+        if print_it is True:
+            print(text)
+        if say_it is True:
+            self.tuxdroid.say(text)
+        if text_it is True:
+            return text
+
+    def set_lang(self, language, print_it=False, text_it=False, say_it=False):
+        """Change Tux lang"""
+        self.logger.info("Change the language to %s", language)
+        new_settings = dict(self.tuxdroid.settings)
+        new_settings['speech']['language'] = language
+        self.tuxdroid.update_setting(new_settings)
+
+        text = gtt("I speak english now")
         if print_it is True:
             print(text)
         if say_it is True:

@@ -36,6 +36,7 @@ class Settings(dict):
         self._check_advanced()
         self._check_speech()
         self._check_pins()
+        self.logger.info("Settings OK")
 
     def _check_global(self):
         """Check global section"""
@@ -58,10 +59,9 @@ class Settings(dict):
     def _check_speech(self):
         """Check speech section"""
         # Check key existences
-        self._check_missing_keys('speech', ('language', 'voice', 'codec', 'hotword',
+        self._check_missing_keys('speech', ('language', 'codec', 'hotword',
                                             'app_id', 'app_key', 'url'))
         self._check_choice('speech', 'language', VOICES.keys())
-        self._check_choice('speech', 'voice', VOICES[self['speech']['language']])
         self._check_choice('speech', 'codec', CODECS)
         self._check_str('speech', 'app_id')
         self._check_str('speech', 'app_key')
@@ -147,6 +147,7 @@ class Settings(dict):
         self.full_config["tux"] = dict(self)
         with open(self.config_file, "w") as fconfig:
             yaml.dump(self.full_config, fconfig, default_flow_style=False, indent=4)
+        self.logger.info("Settings saved on %s", self.config_file)
 
 
 class SettingsError(Exception):

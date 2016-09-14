@@ -7,8 +7,6 @@ LANGUAGES = {'eng-USA': {'gettext': None,
                          'locale': 'en_US.UTF-8'},
              'fra-FRA': {'gettext': None,
                          'locale': 'fr_FR.UTF-8'},
-             'fra-CAN': {'gettext': None,
-                         'locale': 'fr_CA.UTF-8'},
              }
 
 _GTT = None
@@ -33,7 +31,6 @@ def load_languages():
                                        localedir='tuxeatpi/locale',
                                        languages=['fr'])
         LANGUAGES['fra-FRA']['gettext'] = _lang_fr
-        LANGUAGES['fra-CAN']['gettext'] = _lang_fr
     except OSError:
         pass
 

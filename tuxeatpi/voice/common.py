@@ -47,21 +47,10 @@ COMMANDS = [
     'NDSP_DELETE_ALL_DATA_CMD',
 ]
 
-VOICES = {"eng-USA": ["allison",
-                      "ava",
-                      "samantha",
-                      "susan",
-                      "zoe",
-                      "tom",
-                      ],
-          "fra-FRA": ["audrey-ml",
-                      "thomas",
-                      "aurelie",
-                      ],
-          "fra-CAN": ["amelie",
-                      "chantal",
-                      "nicolas",
-                      ],
+VOICES = {"eng-USA": {"female": "ava",
+                      "male": "tom"},
+          "fra-FRA": {"female": "audrey-ml",
+                      "male": "thomas"},
           }
 
 

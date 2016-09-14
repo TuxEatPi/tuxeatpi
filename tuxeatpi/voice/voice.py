@@ -5,7 +5,7 @@ from binascii import unhexlify
 from queue import Empty
 from multiprocessing import Process
 
-from tuxeatpi.voice.common import do_synthesis
+from tuxeatpi.voice.common import VOICES, do_synthesis
 
 
 class Voice(Process):
@@ -62,6 +62,8 @@ class Voice(Process):
             self.logger.debug("Language: %s", self._settings['speech']['language'])
             self.logger.debug("Text received: %s", text)
             if not self._muted:
+                lang = self._settings['speech']['language']
+                voice = VOICES[lang][self._settings['global']['gender']]
                 self._speaking = True
                 # TODO: try/except
                 try:
@@ -69,8 +71,8 @@ class Voice(Process):
                         do_synthesis(self._settings['speech']['url'] + '/v1',
                                      self._settings['speech']['app_id'],
                                      unhexlify(self._settings['speech']['app_key']),
-                                     self._settings['speech']['language'],
-                                     self._settings['speech']['voice'],
+                                     lang,
+                                     voice,
                                      self._settings['speech']['codec'],
                                      text,
                                      self.logger,

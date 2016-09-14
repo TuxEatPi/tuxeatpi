@@ -5,8 +5,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-09-03 18:20-0400\n"
-"PO-Revision-Date: 2016-09-04 10:29-0400\n"
+"POT-Creation-Date: 2016-09-14 17:21-0400\n"
+"PO-Revision-Date: 2016-09-14 17:24-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "Language: fr_FR\n"
@@ -14,62 +14,66 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Generated-By: pygettext.py 1.5\n"
-"X-Generator: Poedit 1.8.8\n"
+"X-Generator: Poedit 1.8.9\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: tuxeatpi/actions/tux.py:34
+#: tuxeatpi/actions/tux.py:48
 msgid "My name is {}"
 msgstr "Mon nom est {}"
 
-#: tuxeatpi/actions/tux.py:45
+#: tuxeatpi/actions/tux.py:59
 msgid "I'm born on {}"
 msgstr "Je suis né le {}"
 
-#: tuxeatpi/actions/tux.py:85
+#: tuxeatpi/actions/tux.py:99
 msgid "I'm {} day old"
 msgstr "J'ai {} jour"
 
-#: tuxeatpi/actions/tux.py:87
+#: tuxeatpi/actions/tux.py:101
 msgid "I'm {} days old"
 msgstr "J'ai {} jours"
 
-#: tuxeatpi/actions/tux.py:89
+#: tuxeatpi/actions/tux.py:104
 msgid "I'm {} month old"
 msgstr "J'ai {} mois"
 
-#: tuxeatpi/actions/tux.py:91
+#: tuxeatpi/actions/tux.py:106
 msgid "I'm {} months old"
 msgstr "J'ai {} mois"
 
-#: tuxeatpi/actions/tux.py:94
+#: tuxeatpi/actions/tux.py:109
 msgid "I'm {} year"
 msgstr "J'ai {} an"
 
-#: tuxeatpi/actions/tux.py:96
+#: tuxeatpi/actions/tux.py:111
 msgid "I'm {} year and {} month"
 msgstr "J'ai {} an et {} mois"
 
-#: tuxeatpi/actions/tux.py:98
+#: tuxeatpi/actions/tux.py:113
 msgid "I'm {} year and {} months"
 msgstr "J'ai {} an et {} mois"
 
-#: tuxeatpi/actions/tux.py:101
+#: tuxeatpi/actions/tux.py:116
 msgid "I'm {} years"
 msgstr "J'ai {} ans"
 
-#: tuxeatpi/actions/tux.py:103
+#: tuxeatpi/actions/tux.py:118
 msgid "I'm {} years and {} month"
 msgstr "J'ai {} ans et {} mois"
 
-#: tuxeatpi/actions/tux.py:105
+#: tuxeatpi/actions/tux.py:120
 msgid "I'm {} years and {} months"
 msgstr "J'ai {} ans et {} mois"
 
-#: tuxeatpi/hotword/hotword.py:86 tuxeatpi/nlu/nlu.py:51
+#: tuxeatpi/actions/tux.py:147
+msgid "I speak english now"
+msgstr "Je parle maintenant français"
+
+#: tuxeatpi/nlu/common.py:236
 msgid "I need a confirmation, Could you repeat please ?"
 msgstr "J'ai besoin d'une confirmation, Pouvez vous répéter s'il vous plait ?"
 
-#: tuxeatpi/hotword/hotword.py:90 tuxeatpi/nlu/nlu.py:55
+#: tuxeatpi/nlu/common.py:240
 msgid "Sorry, I just don't get it"
 msgstr "Désolé, je ne comprends pas"
 

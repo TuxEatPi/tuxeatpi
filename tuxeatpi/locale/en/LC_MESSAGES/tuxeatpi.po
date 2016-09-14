@@ -5,7 +5,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
-"POT-Creation-Date: 2016-09-03 18:20-0400\n"
+"POT-Creation-Date: 2016-09-14 17:21-0400\n"
 "PO-Revision-Date: 2016-08-29 23:41-0400\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -17,58 +17,62 @@ msgstr ""
 "X-Generator: Poedit 1.8.8\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
-#: tuxeatpi/actions/tux.py:34
+#: tuxeatpi/actions/tux.py:48
 msgid "My name is {}"
 msgstr "My name is {}"
 
-#: tuxeatpi/actions/tux.py:45
+#: tuxeatpi/actions/tux.py:59
 msgid "I'm born on {}"
 msgstr "I'm born on {}"
 
-#: tuxeatpi/actions/tux.py:85
+#: tuxeatpi/actions/tux.py:99
 msgid "I'm {} day old"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:87
+#: tuxeatpi/actions/tux.py:101
 msgid "I'm {} days old"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:89
+#: tuxeatpi/actions/tux.py:104
 msgid "I'm {} month old"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:91
+#: tuxeatpi/actions/tux.py:106
 msgid "I'm {} months old"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:94
+#: tuxeatpi/actions/tux.py:109
 msgid "I'm {} year"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:96
+#: tuxeatpi/actions/tux.py:111
 msgid "I'm {} year and {} month"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:98
+#: tuxeatpi/actions/tux.py:113
 msgid "I'm {} year and {} months"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:101
+#: tuxeatpi/actions/tux.py:116
 msgid "I'm {} years"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:103
+#: tuxeatpi/actions/tux.py:118
 msgid "I'm {} years and {} month"
 msgstr ""
 
-#: tuxeatpi/actions/tux.py:105
+#: tuxeatpi/actions/tux.py:120
 msgid "I'm {} years and {} months"
 msgstr ""
 
-#: tuxeatpi/hotword/hotword.py:86 tuxeatpi/nlu/nlu.py:51
+#: tuxeatpi/actions/tux.py:147
+msgid "I speak english now"
+msgstr ""
+
+#: tuxeatpi/nlu/common.py:236
 msgid "I need a confirmation, Could you repeat please ?"
 msgstr "I need a confirmation, Could you repeat please ?"
 
-#: tuxeatpi/hotword/hotword.py:90 tuxeatpi/nlu/nlu.py:55
+#: tuxeatpi/nlu/common.py:240
 msgid "Sorry, I just don't get it"
 msgstr "Sorry, I just don't get it"

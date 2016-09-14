@@ -42,14 +42,19 @@ class NLUText(NLUBase):
                                 self.logger,
                                 ))
             self._understanding = False
-            self.logger.debug("Result: {}".format(ret))
+            self.logger.debug("Result: %s", ret)
             interpretations = ret.get("nlu_interpretation_results", {}).\
                 get("payload", {}).get("interpretations", {})
             # TODO: what about if len(interpretations) > 1 ??
             for interpretation in interpretations:
                 intent = interpretation.get("action", {}).get("intent", {})
-                self.logger.info("Intent: {}".format(intent.get("value")))
-                self.logger.info("Confidence: {}".format(intent.get("confidence")))
+                self.logger.info("Intent: %s", intent.get("value"))
+                self.logger.info("Confidence: %s", intent.get("confidence"))
+                # Get concepts
+                concepts = {}
+                for name, data in interpretation.get("concepts", {}).items():
+                    concepts[name] = data[0].get('value')
+                self.logger.info("Concepts: %s", concepts)
                 # TODO log arguments
                 if intent.get("value") == "NO_MATCH":
                     # I don't understand :/
@@ -67,7 +72,7 @@ class NLUText(NLUBase):
                         action, method = intent.get("value").split("__")
                         # Run action
                         # TODO add parameters from NLU response
-                        self._run_action(action, method, {}, False, True, say_it)
+                        self._run_action(action, method, concepts, False, True, say_it)
 
 
 class NLUError(Exception):
