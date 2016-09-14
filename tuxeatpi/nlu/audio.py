@@ -171,11 +171,20 @@ def nlu_audio(settings, logger):
             recorder=recorder,
             logger=logger))
     # loop.close()
-    return interpretations
+    if interpretations is False:
+        # The user did not speak
+        return {}
+    else:
+        return interpretations
 
 
 def _silent_detection(audio, silent_list, first_silent_done, logger):
-    """Analyse audio chunk to determine if this is a silent"""
+    """Analyse audio chunk to determine if this is a silent
+
+    return False: the user did NOT speak
+    return None: the user is speaking or we are waiting for it
+    return True: the user had finished to speack
+    """
     # Get rms for this chunk
     audio_rms = audioop.rms(audio, 2)
     # Detect first silent
@@ -193,7 +202,7 @@ def _silent_detection(audio, silent_list, first_silent_done, logger):
             first_silent_done = True
         if len(silent_list) > FS_NB_CHUNK:
             logger.debug("The user did NOT speak")
-            return {}
+            return False
     else:
         silent_list.append(True if audio_rms < THRESHOLD else False)
         if len(silent_list) > NB_CHUNK:
@@ -201,7 +210,8 @@ def _silent_detection(audio, silent_list, first_silent_done, logger):
             silent_list.pop(0)
         if len(silent_list) == NB_CHUNK and all(silent_list):
             logger.debug("The user has finished to speak")
-            return None
+            return True
+    return None
 
 
 @asyncio.coroutine
@@ -305,9 +315,9 @@ def understand_audio(loop, url, app_id, app_key, context_tag=None,  # pylint: di
 
         # SILENT DETECTION
         ret = _silent_detection(audio, silent_list, first_silent_done, logger)
-        if ret == {}:
+        if ret is False:
             return ret
-        if ret is None:
+        if ret is True:
             break
 
         if audiotask.done():
