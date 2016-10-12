@@ -1,0 +1,111 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<project xmlns:nuance="https://developer.nuance.com/mix/nlu/trsx" xml:lang="fr-FR" nuance:version="2.0">
+  <ontology base="http://developer.nuance.com/mix/nlu/trsx/ontology-1.0">
+    <intents>
+      <intent name="brain__capabilities"/>
+      <intent name="aptitudes__being__get_age"/>
+      <intent name="aptitudes__being__get_birthday"/>
+      <intent name="aptitudes__being__get_name"/>
+      <intent name="aptitudes__being__set_lang">
+        <links>
+          <link conceptref="language"/>
+        </links>
+      </intent>
+      <intent name="aptitudes__speak__say">
+        <links>
+          <link conceptref="text"/>
+        </links>
+      </intent>
+    </intents>
+    <concepts>
+      <concept name="text" freetext="true"/>
+      <concept name="language"/>
+    </concepts>
+  </ontology>
+  <dictionaries>
+    <dictionary conceptref="language">
+      <entry literal="anglais" value="eng-USA"/>
+      <entry literal="francais" value="fra-FRA"/>
+    </dictionary>
+  </dictionaries>
+  <samples>
+    <sample intentref="aptitudes__being__get_age">
+      Es tu vieux ?
+    </sample>
+    <sample intentref="aptitudes__being__get_age">
+      Es tu jeune ?
+    </sample>
+    <sample intentref="aptitudes__being__get_age">
+      Tu as quel âge ?
+    </sample>
+    <sample intentref="aptitudes__being__get_age">
+      Quel âge as tu ?
+    </sample>
+    <sample intentref="aptitudes__being__get_age">
+      C'est quoi ton âge ?
+    </sample>
+    <sample intentref="aptitudes__being__get_age">
+      T'as quel âge ?
+    </sample>
+    <sample intentref="aptitudes__being__get_birthday">
+      C'est quand ton anniversaire ?
+    </sample>
+    <sample intentref="aptitudes__being__get_birthday">
+      Quel jour es tu né ?
+    </sample>
+    <sample intentref="aptitudes__being__get_birthday">
+      Quand es tu né ?
+    </sample>
+    <sample intentref="aptitudes__being__get_birthday">
+      C'est quoi ta date de naissance ?
+    </sample>
+    <sample intentref="aptitudes__being__get_name">
+      C'est quoi ton nom ?
+    </sample>
+    <sample intentref="aptitudes__being__get_name">
+      Comment te nommes tu ?
+    </sample>
+    <sample intentref="aptitudes__being__get_name">
+      Quel est ton nom ?
+    </sample>
+    <sample intentref="aptitudes__being__get_name">
+      Comment t'appelles tu ?
+    </sample>
+    <sample intentref="aptitudes__being__set_lang">
+      Parles tu
+      <annotation conceptref="language">
+        anglais
+      </annotation>
+    </sample>
+    <sample intentref="aptitudes__being__set_lang">
+      Est ce que tu comprends l'
+      <annotation conceptref="language">
+        anglais
+      </annotation>
+    </sample>
+    <sample intentref="aptitudes__being__set_lang">
+      Peux tu parler
+      <annotation conceptref="language">
+        anglais
+      </annotation>
+    </sample>
+    <sample intentref="aptitudes__being__set_lang">
+      Sais tu parler
+      <annotation conceptref="language">
+        anglais
+      </annotation>
+    </sample>
+    <sample intentref="aptitudes__speak__say">
+      Peux tu dire
+      <annotation conceptref="text">
+        c'est n'importe quoi
+      </annotation>
+    </sample>
+    <sample intentref="brain__capabilities">
+      Que sais tu faire ?
+    </sample>
+    <sample intentref="brain__capabilities">
+      Qu'est ce que tu peux faire ?
+    </sample>
+  </samples>
+</project>

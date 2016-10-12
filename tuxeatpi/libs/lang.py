@@ -1,7 +1,7 @@
 """Module handling i18n and l10n for tuxeatpi"""
+
 import gettext
 import locale
-
 
 LANGUAGES = {'eng-USA': {'gettext': None,
                          'locale': 'en_US.UTF-8'},
@@ -48,18 +48,12 @@ def set_language(lang):
 
 def gtt(message):
     """Gettext wrapper"""
-    global _GTT
+    global _GTT  # pylint: disable=W0602
     if _GTT is not None:
         return _GTT(message)
     else:
         return message
 
-
-def doc(text):
-    def wrapper(func):
-        func.__doc__ = text
-        return func
-    return wrapper
 
 # Load languages at import
 load_languages()

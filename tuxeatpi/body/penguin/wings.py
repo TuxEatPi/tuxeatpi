@@ -9,7 +9,8 @@ except (RuntimeError, ImportError):
     # Use fake GPIO
     import GPIOSim.RPi.in_mem as GPIO
 
-from tuxeatpi.body.common import BaseComponent
+from tuxeatpi.body.common import BaseComponent, capability, can_transmit
+from tuxeatpi.libs.lang import gtt
 
 
 class Wings(BaseComponent):
@@ -54,6 +55,10 @@ class Wings(BaseComponent):
         self._setup_pins()
         # Calibrate wings position
         self._calibrate()
+
+    def help_(self):
+        """Return wings help"""
+        return gtt("Move my wings")
 
     def _setup_pins(self):
         """Setup all needed pings"""
@@ -133,6 +138,8 @@ class Wings(BaseComponent):
             elif isinstance(self._move_count, int) and self._move_count > 1:
                 self._move_count -= 1
 
+    @capability("Give you the position of my wings")
+    @can_transmit
     def get_position(self):
         """Return the current wings position
         and calibrate them if not available
@@ -140,7 +147,14 @@ class Wings(BaseComponent):
         self.logger.debug("Getting wings position")
         if self._position is None and self._calibration_mode is False:
             self._calibrate()
-        return self._position
+
+        if self._position == "up":
+            tts = gtt("My wings are up")
+        elif self._position == "down":
+            tts = gtt("My wings are down")
+        else:
+            raise WingsError("Bad wings position")
+        return {"tts": tts, "result": {"position": self._position}}
 
     def _calibrate(self):
         """Calibrate wings position"""
@@ -156,6 +170,8 @@ class Wings(BaseComponent):
             self.logger.debug("Waiting for wings calibration")
         self.logger.debug("Wings calibration done")
 
+    @capability("Move up or move down my wings")
+    @can_transmit
     def move_to_position(self, position):
         """Put wings to up position"""
         if position not in ["up", "down"]:
@@ -164,6 +180,25 @@ class Wings(BaseComponent):
         self.logger.debug("Putting Wings to {} position".format(position))
         self.move_start()
 
+        if position == "up":
+            tts = gtt("I'm putting my wings up")
+        elif position == "down":
+            tts = gtt("I'm putting my wings down")
+        else:
+            raise WingsError("Bad wings position")
+
+        return {"tts": tts, "result": {"position": position}}
+
+    @capability("Move up down my wings")
+    @can_transmit
+    def move_to_position_up(self):
+        return self.move_to_position("up")
+
+    @capability("Move up my wings")
+    @can_transmit
+    def move_to_position_down(self):
+        return self.move_to_position("down")
+
     def move_time(self, timeout):
         """Move wings during until timeout"""
         timer = Timer(timeout, self.move_stop)
@@ -171,18 +206,28 @@ class Wings(BaseComponent):
         self.move_start()
         timer.start()
 
+    @capability("Move my wings X number of times")
+    @can_transmit
     def move_count(self, count):
         """Move wings N times"""
         self._move_count = count
         self.logger.debug("Set Wings movement for {} times".format(self._move_count))
         self.move_start()
+        tts = gtt("My wings are moving")
+        return {"tts": tts, "result": {"wings": "starting"}}
 
+    @capability("Start moving my wings")
+    @can_transmit
     def move_start(self):
         """Start moving wings"""
         self.logger.debug("Wings movement starting")
         self.is_moving = True
         GPIO.output(self.pins['movement'], GPIO.HIGH)
+        tts = gtt("My wings are moving")
+        return {"tts": tts, "result": {"wings": "starting"}}
 
+    @capability("Stop moving my wings")
+    @can_transmit
     def move_stop(self):
         """Stop moving wings"""
         self.logger.debug("Wings movement stopping")
@@ -191,6 +236,8 @@ class Wings(BaseComponent):
         self._calibration_mode = False
         self.is_moving = False
         GPIO.output(self.pins['movement'], GPIO.LOW)
+        tts = gtt("My wings are stopped")
+        return {"tts": tts, "result": {"wings": "stopped"}}
 
 
 class WingsError(Exception):

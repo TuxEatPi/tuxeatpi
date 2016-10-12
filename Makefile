@@ -2,10 +2,27 @@
 #######################################
 ### Dev targets
 #######################################
-env-dev:
+
+dev-dep:
+	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk libspeex-dev swig libpulse-dev libspeexdsp-dev
+
+
+pyenv:
 	virtualenv --system-site-packages -p /usr/bin/python3 env
-#	env/bin/pip3 install -r requirements.txt --upgrade --force-reinstall
-#	env/bin/python setup.py develop
+	env/bin/pip3 install -r requirements.txt --upgrade --force-reinstall
+	env/bin/python setup.py develop
+
+#######################################
+### Documentation
+#######################################
+
+doc-update-refs:
+	rm -rf doc/source/refs/
+	sphinx-apidoc -M -f -e -o doc/source/refs/ tuxeatpi/
+
+doc-generate:
+	cd doc && make html
+	touch doc/build/html/.nojekyll
 
 #######################################
 ### Localization
@@ -49,3 +66,36 @@ hotword-en:
 
 hotword-clean:
 	rm -rf pocketsphinx-data
+
+
+#######################################
+### Nuance NLU models
+#######################################
+
+nlu-update:
+	echo toots/nuance....
+
+nlu-clean:
+	echo toots/nuance....
+
+nlu-replaceclean: nlu-clean nlu-update
+
+#######################################
+### Test targets
+#######################################
+
+test-run: test-syntax test-unit
+
+test-syntax:
+	rm -rf .coverage cover/
+	pycodestyle --max-line-length=100 --exclude='*.pyc' --exclude=tuxeatpi/experimental tuxeatpi
+	pylint --rcfile=.pylintrc -r no tuxeatpi
+
+test-unit:
+	rm -rf .coverage nosetest.xml nosetests.html htmlcov
+	#env/bin/coverage run --include='*/tuxeatpi/*' --omit='*/tuxeatpi/tests/*' `which nosetests` --with-html --with-xunit tuxeatpi tests -svd 
+	nosetests --with-coverage --cover-erase --cover-package=tuxeatpi --with-html --with-xunit tuxeatpi tests -svd 
+	coverage combine
+	coverage html
+	#coverage report
+

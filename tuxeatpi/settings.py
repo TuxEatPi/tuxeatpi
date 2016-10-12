@@ -5,7 +5,6 @@ import os
 import yaml
 
 
-#from tuxeatpi.voice.common import VOICES, CODECS
 from tuxeatpi.libs.lang import set_language
 
 

@@ -1,15 +1,15 @@
+"""Aptitude for wake up TuxDroid using voice (wake up word)"""
+
 import os
-from queue import Empty
-import time
-from datetime import timedelta, datetime
-import threading
+import wave
 
 import pyaudio
 from pocketsphinx.pocketsphinx import Decoder
 
-from tuxeatpi.aptitudes.common import Aptitude, capability, can_transmit
-from tuxeatpi.libs.lang import gtt, doc
-from tuxeatpi.transmission import create_transmission
+# from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit
+from tuxeatpi.aptitudes.common import ThreadedAptitude, capability
+from tuxeatpi.libs.lang import gtt
+
 
 # SILENT DETECTION
 # TODO adjust it
@@ -18,16 +18,21 @@ NB_CHUNK = 5
 THRESHOLD = 500
 
 
-class Hear(Aptitude, threading.Thread):
+class Hear(ThreadedAptitude):
+    """Wake up word aptitude"""
 
     def __init__(self, tuxdroid):
-        threading.Thread.__init__(self)
-        Aptitude.__init__(self, tuxdroid)
-        self.start_time = time.time()
+        ThreadedAptitude.__init__(self, tuxdroid)
+
+        self._answer_sound_path = "sounds/answer.wav"
         self._config = Decoder.default_config()
         # TODO raise an error
         if not self._prepare_decoder():
             self._must_run = False
+
+    def help_(self):
+        # TODO do it
+        pass
 
     def _prepare_decoder(self):
         """Set decoder config"""
@@ -61,10 +66,27 @@ class Hear(Aptitude, threading.Thread):
         self._decoder.set_keyphrase('wakeup', self._hotword)
         self._decoder.set_search('wakeup')
 
+    def _answering(self):
+        """Play the hotwoard confirmation sound"""
+        f_ans = wave.open(self._answer_sound_path, "rb")
+        stream = self._paudio.open(format=self._paudio.get_format_from_width(f_ans.getsampwidth()),
+                                   channels=f_ans.getnchannels(),
+                                   rate=f_ans.getframerate(),
+                                   output=True)
+        data = f_ans.readframes(1024)
+        while len(data) > 0:
+            stream.write(data)
+            data = f_ans.readframes(1024)
+        # Close file
+        f_ans.close()
+        # Close stream
+        stream.stop_stream()
+        stream.close()
+
     def stop(self):
         """Stop process"""
         self._rerun = False
-        NLUBase.stop(self)
+        ThreadedAptitude.stop(self)
 
     def run(self):
         """Listen for NLU"""
@@ -93,10 +115,26 @@ class Hear(Aptitude, threading.Thread):
 
                 if self._decoder.hyp() and self._decoder.hyp().hypstr == self._hotword:
                     self.logger.debug("Hotword detected")
-                    # TODO answering
-                    #self._answering()
-                    # TODO create tranmission for audio nlu
+                    self.wake_up_work()
                     self._rerun = True
                     break
             self._decoder.end_utt()
 
+    @capability(gtt("Give your my attention and listen to you"))
+    # @can_transmit
+    def wake_up_work(self):
+        """Wake up work capability
+
+        Answer to the speaker and create a transmission for audio nlu
+        """
+        # answering
+        self._answering()
+        # create tranmission for audio nlu
+        content = {"arguments": {}}
+        tmn = self.create_transmission("hear", "aptitudes.nlu.audio", content)
+        self.wait_for_answer(tmn.id_)
+
+
+class HotWordError(Exception):
+    """Base class for hotword exceptions"""
+    pass

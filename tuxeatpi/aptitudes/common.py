@@ -1,115 +1,71 @@
-import uuid
+"""Common module for aptitudes"""
+
+import os
 import logging
 import importlib
-import time
-import multiprocessing
 import threading
-from queue import Empty
-
-from functools import wraps
-
-from tuxeatpi.transmission import create_transmission
-from tuxeatpi.libs.lang import gtt
+import multiprocessing
 
 
-def capability(help_text):
-    def wrapper(func):
-        func._is_capability = True
-        func._help_text = help_text
-        return func
-    return wrapper
+from tuxeatpi.libs.common import AbstractComponent, threaded, subprocessed, capability, can_transmit
 
-def can_transmit(func):
-    @wraps(func)
-    def wrapper(*args, id_=None, s_mod=None, s_func=None, **kwargs):
-        text = func(*args, **kwargs)
-        # Create a transmission
-        if id_ is not None and s_mod is not None and s_func is not None:
-            content = {"attributes": {"text": text}}
-            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        return text
-    return wrapper
 
-class Aptitude(object):
+__all__ = ["threaded",
+           "subprocessed",
+           "capability",
+           "can_transmit",
+           "Aptitude",
+           "Aptitudes"]
+
+
+class Aptitude(AbstractComponent):
     """Class to define an Tux aptitude
 
     An aptitude can NOT be learnd
     """
     def __init__(self, tuxdroid):
-        self._name = self.__class__.__name__
-        self.logger = logging.getLogger(name="tep").getChild("aptitudes").getChild(self._name)
-        self.logger.info("Initialization")
-        self.dependencies = set()
-        self._tuxdroid= tuxdroid
+        super(Aptitude, self).__init__()
+        self._tuxdroid = tuxdroid
         self.settings = tuxdroid.settings
-        manager = multiprocessing.Manager()
-        self.answer_queue = manager.dict()
-        self.task_queue = multiprocessing.Queue()
-        self.answer_event_dict = manager.dict()
-        self._must_run = True
 
-    def help(self):
+    def _get_logger(self):
+        """Get logger"""
+        self.logger = logging.getLogger(name="tep").getChild("aptitudes").getChild(self._name)
+
+    def help_(self):
         raise NotImplementedError
 
-    def push_answer(self, tmn):
-        """Push an transmission answert to the current aptitude"""
-        if tmn.id_ not in self.answer_event_dict:
-            self.logger.warning("Transmission `%s` NOT found in answer event dict", tmn.id_)
-            return
-        self.logger.info("Answer received: %s", tmn.id_)
-        # Put answer in answert queue
-        self.answer_queue[tmn.id_] = tmn
-        # Set Answer waiting flag to True
-        self.answer_event_dict[tmn.id_] = True
 
-    def push_transmission(self, task):
-        """Push a transmission to the current aptitute"""
-        self.task_queue.put(task)
+class ThreadedAptitude(Aptitude, threading.Thread):
+    """Threaded aptitude"""
 
-    def create_transmission(self, source, destination, params):
-        """Create a new transmission and push it to the brain"""
-        tmn = create_transmission(self.__class__.__name__,
-                                  s_func,
-                                  mod, func, params)
-        return tmn
+    def __init__(self, tuxdroid):
+        threading.Thread.__init__(self)
+        Aptitude.__init__(self, tuxdroid)
 
-    def wait_for_answer(self, tmn_id, timeout=5):
-        """Blocking wait for a transmission answer on the current aptitude"""
-        self.logger.info("Creating waiting event for transmission: %s", tmn_id)
-        self.answer_event_dict.setdefault(tmn_id, False)
-        self.logger.info("Waiting for transmission: %s", tmn_id)
-        # Waiting for answer waiting flag to True
-        while self.answer_event_dict[tmn_id] is False and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 0.1
-        # Check if we got a timeout
-        if timeout < 0:
-            # or critical ?
-            self.logger.warning("No answer received for transmission: %s", tmn_id)
-            # No answer
-            return None
-        else:
-            self.answer_event_dict.pop(tmn_id)
-            answer = self.answer_queue.pop(tmn_id)
-            return answer
+    def help_(self):
+        raise NotImplementedError
+
+
+class SubprocessedAptitude(Aptitude, multiprocessing.Process):
+    """Subprocessed aptitude"""
+
+    def __init__(self, tuxdroid):
+        multiprocessing.Process.__init__(self)
+        Aptitude.__init__(self, tuxdroid)
+        self.name = self._name
+
+    def help_(self):
+        raise NotImplementedError
 
     def stop(self):
-        """Stop The current Aptitude"""
-        self.logger.info("Stopping")
-        self._must_run = False
-
-    def run(self):
-        """Default run loop for aptitude"""
-        self.logger.info("Starting")
-        while self._must_run:
-            try:
-                task = self.task_queue.get(timeout=1)
-            except Empty:
-                continue
-            getattr(self, task.func)(id_=task.id_, s_mod=task.s_mod, s_func=task.s_func, **task.content['attributes'])
+        """Stop the process"""
+        self.terminate()
+        Aptitude.stop(self)
 
 
 class Aptitudes(object):
+    """Class to handle aptitudes"""
 
     def __init__(self, tuxdroid):
         self.logger = logging.getLogger(name="tep").getChild("aptitudes")
@@ -118,10 +74,13 @@ class Aptitudes(object):
         self._names = set()
 
     def _add(self, name, aptitude):
+        """Add aptitude to aptitudes list"""
         setattr(self, name, aptitude)
         self._names.add(name)
 
+    # TODO improve me
     def help_(self):
+        """Aptitudes help"""
         aptitudes_help = {}
         for aptitude_name in self._names:
             # Get aptitude object
@@ -137,9 +96,18 @@ class Aptitudes(object):
         return aptitudes_help
 
     def _load(self):
-        # TODO get aptitude list
-        aptitude_names = ["being", "hear", "http", "speak"]
+        """Load aptitudes"""
+        # Get aptitude list
+        aptitude_names = []
+        aptitudes_dir = os.path.dirname(__file__)
+        for file_name in os.listdir(aptitudes_dir):
+            abs_file_name = os.path.join(aptitudes_dir, file_name)
+            if os.path.isdir(abs_file_name):
+                if "__init__.py" in os.listdir(abs_file_name):
+                    print(abs_file_name)
+                    aptitude_names.append(file_name)
         # Load modules
+        aptitude_names = ['speak', 'nlu', 'hear', 'being', 'http']
         for aptitude_name in aptitude_names:
             mod_aptitude = importlib.import_module('.'.join(('tuxeatpi',
                                                              'aptitudes',
@@ -149,87 +117,14 @@ class Aptitudes(object):
             self._add(aptitude_name, aptitude)
 
     def start(self):
+        """Start all aptitudes"""
         self._load()
         self.logger.info("Starting")
         for aptitude_name in self._names:
             getattr(self, aptitude_name).start()
 
     def stop(self):
+        """Stop all aptitudes"""
         self.logger.info("Stopping")
-        for aptitude in self:
-            aptitude.start()       
-
-
-#class TAptitude(threading.Thread, Aptitude):
-#
-#    def __init__(self, intent_queue):
-#        threading.Thread.__init__(self)
-#        Aptitude.__init__(self, intent_queue)
-#
-#
-#class PAptitude(multiprocessing.Process, Aptitude):
-#    def __init__(self, intent_queue):
-#        multiprocessing.Process.__init__(self)
-#        Aptitude.__init__(self, intent_queue)
-#
-#
-#class Intent(object):
-#
-#    def __init__(self, source, name, params, id_=None):
-#        if len(name.split("__", 1)) != 2:
-#            raise Exception("BAD Intent name")
-#        self.source = source
-#        self.name = name
-#        self.params = params
-#        if id_ is None:
-#            self.id_ = uuid.uuid1()
-#        else:
-#            self.id_ = id_
-#        self.create_time = time.time()
-#
-#
-#def create_intent(intent_queue, source, name, params, id_=None):
-#
-#    # Create intent
-#    new_intent = Intent(source, name, params, id_)
-#
-#    # Put in task queue
-#    intent_queue.put(new_intent)
-#
-#    # return the task id
-#    return new_intent.id_
-#
-#
-#class Transmission(object):
-#
-#    def __init__(self, id_, source, name, params):
-#        self.source = source
-#        self.name = name
-#        self.params = params
-#        self.id_ = id_
-#        self.create_time = time.time()
-#
-#def create_transmission(transmission_queue, source, name, params, id_=None):
-#    # Create intent
-#    new_intent = Transmission(source, name, params, id_)
-#    # Put in task queue
-#    intent_queue.put(new_intent)
-#    # return the task id
-#    return new_intent.id_
-#
-#class Response(object):
-#
-#    def __init__(self, id_, source, name, params):
-#        self.source = source
-#        self.name = name
-#        self.params = params
-#        self.id_ = id_
-#        self.create_time = time.time()
-#
-#def create_response(intent_queue, source, name, params, id_=None):
-#    # Create intent
-#    new_intent = Intent(source, name, params, id_)
-#    # Put in task queue
-#    intent_queue.put(new_intent)
-#    # return the task id
-#    return new_intent.id_
+        for aptitude_name in self._names:
+            getattr(self, aptitude_name).stop()

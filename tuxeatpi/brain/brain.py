@@ -1,22 +1,20 @@
-import uuid
+"""TuxDroid brain module"""
 
 import threading
-import select
 import logging
+import copy
 from queue import Empty
-import time
 
 
-from tuxeatpi.aptitudes.speak.speak import Speak
-from tuxeatpi.brain.nlu.text import NLUText
-from tuxeatpi.aptitudes.being.being import Being
-from tuxeatpi.skills.clock import Clock
-from tuxeatpi.body.body import Body
-
+from tuxeatpi.settings import SettingsError
 from tuxeatpi.transmission import TRANSMISSION_QUEUE as TMN_QUEUE
+from tuxeatpi.transmission import TransmissionError, create_transmission
+from tuxeatpi.libs.common import capability, can_transmit, threaded
+from tuxeatpi.libs.lang import gtt
 
 
 class Brain(threading.Thread):
+    """TuxDroid brain route transmissions to capabilities"""
 
     def __init__(self, tuxdroid):
         threading.Thread.__init__(self)
@@ -26,48 +24,6 @@ class Brain(threading.Thread):
         self.logger = logging.getLogger(name="tep").getChild("brain")
 
         self._must_run = True
-
-        # Init nlu text
-#        self.nlu_queue_task = multiprocessing.Queue()
-#        self.nlu_dict_done = multiprocessing.Manager()
-        self.nlu_text = NLUText(self.settings)
-        self.nlu_text.start()
-
-#        self.body = Body()
-#        self.body.start()
-#        self.being = Being()
-#        self.being.start()
-#        self.http = Http()
-#        self.http.start()
-#        self.speak = Speak()
-#        self.speak.start()
-
-    def understand_text(self, text):
-        self.logger.info("Trying to understand text: %s", text)
-        id_ = uuid.uuid1()
-        self.nlu_text.queue_task.put((id_, text))
-
-        self.logger.info("Creating waiting event for nlu_text: %s", id_)
-        self.nlu_text.task_done_dict.setdefault(id_, False)
-        self.logger.info("Waiting for nlu_text: %s", id_)
-        # Waiting for answer waiting flag to True
-        timeout = 1
-        while self.nlu_text.task_done_dict[id_] is False and timeout > 0:
-            time.sleep(0.1)
-            timeout -= 0.1
-        # Check if we got a timeout
-        if timeout < 0:
-            # or critical ?
-            self.logger.warning("No answer received for nlu_text: %s", id_)
-            # No answer
-            return None
-        else:
-            answer = self.nlu_text.task_done_dict.pop(id_)
-            return answer
-
-        # Wait for answer
-        # TODO Return !
-#        return nlu_text(self.settings, text)
 
     def update_setting(self, settings):
         """Update settings and save it on disk
@@ -90,55 +46,95 @@ class Brain(threading.Thread):
             return False
 
     def stop(self):
+        """Stop brain"""
         self._must_run = False
+        TMN_QUEUE.close()
 
     def help_(self):
+        """Return capabilities help"""
         capabilities_help = {}
         capabilities_help.update(self.tuxdroid.aptitudes.help_())
         return capabilities_help
 
+    @capability(gtt("Give my capabilities"))
+    @threaded
+    @can_transmit
+    def capabilities(self):
+        """Capability to return capabilities list"""
+        texts = []
+        # Aptitudes
+        caps = {}
+        for cap in ["aptitudes", "skills"]:
+            caps[cap] = {}
+            element_names = getattr(self.tuxdroid, cap)._names
+            for element_name in element_names:
+                try:
+                    help_text = getattr(getattr(self.tuxdroid, cap), element_name).help_()
+                    if help_text is not None:
+                        caps[cap][element_name] = help_text
+                        texts.append(gtt("I can {}").format(help_text))
+                except NotImplementedError:
+                    pass
+                except TypeError:
+                    pass
+        # Skills
+        text = ". ".join(texts)
+        return {"tts": text, "result": {"capabilities": caps}}
+
     def run(self):
+        """Brain main loop"""
         timeout = 1
         while self._must_run:
             try:
-                tmn = TMN_QUEUE.get(timeout=1)
+                tmn = TMN_QUEUE.get(timeout=timeout)
             except Empty:
                 continue
+            except OSError:
+                continue
             self.logger.info("Transmission: %s", tmn)
-            # Check params structure
-            tmn.check_content()
+            try:
+                # Check params structure
+                tmn.check_validity()
+            except TransmissionError as exp:
+                # TODO CREATE ERROR TRANSMISSION
+                self.logger.critical("Transmission %s: %s", tmn.id_, exp)
+                continue
 
-            # Transmission for Body 
-            if tmn.mod.lower() == body:
-                module = self.tuxdroid.body
-            # Transmission for an Aptitude
-            elif hasattr(self.tuxdroid.aptitudes, tmn.mod.lower()):
-                module = getattr(self.tuxdroid.aptitudes, tmn.mod.lower())
-            # Transmission for an Skills
-            elif hasattr(self.tuxdroid.skills, tmn.mod.lower()):
-                module = getattr(self.tuxdroid.skills, tmn.mod.lower())
-            elif not hasattr(self, tmn.mod.lower()):
-                self.logger.critical("Module %s NOT found", tmn.mod.lower())
-                tmn.mod = tmn.s_mod
-                tmn.func = tmn.s_func
-                module = getattr(self, tmn.mod.lower())
-                module.push_answer(tmn)
-            # check context/states
-            # Check tmn mod/func/s_mod/s_func
-            # get module
-#            module = getattr(self, tmn.mod.lower())
+            # looking for module
+            module_names = tmn.destination.split(".")[:2]
+            module = self.tuxdroid
+            bad_capabilities = False
+            for module_name in module_names:
+                if not hasattr(module, module_name.lower()):
+                    self.logger.critical("No module found %s.%s",
+                                         module.__class__.__name__,
+                                         module_name.lower())
+                    # This is not a capability
+                    bad_capabilities = True
+                    continue
+                module = getattr(module, module_name.lower())
+            # This is not a capability
+            if bad_capabilities:
+                self.logger.critical("Transmission %s: Destination %s is "
+                                     "not a capability", tmn.id_, tmn.destination)
+                # Create error transmission
+                content = {"error": "`{}` is not a capability".format(tmn.destination),
+                           "tts": gtt("I don't have this capability")}
+                create_transmission(tmn.source, tmn.source, content, tmn.id_)
+                continue
+
             # Check if this is an answer
-            if tmn.s_mod == tmn.mod and tmn.s_func == tmn.func:
+            if tmn.source == tmn.destination:
                 # Send ansert to module
-                self.logger.info("Put answer %s to %s", tmn.id_, tmn.mod)
+                self.logger.info("Put answer %s to %s", tmn.id_, tmn.source)
                 module.push_answer(tmn)
+            elif tmn.destination.startswith("brain."):
+                # Brain capacity
+                self.logger.info("Transmission %s: Call brain capacity `%s`",
+                                 tmn.id_,
+                                 tmn.destination)
+                # Call brain method
+                module(id_=tmn.id_, source=tmn.source, **tmn.content['arguments'])
             else:
-                # Send task to module
+                self.logger.info("Put transmission %s to %s", tmn.id_, tmn.destination)
                 module.push_transmission(tmn)
-                self.logger.info("Put transmission %s to %s", tmn.id_, tmn.mod)
-
-#            inputs, _, _ = select.select([TMN_QUEUE._reader],[],[], 1)
-#            if len(inputs) == 0:
-#                continue
-#            for input_ in inputs:
-#                element = input_.recv()

@@ -4,97 +4,57 @@ to create Tux component like wings, eyes, ...
 """
 
 import logging
-from queue import Queue, Empty
 import threading
 import time
 
 # Use fake GPIO
 import GPIOSim.RPi.in_mem as GPIO
 
-import functools
+
+from tuxeatpi.libs.common import AbstractComponent, threaded, subprocessed, capability, can_transmit
+from tuxeatpi.settings import SettingsError
+from tuxeatpi.libs.lang import gtt
 
 
-class Shape(threading.Thread):
+__all__ = ["threaded",
+           "subprocessed",
+           "capability",
+           "can_transmit",
+           "Shape",
+           "BaseComponent",
+           ]
 
-    def __init__(self, settings, fake):
+
+class Shape(AbstractComponent, threading.Thread):
+    """Class define a TuxDroid Shape"""
+
+    def __init__(self, settings, fake=False):
         threading.Thread.__init__(self)
-        self._name = self.__class__.__name__
+        AbstractComponent.__init__(self)
+        self.logger.info("Body starting with shape: %s", self._name)
         self._settings = settings
         self.fake = fake
-        self.logger = logging.getLogger(name="tep").getChild("body")
-        self.logger.info("Body starting with shape: %s", self._name)
-        self._must_run = True
-        self.answer_queue = {}
-        self.task_queue = Queue()
-        self.answer_event_dict = {}
-        self._must_run = True
 
+    def _get_logger(self):
+        self.logger = logging.getLogger(name="tep").getChild("body")
+
+    def help_(self):
+        """Return shape help"""
+        return gtt("Use my body")
 
     def _load_components(self):
+        """Load all shape components like wings, head, ..."""
         raise NotImplementedError
-
-    def push_answer(self, tmn):
-        """Push an transmission answert to the current aptitude"""
-        if tmn.id_ not in self.answer_event_dict:
-            self.logger.warning("Transmission `%s` NOT found in answer event dict", tmn.id_)
-            return
-        self.answer_queue[tmn.id_] = tmn
-        self.answer_event_dict[tmn.id_].set()
-
-    def push_transmission(self, task):
-        """Push a transmission to the current aptitute"""
-        self.task_queue.put(task)
-
-    def create_transmission(self, s_func, mod, func, params):
-        """Create a new transmission and push it to the brain"""
-        tmn = create_transmission(self.__class__.__name__,
-                                  s_func,
-                                  mod, func, params)
-        return tmn
-
-    def wait_for_answer(self, tmn_id, timeout=5):
-        """Blocking wait for a transmission answer on the current aptitude"""
-        self.logger.info("Creating waiting event for transmission: %s", tmn_id)
-        self.answer_event_dict[tmn_id] = multiprocessing.Event()
-        self.logger.info("Waiting for transmission: %s", tmn_id)
-        ret = self.answer_event_dict[tmn_id].wait(timeout)
-        if ret is False:
-            # or critical ?
-            self.logger.warning("No answer received for transmission: %s", tmn_id)
-            # No answer
-            return None
-        else:
-            self.answer_event_dict.pop(tmn_id)
-            answer = self.answer_queue.pop(tmn_id)
-            return answer
-
-    def stop(self):
-        """Stop The current Aptitude"""
-        self.logger.info("Stopping")
-        self._must_run = False
 
     def run(self):
         """Default run loop for aptitude"""
-        self.logger.info("Starting")
         # Load body components
         self._load_components()
-        while self._must_run:
-            try:
-                task = self.task_queue.get(timeout=1)
-            except Empty:
-                continue
-            method_names = task.func.split(".")
-            method = self
-            for method_name in method_names:
-                print("obj %s" % method)
-                print("method_name %s" % method_name)
-                method = getattr(method, method_name)
-                if method is None:
-                    self.logger.critical("No body func found %s", task.func)
-            method(**task.content['attributes'])
+        # Run default loop
+        AbstractComponent.run(self)
 
 
-class BaseComponent(object):  # pylint: disable=R0903
+class BaseComponent(AbstractComponent, threading.Thread):  # pylint: disable=R0903
     """Parent class use for component like wings, eyes, ...
 
     Define some checks about component creation and
@@ -103,9 +63,9 @@ class BaseComponent(object):  # pylint: disable=R0903
     pins = None
 
     def __init__(self, pins):
-        self._name = self.__class__.__name__
+        threading.Thread.__init__(self)
+        AbstractComponent.__init__(self)
         # Set logger
-        self.logger = logging.getLogger(name="tep").getChild("body").getChild(self._name)
         self.logger.info("Body Component starting %s", self._name)
         # Check pin_name_list validity
         if not isinstance(self.pins, dict):
@@ -123,7 +83,12 @@ class BaseComponent(object):  # pylint: disable=R0903
         # Set pins
         self.pins = pins
 
+    def help_(self):
+        """Help about the aptitude"""
+        raise NotImplementedError
 
+    def _get_logger(self):
+        self.logger = logging.getLogger(name="tep").getChild("body").getChild(self._name)
 
     def _switch(self, event_pin_id):
         """Add event to Tux event queue"""

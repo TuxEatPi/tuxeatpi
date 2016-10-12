@@ -1,8 +1,12 @@
-#: tuxeatpi/aptitudes/being/being.py:27
+#: tuxeatpi/aptitudes/being/being.py:21
+msgid "talk about myself"
+msgstr ""
+
+#: tuxeatpi/aptitudes/being/being.py:29
 msgid "Give my name"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:32
+#: tuxeatpi/aptitudes/being/being.py:35
 msgid "My name is {}"
 msgstr ""
 
@@ -10,70 +14,142 @@ msgstr ""
 msgid "Give my birthday"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:48
+#: tuxeatpi/aptitudes/being/being.py:49
 msgid "I'm born on {}"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:60
+#: tuxeatpi/aptitudes/being/being.py:58
 msgid "Give my uptime"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:104
+#: tuxeatpi/aptitudes/being/being.py:100
 msgid "Give my age"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:111
+#: tuxeatpi/aptitudes/being/being.py:108
 msgid "I'm {} day old"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:113
+#: tuxeatpi/aptitudes/being/being.py:110
 msgid "I'm {} days old"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:116
+#: tuxeatpi/aptitudes/being/being.py:113
 msgid "I'm {} month old"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:118
+#: tuxeatpi/aptitudes/being/being.py:115
 msgid "I'm {} months old"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:121
+#: tuxeatpi/aptitudes/being/being.py:118
 msgid "I'm {} year"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:123
+#: tuxeatpi/aptitudes/being/being.py:120
 msgid "I'm {} year and {} month"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:125
+#: tuxeatpi/aptitudes/being/being.py:122
 msgid "I'm {} year and {} months"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:128
+#: tuxeatpi/aptitudes/being/being.py:125
 msgid "I'm {} years"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:130
+#: tuxeatpi/aptitudes/being/being.py:127
 msgid "I'm {} years and {} month"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:132
+#: tuxeatpi/aptitudes/being/being.py:129
 msgid "I'm {} years and {} months"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:152
+#: tuxeatpi/aptitudes/being/being.py:140
 msgid "Speak an other language"
 msgstr ""
 
-#: tuxeatpi/aptitudes/being/being.py:166
+#: tuxeatpi/aptitudes/being/being.py:150
 msgid "I speak english now"
 msgstr ""
 
-#: tuxeatpi/brain/nlu/common.py:240 tuxeatpi/brain/nlu/common.py:266
+#: tuxeatpi/aptitudes/hear/hear.py:123
+msgid "Give your my attention and listen to you"
+msgstr ""
+
+#: tuxeatpi/aptitudes/nlu/common.py:208
 msgid "I need a confirmation, Could you repeat please ?"
 msgstr ""
 
-#: tuxeatpi/brain/nlu/common.py:244 tuxeatpi/brain/nlu/common.py:270
+#: tuxeatpi/aptitudes/nlu/common.py:212
 msgid "Sorry, I just don't get it"
+msgstr ""
+
+#: tuxeatpi/aptitudes/nlu/nlu.py:19
+msgid "Understand text and voice"
+msgstr ""
+
+#: tuxeatpi/aptitudes/nlu/nlu.py:21
+msgid "Understand what you're saying"
+msgstr ""
+
+#: tuxeatpi/aptitudes/nlu/nlu.py:36
+msgid "Understand text"
+msgstr ""
+
+#: tuxeatpi/aptitudes/speak/speak.py:34
+msgid "say anything"
+msgstr ""
+
+#: tuxeatpi/aptitudes/speak/speak.py:36
+msgid "Give my mute state"
+msgstr ""
+
+#: tuxeatpi/aptitudes/speak/speak.py:42
+msgid "Mute myself"
+msgstr ""
+
+#: tuxeatpi/aptitudes/speak/speak.py:48
+msgid "Unmute myself"
+msgstr ""
+
+#: tuxeatpi/aptitudes/speak/speak.py:54
+msgid "Say something"
+msgstr ""
+
+#: tuxeatpi/body/common.py:43
+msgid "Use my body"
+msgstr ""
+
+#: tuxeatpi/body/penguin/wings.py:61
+msgid "Move my wings"
+msgstr ""
+
+#: tuxeatpi/brain/brain.py:58
+msgid "Give my capabilities"
+msgstr ""
+
+#: tuxeatpi/brain/brain.py:74
+msgid "I can {}"
+msgstr ""
+
+#: tuxeatpi/brain/brain.py:119
+msgid "I don't have this capability"
+msgstr ""
+
+#: tuxeatpi/skills/clock/clock.py:17
+msgid "talk about time"
+msgstr ""
+
+#: tuxeatpi/skills/clock/clock.py:19
+msgid "Give time"
+msgstr ""
+
+#: tuxeatpi/skills/clock/clock.py:25
+msgid "%I:%M %p"
+msgstr ""
+
+#: tuxeatpi/skills/clock/clock.py:26
+msgid "It's {}"
 msgstr ""

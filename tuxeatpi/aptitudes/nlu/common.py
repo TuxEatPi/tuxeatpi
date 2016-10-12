@@ -3,8 +3,6 @@ import asyncio
 import base64
 import binascii
 import datetime
-from multiprocessing import Process, Queue, Manager
-import logging
 import email.utils
 import hashlib
 import hmac
@@ -197,85 +195,23 @@ class Recorder:
             error = "Couldn't find recording parameters for device {}".format(self.device_index)
             raise RuntimeError(error)
 
-
-class NLUBase(Process):
-    """Define NLU base component
-    """
-    def __init__(self, settings):
-        Process.__init__(self)
-        # Set logger
-        self.logger = logging.getLogger(name="tep").getChild("brain").getChild(self.__class__.__name__)
-        self.logger.debug("Initialization")
-        # Set queues
-        self.queue_task = Queue()
-        manager = Manager()
-        self.task_done_dict = manager.dict()
-#        self.tts_queue = tts_queue
-#        self.action_queue = action_queue
-        # Init private attributes
-        self._settings = settings
-        self._must_run = True
-
-    def run(self):
-        raise NotImplementedError
-
-    def _say(self, text):
-        """Put text in tts queue"""
-        self.tts_queue.put(text)
-
-    def _run_action(self, action, method, args, print_it=False, text_it=True, say_it=False):
-        """Put action in action queue"""
-        data = {"action": action,
-                "method": method,
-                "args": args,
-                "print_it": print_it,
-                "text_it": text_it,
-                "say_it": say_it,
-                }
-        self.action_queue.put(data)
-
-    def _misunderstand(self, confidence, text_it=False, say_it=False):
-        """Bad understanding"""
-        # TODO add text_it and say_it
-        msg = ''
-        if confidence < 0.8 and confidence > 0.5:
-            msg = gtt("I need a confirmation, Could you repeat please ?")
-            self.logger.warning("NLU: misunderstood: {}".format(msg))
-            # TODO ask a confirmation
-        if confidence < 0.5:
-            msg = gtt("Sorry, I just don't get it")
-            self.logger.warning("NLU: misunderstood: {}".format(msg))
-        if say_it is True:
-            self._say(msg)
-        if text_it is True:
-            return msg
-            # TODO say it
-
     def stop(self):
-        """Stop NLU process"""
-        self._must_run = False
-        try:
-            self.terminate()
-        except AttributeError:
-            pass
+        """Kill recorder"""
+        self.audio.terminate()
 
 
 def _misunderstand(confidence, logger):
     """Bad understanding"""
-    # TODO add text_it and say_it
-    msg = ''
+    msg = ""
+    # TODO improve me
     if confidence < 0.8 and confidence > 0.5:
         msg = gtt("I need a confirmation, Could you repeat please ?")
         logger.warning("NLU: misunderstood: {}".format(msg))
-        # TODO ask a confirmation
-    if confidence < 0.5:
+    #    # TODO ask a confirmation
+    elif confidence < 0.5:
         msg = gtt("Sorry, I just don't get it")
         logger.warning("NLU: misunderstood: {}".format(msg))
-    if say_it is True:
-        self._say(msg)
-    if text_it is True:
-        return msg
-        # TODO say it
+    return msg
 
 
 class NLUError(Exception):

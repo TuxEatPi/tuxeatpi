@@ -1,9 +1,11 @@
+"""TuxDroid module defining TuxDroid Class"""
+
 import logging
 import importlib
 
 from tuxeatpi.brain.brain import Brain
-#from tuxeatpi.http.http import Http
 from tuxeatpi.aptitudes.common import Aptitudes
+from tuxeatpi.skills.common import Skills
 from tuxeatpi.settings import Settings
 
 
@@ -27,16 +29,26 @@ class Tux(object):
         self.body = None
         self._load_body('penguin', True)
         self.body.start()
-        # Start skills
         # Start aptitudes
         self.aptitudes = Aptitudes(self)
         self.aptitudes.start()
+        # Start skills
+        self.skills = Skills(self.settings)
+        self.skills.start()
+
+    def shutdown(self):
+        """Shutdown the TuxDroid"""
+        self.skills.stop()
+        self.aptitudes.stop()
+        self.body.stop()
+        self.brain.stop()
 
     def _load_body(self, shape_name, fake=False):
+        """Load the TuxDroid Body/shape"""
         # TODO get shape list
         shape_names = ["penguin"]
         if shape_name not in shape_names:
-            raise Exception("Not shape %s found", shape)
+            raise Exception("Not shape %s found", shape_name)
         else:
             mod_shape = importlib.import_module('.'.join(('tuxeatpi',
                                                           'body',

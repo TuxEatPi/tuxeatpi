@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<project xmlns:nuance="https://developer.nuance.com/mix/nlu/trsx" xml:lang="fr-FR" nuance:version="2.0">
+  <ontology base="http://developer.nuance.com/mix/nlu/trsx/ontology-1.0">
+    <intents>
+      <intent name="aptitudes__speak__say">
+        <links>
+          <link conceptref="text"/>
+        </links>
+      </intent>
+    </intents>
+    <concepts>
+      <concept name="text" freetext="true"/>
+    </concepts>
+  </ontology>
+  <dictionaries>
+  </dictionaries>
+  <samples>
+    <sample intentref="aptitudes__speak__say">
+      Peux tu dire
+      <annotation conceptref="text">
+        c'est n'importe quoi
+      </annotation>
+    </sample>
+  </samples>
+</project>

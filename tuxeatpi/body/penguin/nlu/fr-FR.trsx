@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<project xmlns:nuance="https://developer.nuance.com/mix/nlu/trsx" xml:lang="fr-FR" nuance:version="2.0">
+  <ontology base="http://developer.nuance.com/mix/nlu/trsx/ontology-1.0">
+    <intents>
+      <intent name="body__wings__get_position"/>
+      <intent name="body__wings__move_to_position_up"/>
+      <intent name="body__wings__move_to_position_down"/>
+    </intents>
+    <concepts>
+    </concepts>
+  </ontology>
+  <dictionaries>
+  </dictionaries>
+  <samples>
+    <sample intentref="body__wings__get_position">
+      Quelle est la position de tes ailes ?
+    </sample>
+    <sample intentref="body__wings__get_position">
+      Est que tes ailes sont montee ?
+    </sample>
+    <sample intentref="body__wings__get_position">
+      Est que tes ailes sont descendue ?
+    </sample>
+    <sample intentref="body__wings__get_position">
+      Est que tes ailes sont en hautas ?
+    </sample>
+    <sample intentref="body__wings__get_position">
+      Est que tes ailes sont en bas ?
+    </sample>
+    <sample intentref="body__wings__move_to_position_up">
+      Peux tu monter tes ailes ?
+    </sample>
+    <sample intentref="body__wings__move_to_position_down">
+      Peux tu descendre tes ailes ?
+    </sample>
+    <sample intentref="body__wings__move_to_position_up">
+      Peux tu mettre tes ailes en haut ?
+    </sample>
+    <sample intentref="body__wings__move_to_position_down">
+      Peux tu mettre tes ailes en bas ?
+    </sample>
+    <sample intentref="body__wings__move_to_position_up">
+      Mets tes ailes en haut
+    </sample>
+    <sample intentref="body__wings__move_to_position_down">
+      Mets tes ailes en bas
+    </sample>
+    <sample intentref="body__wings__move_to_position_up">
+      Montes tes ailes
+    </sample>
+    <sample intentref="body__wings__move_to_position_down">
+      Descends tes ailes
+    </sample>
+  </samples>
+</project>

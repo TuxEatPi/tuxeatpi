@@ -1,28 +1,31 @@
-from queue import Empty
+"""Being TuxDroid aptitude module"""
+
 import time
 from datetime import timedelta, datetime
-import threading
 
 import agecalc
-import hug
 
-from tuxeatpi.aptitudes.common import Aptitude, capability, can_transmit
-from tuxeatpi.libs.lang import gtt, doc
-from tuxeatpi.transmission import create_transmission
+from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit, threaded
+from tuxeatpi.libs.lang import gtt
 
 
-class Being(Aptitude, threading.Thread):
+class Being(ThreadedAptitude):
+    """Being aptitude contains capabilities about TuxDroid himself"""
 
-    def __init__(self, settings):
-        threading.Thread.__init__(self)
-        Aptitude.__init__(self, settings)
+    def __init__(self, tuxdroid):
+        ThreadedAptitude.__init__(self, tuxdroid)
         self.start_time = time.time()
+
+    def help_(self):
+        """Return aptitude help"""
+        return gtt("talk about myself")
 
     # TuxDroid name
     def _get_name(self):
         """Return TuxDroid name"""
         return self.settings['global']['name']
 
+    @threaded
     @capability(gtt("Give my name"))
     @can_transmit
     def get_name(self):
@@ -30,31 +33,28 @@ class Being(Aptitude, threading.Thread):
         self.logger.debug("name")
         name = self._get_name()
         text = gtt("My name is {}").format(name)
-        return text
+        return {"tts": text, "result": {"name": name}}
 
     # TuxDroid birthday
     def _get_birthday(self):
         """Return TuxDroid birthday"""
         return datetime.fromtimestamp(self.settings['data']['birthday'])
 
+    @threaded
     @capability(gtt("Give my birthday"))
     @can_transmit
     def get_birthday(self):
         """Return TuxDroid birthday text"""
         birthday_str = self._get_birthday().strftime("%B %-d, %Y at %I:%M %p")
         text = gtt("I'm born on {}").format(birthday_str)
-        # Create a transmission
-#        if id_ is not None and s_mod is not None and s_func is not None:
-#            content = {"attributes": {"text": text}}
-#            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        return text
+        return {"tts": text, "result": {"birthday": self._get_birthday()}}
 
     # Get Uptime
     def _get_uptime(self):
         """Return current uptime"""
         return timedelta(seconds=time.time() - self.start_time)
 
-#    def get_uptime(self, id_=None, s_mod=None, s_func=None):
+    @threaded
     @capability(gtt("Give my uptime"))
     @can_transmit
     def get_uptime(self):
@@ -75,11 +75,7 @@ class Being(Aptitude, threading.Thread):
             text += " {} second".format(seconds)
         elif minutes > 1:
             text += " {} seconds".format(seconds)
-        # Create a transmission
-#        if id_ is not None and s_mod is not None and s_func is not None:
-#            content = {"attributes": {"text": text}}
-#            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        return text
+        return {"tts": text, "result": {"uptime": uptime}}
 
     # Get age
     def _get_age(self):
@@ -100,8 +96,10 @@ class Being(Aptitude, threading.Thread):
         self.logger.debug("age: %s, %s, %s", years, months, days)
         return (years, months, days)
 
+    @threaded
     @capability(gtt("Give my age"))
-    def get_age(self, id_=None, s_mod=None, s_func=None):
+    @can_transmit
+    def get_age(self):
         """Return TuxDroid age"""
         years, months, days = self._get_age()
 
@@ -129,38 +127,25 @@ class Being(Aptitude, threading.Thread):
                 text = gtt("I'm {} years and {} month").format(years, months)
             else:
                 text = gtt("I'm {} years and {} months").format(years, months)
-        # Create a transmission
-        if id_ is not None and s_mod is not None and s_func is not None:
-            content = {"attributes": {"text": text}}
-            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        return text
 
-    # Get time
-    # TODO put it in clock skill
-    def get_time(self, id_=None, s_mod=None, s_func=None):
-        """Return current time"""
-        now = datetime.now()
-        text = now.strftime("%I:%M %p")
-        # Create a transmission
-        if id_ is not None and s_mod is not None and s_func is not None:
-            content = {"attributes": {"text": text}}
-            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        return text
+        if years is None:
+            years = 0
+        if months is None:
+            months = 0
+        if days is None:
+            days = 0
+        return {"tts": text, "result": {"age": {"years": years, "months": months, "days": days}}}
 
     # Set language
     @capability(gtt("Speak an other language"))
-    def set_lang(self, language, id_=None, s_mod=None, s_func=None):
+    @threaded
+    @can_transmit
+    def set_lang(self, language):
         """Change Tux lang"""
         self.logger.info("Change the language to %s", language)
-        new_settings = dict(self.tuxdroid.settings)
+        new_settings = dict(self._tuxdroid.settings)
         new_settings['speech']['language'] = language
-        self.tuxdroid.update_setting(new_settings)
+        self._tuxdroid.update_setting(new_settings)
         # Create a transmission
-        content = {"attributes": {"text": text}}
-        create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
-        # Create a transmission
-        if id_ is not None and s_mod is not None and s_func is not None:
-            content = {"attributes": {"text": text}}
-            create_transmission(s_mod, s_func, s_mod, s_func, content, id_)
         text = gtt("I speak english now")
-        return text
+        return {"tts": text, "result": {"language": language}}

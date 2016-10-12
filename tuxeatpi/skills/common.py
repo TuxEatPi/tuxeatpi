@@ -1,43 +1,125 @@
-import uuid
+"""Skills common module"""
+import os
 import logging
-import time
+import importlib
 import multiprocessing
 import threading
 
-class Skill(object):
-    def __init__(self, tmn_queue):
-        self._name = self.__class__.__name__
-        self.logger = logging.getLogger(name="tep").getChild("skill").getChild(self._name)
-        self.logger.info("New skill: {}".format(self._name))
-        self.tmn_queue = tmn_queue
-        self.task_queue = multiprocessing.Queue()
-        self.dependencies = set()
-        self._must_run = True
+from tuxeatpi.libs.common import AbstractComponent, threaded, subprocessed, capability, can_transmit
 
-    def add_transmission(self, transmission):
-        self.tmn_queue.put(transmission)
+
+__all__ = ["threaded",
+           "subprocessed",
+           "capability",
+           "can_transmit",
+           "Skill",
+           "Skills"]
+
+
+class Skill(AbstractComponent):
+    """Class to define an Tux skill
+
+    An skill can be learnd
+    """
+    def __init__(self, settings):
+        super(Skill, self).__init__()
+        self.logger.info("New skill: {}".format(self._name))
+        self.settings = settings
+
+    def _get_logger(self):
+        """Get logger"""
+        self.logger = logging.getLogger(name="tep").getChild("skills").getChild(self._name)
+
+    def help_(self):
+        raise NotImplementedError
+
+
+class ThreadedSkill(Skill, threading.Thread):
+    """Threaded skill"""
+
+    def __init__(self, settings):
+        threading.Thread.__init__(self)
+        Skill.__init__(self, settings)
+
+    def help_(self):
+        raise NotImplementedError
+
+
+class SubprocessedSkill(Skill, multiprocessing.Process):
+    """Subprocessed skill"""
+
+    def __init__(self, settings):
+        multiprocessing.Process.__init__(self)
+        Skill.__init__(self, settings)
+
+    def help_(self):
+        raise NotImplementedError
 
     def stop(self):
-        self._must_run = False
-
-    def run(self):
-        while self._must_run:
-            try:
-                task = self.task_queue.get(timeout=1)
-            except Empty:
-                continue
-            getattr(self, task.name)(task.id_, task.source, **task.params)
-            task.done()
+        """Stop the process"""
+        self.terminate()
+        Skill.stop(self)
 
 
-class SkillThread(threading.Thread, Skill):
+class Skills(object):
+    """Class to handle skills"""
 
-    def __init__(self, tmn_queue):
-        threading.Thread.__init__(self)
-        Skill.__init__(self, tmn_queue)
+    def __init__(self, settings):
+        self.logger = logging.getLogger(name="tep").getChild("skills")
+        self.logger.info("Initialization")
+        self.settings = settings
+        self._names = set()
 
+    def _add(self, name, skill):
+        """Add skill to skills list"""
+        setattr(self, name, skill)
+        self._names.add(name)
 
-class SkillProcess(multiprocessing.Process, Skill):
-    def __init__(self, tmn_queue):
-        multiprocessing.Process.__init__(self)
-        Skill.__init__(self, tmn_queue)
+    # TODO improve me
+    def help_(self):
+        """Skills help"""
+        skills_help = {}
+        for skill_name in self._names:
+            # Get skill object
+            skill = getattr(self, skill_name)
+            # List attributes of skill object
+            for attr_name in dir(skill):
+                # List attributes of skill object
+                attr = getattr(skill, attr_name, None)
+                # Check if the attribute is a capability
+                if getattr(attr, '_is_capability', False):
+                    skill_key = ".".join(("skills", skill_name, attr_name))
+                    skills_help[skill_key] = attr._help_text
+        return skills_help
+
+    def _load(self):
+        """Load skills"""
+        # Get skill list
+        skill_names = []
+        skills_dir = os.path.dirname(__file__)
+        for file_name in os.listdir(skills_dir):
+            abs_file_name = os.path.join(skills_dir, file_name)
+            if os.path.isdir(abs_file_name):
+                if "__init__.py" in os.listdir(abs_file_name):
+                    skill_names.append(file_name)
+        # Load modules
+        for skill_name in skill_names:
+            mod_skill = importlib.import_module('.'.join(('tuxeatpi',
+                                                          'skills',
+                                                          skill_name,
+                                                          skill_name)))
+            skill = getattr(mod_skill, skill_name.capitalize())(self.settings)
+            self._add(skill_name, skill)
+
+    def start(self):
+        """Start all skills"""
+        self._load()
+        self.logger.info("Starting")
+        for skill_name in self._names:
+            getattr(self, skill_name).start()
+
+    def stop(self):
+        """Stop all skills"""
+        self.logger.info("Stopping")
+        for skill_name in self._names:
+            getattr(self, skill_name).stop()

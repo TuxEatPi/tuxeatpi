@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<project xmlns:nuance="https://developer.nuance.com/mix/nlu/trsx" xml:lang="fr-FR" nuance:version="2.0">
+  <ontology base="http://developer.nuance.com/mix/nlu/trsx/ontology-1.0">
+    <intents>
+      <intent name="skills__clock__get_time"/>
+    </intents>
+    <concepts>
+    </concepts>
+  </ontology>
+  <dictionaries>
+  </dictionaries>
+  <samples>
+    <sample intentref="skills__clock__get_time">
+      Quelle heure est il ?
+    </sample>
+    <sample intentref="skills__clock__get_time">
+      Il est quelle heure ?
+    </sample>
+    <sample intentref="skills__clock__get_time">
+      C'est quelle heure ?
+    </sample>
+  </samples>
+</project>

@@ -10,3 +10,12 @@ SpeechRecognition==3.4.6
 pocketsphinx==0.1.3
 agecalc==3.5.2
 hug
+gunicorn==19.6.0
+
+
+# dev
+mock==2.0.0
+Sphinx==1.4.8
+sphinx-rtd-theme==0.1.9
+pycodestyle==2.0.0
+pylint==1.6.4
