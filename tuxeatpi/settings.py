@@ -25,7 +25,9 @@ class Settings(dict):
     def __init__(self, config_file, logger):
         dict.__init__(self)
         self.config_file = config_file
+        # Logger
         self.logger = logger
+        self.full_config = None
         self.reload()
         # Rewrite it to get the right format
         self.save()
@@ -130,6 +132,10 @@ class Settings(dict):
         if "tux" not in raw_conf:
             raise SettingsError("Root key of configuration file should be 'tux'")
         # Save entire configuration
+        if(self.full_config == raw_conf):
+            self.logger.debug("No settings changes detected")
+            return
+        self.logger.info("Settings changes detected")
         self.full_config = raw_conf
         # Set values
         for key, value in raw_conf['tux'].items():

@@ -6,8 +6,7 @@ import wave
 import pyaudio
 from pocketsphinx.pocketsphinx import Decoder
 
-# from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit
-from tuxeatpi.aptitudes.common import ThreadedAptitude, capability
+from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit
 from tuxeatpi.libs.lang import gtt
 
 
@@ -26,9 +25,6 @@ class Hear(ThreadedAptitude):
 
         self._answer_sound_path = "sounds/answer.wav"
         self._config = Decoder.default_config()
-        # TODO raise an error
-        if not self._prepare_decoder():
-            self._must_run = False
 
     def help_(self):
         # TODO do it
@@ -65,6 +61,7 @@ class Hear(ThreadedAptitude):
             return False
         self._decoder.set_keyphrase('wakeup', self._hotword)
         self._decoder.set_search('wakeup')
+        return True
 
     def _answering(self):
         """Play the hotwoard confirmation sound"""
@@ -93,7 +90,19 @@ class Hear(ThreadedAptitude):
         self._rerun = True
         self._must_run = True
         while self._rerun:
-            self.logger.debug("starting listening hotword %s", self._hotword)
+            # TODO raise an error
+            self.logger.info("Starting hear aptitudes")
+            if self._prepare_decoder() is False:
+                self._rerun = False
+                self._must_run = False
+                self.logger.critical("Error starting hear aptitudes")
+                return
+            else:
+                self._must_run = True
+
+            self.logger.debug("starting listening hotword `%s` with lang %s",
+                              self._hotword,
+                              self.settings['speech']['language'])
             self._rerun = False
             try:
                 self._paudio = pyaudio.PyAudio()
@@ -133,6 +142,15 @@ class Hear(ThreadedAptitude):
         content = {"arguments": {}}
         tmn = self.create_transmission("hear", "aptitudes.nlu.audio", content)
         self.wait_for_answer(tmn.id_)
+
+    def reload_decoder(self):
+        """Reload decoder
+
+        This is usefull when lang changes
+        """
+        self.logger.info("Reload hear aptitude")
+        self._must_run = False
+        self._rerun = True
 
 
 class HotWordError(Exception):

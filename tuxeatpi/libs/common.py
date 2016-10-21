@@ -74,6 +74,7 @@ class AbstractComponent(object):
         self.task_queue = multiprocessing.Queue()
         self.answer_event_dict = manager.dict()
         self._must_run = True
+        self.settings = None
 
     def _get_logger(self):
         """Get logger"""
@@ -151,7 +152,10 @@ class AbstractComponent(object):
                 continue
             except OSError:
                 continue
-
+            # reload settings
+            if hasattr(self.settings, 'reload'):
+                self.settings.reload()
+            # read task
             method_names = task.destination.split(".")[2:]
             method = self
             loop_end = False

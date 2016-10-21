@@ -1,5 +1,6 @@
 """TuxDroid module defining TuxDroid Class"""
 
+import copy
 import logging
 import importlib
 
@@ -55,3 +56,23 @@ class Tux(object):
                                                           shape_name,
                                                           'shape')))
             self.body = getattr(mod_shape, shape_name.capitalize())(self.settings, fake)
+
+    def update_setting(self, settings):
+        """Update settings and save it on disk
+
+        If new settings are bad, old settings are keeped
+        and the function returns False
+
+        Otherwise, its returns True and use new ones
+        """
+        self.logger.debug("Updating settings")
+        old_settings = copy.copy(self.settings)
+        self.settings.update(settings)
+        try:
+            self.settings.save()
+            self.logger.debug("Update settings OK")
+            return True
+        except SettingsError:
+            self.settings.update(old_settings)
+            self.logger.critical("Update settings Failed")
+            return False

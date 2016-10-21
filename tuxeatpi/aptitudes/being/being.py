@@ -1,5 +1,6 @@
 """Being TuxDroid aptitude module"""
 
+import copy
 import time
 from datetime import timedelta, datetime
 
@@ -143,9 +144,11 @@ class Being(ThreadedAptitude):
     def set_lang(self, language):
         """Change Tux lang"""
         self.logger.info("Change the language to %s", language)
-        new_settings = dict(self._tuxdroid.settings)
+        new_settings = copy.deepcopy(dict(self._tuxdroid.settings))
         new_settings['speech']['language'] = language
         self._tuxdroid.update_setting(new_settings)
-        # Create a transmission
+        # Reload hear aptitude
+        self._tuxdroid.aptitudes.hear.reload_decoder()
+
         text = gtt("I speak english now")
         return {"tts": text, "result": {"language": language}}
