@@ -73,12 +73,19 @@ hotword-clean:
 #######################################
 
 nlu-update:
-	echo toots/nuance....
+	python tools/nuance_mix_update_models.py
 
-nlu-clean:
-	echo toots/nuance....
+#nlu-clean:
+#	echo toots/nuance....
 
-nlu-replaceclean: nlu-clean nlu-update
+#nlu-replaceclean: nlu-clean nlu-update
+
+#######################################
+### UI
+#######################################
+
+ui:
+	echo to be done
 
 #######################################
 ### Test targets

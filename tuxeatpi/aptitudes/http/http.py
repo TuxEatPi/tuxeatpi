@@ -6,6 +6,7 @@ from gunicorn.app.base import BaseApplication
 from gunicorn.six import iteritems
 
 from tuxeatpi.aptitudes.common import SubprocessedAptitude
+from tuxeatpi.aptitudes.http import static
 
 
 class _HttpServer(BaseApplication):
@@ -58,7 +59,7 @@ class Http(SubprocessedAptitude):
 
         # curl
         # -H "Content-Type: application/json"
-        # -XPOST -d '{"command": "brain.understand_audio" , "arguments": {}}'
+        # -XPOST -d '{"command": "aptitudes.being.get_name" , "arguments": {}}'
         # http://127.0.0.1:8000/order
         @hug.post('/order')
         def order(command, arguments=None, block=True):  # pylint: disable=W0612
@@ -67,15 +68,31 @@ class Http(SubprocessedAptitude):
                 arguments = {}
             return self.order(command, arguments, block)
 
-        @hug.post('/understand_text')
-        def nlu_text(text, say_it=False):  # pylint: disable=W0612
-            """nlu text route"""
-            return self.understand_text(text, say_it)
+        @hug.extend_api('/ui')
+        def ui_routes():
+            """Import all static routes"""
+            return [static]
 
-        @hug.post('/understand_audio')
-        def nlu_audio(say_it=True):  # pylint: disable=W0612
-            """nlu audio route"""
-            return self.understand_audio(say_it)
+        # Settings
+        @hug.get('/settings', requires=cors_support)
+        def settings_get():  # pylint: disable=W0612
+            """get settings route"""
+            self._tuxdroid.settings.reload()
+            return {"result": dict(self._tuxdroid.settings)}
+
+        @hug.options('/settings', requires=cors_support)
+        def settings_options():
+            return
+
+        @hug.post('/settings', requires=cors_support)
+        def settings_set(settings):  # pylint: disable=W0612
+            """get settings route"""
+            # new settings
+            self.logger.debug("New settings received %s", settings)
+            # save settings
+            ret = self._tuxdroid.update_setting(settings)
+            # TODO handle error
+            return {"state": ret, "result": dict(self._tuxdroid.settings)}
 
         # Serve in a thread
         try:
@@ -90,12 +107,6 @@ class Http(SubprocessedAptitude):
         self.logger.info("order: %s with %s", command, arguments)
         if arguments is None:
             arguments = {}
-        # If nlu_text use understand_text func
-        if command == "brain.understand_text":
-            return self.understand_text(**arguments)
-        if command == "brain.understand_audio":
-            return self.understand_audio(**arguments)
-        # For all other order
         # Create transmission
         content = {"arguments": arguments}
         tmn = self.create_transmission("order", command, content)
@@ -109,57 +120,29 @@ class Http(SubprocessedAptitude):
             # Print answer
             return answer.content
 
-    def understand_audio(self, say_it=True):
-        """Http NLU audio method"""
-        self.logger.info("understand_audio")
-        # Create transmission for NLU audio
-        content = {"arugments": {"say_it": say_it}}
-        tmn = self.create_transmission("understand_audio", "brain.understand_audio", content)
-        # Wait for transmission answer
-        answer = self.wait_for_answer(tmn.id_)
-        return answer.content
 
-    def understand_text(self, text, say_it=False):
-        """Http NLU text method"""
-        self.logger.info("understand_text: %s", text)
-        # Create transmission for NLU text
-        content = {"arguments": {"text": text}}
-        tmn = self.create_transmission("understand_text", "brain.understand_text", content)
-        # Wait for transmission answer
-        answer = self.wait_for_answer(tmn.id_)
-
-        # Check if we got an answer
-        if answer is None:
-            self.logger.warning("No answer for tmn_id: %s", tmn.id_)
-            return
-        confidence = answer.content.get('attributes', {}).get('confidence')
-        # Check confidence
-        if confidence is None:
-            self.logger.warning("No answer for tmn_id: %s", tmn.id_)
-            return
-        elif confidence < 0.8:
-            self.logger.info("Text NOT understood fo tmn_id: %s", tmn.id_)
-            return
-        elif confidence < 0.6:
-            self.logger.info("Text NOT understood fo tmn_id: %s", tmn.id_)
-            return
-        # Run the capacity of the NLU answer
-        destination = "{module}.{capacity}".format(**answer.content.get('attributes'))
-        new_content = {"attributes": answer.content.get('attributes', {}).get("arguments", {})}
-        # Create transmission
-        tmn = self.create_transmission("understand_text", destination, new_content)
-        # Wait for transmission answer
-        answer = self.wait_for_answer(tmn.id_)
-        # Check if we got an answer
-        if answer is None:
-            self.logger.warning("No answer for tmn_id: %s", tmn.id_)
-            return
-        # Say it
-        # TODO replace text by tts
-        if say_it and "text" in answer.content.get("attributes", {}):
-            new_content = {"attributes": {"text": answer.content.get("attributes").get("text")}}
-            tmn = self.create_transmission("understand_text", "aptitudes.speak.say", new_content)
-            # Wait for transmission answer
-            self.wait_for_answer(tmn.id_)
-        # return answer
-        return answer.content
+def cors_support(response, *args, **kwargs):
+    """Add cors support"""
+    # TODO clean useless
+    response.set_header('Access-Control-Allow-Origin', '*')
+    response.set_header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS')
+    response.set_header('Access-Control-Allow-Credentials', 'true')
+    headers = ["Accept-Encoding",
+            "Accept-Language",
+            "Access-Control-Request-Headers",
+            "Access-Control-Request-Method",
+            "Authorization",
+            "Cache-Control",
+            "Client-Offset",
+            "Connection",
+            "Content-Type",
+            "Host",
+            "Lang",
+            "Origin"
+            "Pragma",
+            "Referer",
+            "Token",
+            "User-Agent",
+            "X-Requested-With",
+           ]
+    response.set_header('Access-Control-Allow-Headers', ', '.join(headers))
