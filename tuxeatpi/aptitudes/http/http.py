@@ -7,6 +7,7 @@ from gunicorn.six import iteritems
 
 from tuxeatpi.aptitudes.common import SubprocessedAptitude
 from tuxeatpi.aptitudes.http import static
+from tuxeatpi.aptitudes.speak.common import VOICES
 
 
 class _HttpServer(BaseApplication):
@@ -94,6 +95,13 @@ class Http(SubprocessedAptitude):
             # TODO handle error
             return {"state": ret, "result": dict(self._tuxdroid.settings)}
 
+        # languages
+        @hug.options('/settings/languages', requires=cors_support)
+        @hug.get('/settings/languages', requires=cors_support)
+        def languages():
+            return {"result": VOICES}
+
+
         # Serve in a thread
         try:
             app = hug.API(__name__).http.server()
@@ -128,21 +136,21 @@ def cors_support(response, *args, **kwargs):
     response.set_header('Access-Control-Allow-Methods', 'GET, POST, PATCH, PUT, DELETE, OPTIONS')
     response.set_header('Access-Control-Allow-Credentials', 'true')
     headers = ["Accept-Encoding",
-            "Accept-Language",
-            "Access-Control-Request-Headers",
-            "Access-Control-Request-Method",
-            "Authorization",
-            "Cache-Control",
-            "Client-Offset",
-            "Connection",
-            "Content-Type",
-            "Host",
-            "Lang",
-            "Origin"
-            "Pragma",
-            "Referer",
-            "Token",
-            "User-Agent",
-            "X-Requested-With",
-           ]
+               "Accept-Language",
+               "Access-Control-Request-Headers",
+               "Access-Control-Request-Method",
+               "Authorization",
+               "Cache-Control",
+               "Client-Offset",
+               "Connection",
+               "Content-Type",
+               "Host",
+               "Lang",
+               "Origin"
+               "Pragma",
+               "Referer",
+               "Token",
+               "User-Agent",
+               "X-Requested-With",
+               ]
     response.set_header('Access-Control-Allow-Headers', ', '.join(headers))

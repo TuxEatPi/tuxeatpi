@@ -56,12 +56,13 @@ class Speak(SubprocessedAptitude):
     def say(self, tts):
         """Text to speech"""
         # Reload config from file because we are in an other Process
-        self.settings.reload()
-        self.logger.debug("Language: %s", self.settings['speech']['language'])
-        self.logger.debug("Text received: %s", tts)
         if not self._muted:
+            self.settings.reload()
             lang = self.settings['speech']['language']
             voice = VOICES[lang][self.settings['global']['gender']]
+            self.logger.debug("Language: %s", lang)
+            self.logger.debug("Voice: %s", voice)
+            self.logger.debug("Text received: %s", tts)
             self._speaking = True
             # FIXME sometimes I got an sound error...
             try:

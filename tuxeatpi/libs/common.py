@@ -152,8 +152,10 @@ class AbstractComponent(object):
                 continue
             except OSError:
                 continue
+            self.logger.debug("New task: %s", task)
             # reload settings
             if hasattr(self.settings, 'reload'):
+                self.logger.debug("Reload settings")
                 self.settings.reload()
             # read task
             method_names = task.destination.split(".")[2:]

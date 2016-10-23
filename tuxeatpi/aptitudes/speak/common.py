@@ -49,7 +49,7 @@ COMMANDS = [
 
 VOICES = {"eng-USA": {"female": "ava",
                       "male": "tom"},
-          "fra-FRA": {"female": "audrey-ml",
+          "fra-FRA": {"female": "aurelie",
                       "male": "thomas"},
           }
 
