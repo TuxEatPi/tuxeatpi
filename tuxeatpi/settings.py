@@ -132,7 +132,7 @@ class Settings(dict):
         if "tux" not in raw_conf:
             raise SettingsError("Root key of configuration file should be 'tux'")
         # Save entire configuration
-        if(self.full_config == raw_conf):
+        if self.full_config == raw_conf:
             self.logger.debug("No settings changes detected")
             return
         self.logger.info("Settings changes detected")

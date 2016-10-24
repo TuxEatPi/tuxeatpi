@@ -6,7 +6,9 @@ import hug
 
 
 def _current_folder():
+    """Get current folder"""
     return os.path.dirname(__file__)
+
 
 @hug.static("/ui")
 def tuxeatpi_web():

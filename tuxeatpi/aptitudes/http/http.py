@@ -60,7 +60,7 @@ class Http(SubprocessedAptitude):
 
         # UI
         @hug.extend_api('/ui')
-        def ui_routes():
+        def ui_routes():  # pylint: disable=W0612
             """Import all static routes"""
             return [static]
 
@@ -69,12 +69,13 @@ class Http(SubprocessedAptitude):
         # -XPOST -d '{"command": "aptitudes.being.get_name" , "arguments": {}}'
         # http://127.0.0.1:8000/order
         @hug.options('/order', requires=cors_support)
-        def order_options():
+        def order_options():  # pylint: disable=W0612
+            """order options route"""
             return
 
         @hug.post('/order', requires=cors_support)
         def order(command, arguments=None, block=True):  # pylint: disable=W0612
-            """order route"""
+            """order post route"""
             if arguments is None:
                 arguments = {}
             return self.order(command, arguments, block)
@@ -82,17 +83,18 @@ class Http(SubprocessedAptitude):
         # Settings
         @hug.get('/settings', requires=cors_support)
         def settings_get():  # pylint: disable=W0612
-            """get settings route"""
+            """settings get route"""
             self._tuxdroid.settings.reload()
             return {"result": dict(self._tuxdroid.settings)}
 
         @hug.options('/settings', requires=cors_support)
-        def settings_options():
+        def settings_options():  # pylint: disable=W0612
+            """settings options route"""
             return
 
         @hug.post('/settings', requires=cors_support)
         def settings_set(settings):  # pylint: disable=W0612
-            """get settings route"""
+            """settings post route"""
             # new settings
             self.logger.debug("New settings received %s", settings)
             # save settings
@@ -103,9 +105,9 @@ class Http(SubprocessedAptitude):
         # languages
         @hug.options('/settings/languages', requires=cors_support)
         @hug.get('/settings/languages', requires=cors_support)
-        def languages():
+        def languages():  # pylint: disable=W0612
+            """Return languages and voices"""
             return {"result": VOICES}
-
 
         # Serve in a thread
         try:
@@ -134,7 +136,7 @@ class Http(SubprocessedAptitude):
             return answer.content
 
 
-def cors_support(response, *args, **kwargs):
+def cors_support(response, *args, **kwargs):  # pylint: disable=W0613
     """Add cors support"""
     # TODO clean useless
     response.set_header('Access-Control-Allow-Origin', '*')

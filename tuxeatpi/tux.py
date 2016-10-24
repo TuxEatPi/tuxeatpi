@@ -7,7 +7,7 @@ import importlib
 from tuxeatpi.brain.brain import Brain
 from tuxeatpi.aptitudes.common import Aptitudes
 from tuxeatpi.skills.common import Skills
-from tuxeatpi.settings import Settings
+from tuxeatpi.settings import Settings, SettingsError
 
 
 class Tux(object):

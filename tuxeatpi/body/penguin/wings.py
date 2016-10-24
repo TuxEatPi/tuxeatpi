@@ -192,11 +192,13 @@ class Wings(BaseComponent):
     @capability("Move up down my wings")
     @can_transmit
     def move_to_position_up(self):
+        """Move wings to up position"""
         return self.move_to_position("up")
 
     @capability("Move up my wings")
     @can_transmit
     def move_to_position_down(self):
+        """Move wings to down position"""
         return self.move_to_position("down")
 
     def move_time(self, timeout):

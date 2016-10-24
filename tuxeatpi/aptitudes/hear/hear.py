@@ -6,7 +6,8 @@ import wave
 import pyaudio
 from pocketsphinx.pocketsphinx import Decoder
 
-from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit
+from tuxeatpi.aptitudes.common import ThreadedAptitude, capability
+# from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit
 from tuxeatpi.libs.lang import gtt
 
 
