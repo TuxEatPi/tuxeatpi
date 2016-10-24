@@ -149,6 +149,7 @@ class AbstractComponent(object):
             try:
                 task = self.task_queue.get(timeout=1)
             except Empty:
+                # self.logger.debug("Empty")
                 continue
             except OSError:
                 continue

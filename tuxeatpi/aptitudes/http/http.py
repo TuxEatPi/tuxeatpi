@@ -58,21 +58,26 @@ class Http(SubprocessedAptitude):
             """Root path function"""
             return "root"
 
+        # UI
+        @hug.extend_api('/ui')
+        def ui_routes():
+            """Import all static routes"""
+            return [static]
+
         # curl
         # -H "Content-Type: application/json"
         # -XPOST -d '{"command": "aptitudes.being.get_name" , "arguments": {}}'
         # http://127.0.0.1:8000/order
-        @hug.post('/order')
+        @hug.options('/order', requires=cors_support)
+        def order_options():
+            return
+
+        @hug.post('/order', requires=cors_support)
         def order(command, arguments=None, block=True):  # pylint: disable=W0612
             """order route"""
             if arguments is None:
                 arguments = {}
             return self.order(command, arguments, block)
-
-        @hug.extend_api('/ui')
-        def ui_routes():
-            """Import all static routes"""
-            return [static]
 
         # Settings
         @hug.get('/settings', requires=cors_support)

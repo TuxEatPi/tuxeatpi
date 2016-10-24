@@ -65,7 +65,9 @@ class Nlu(ThreadedAptitude):
             if say_it is True and answer.content.get("tts"):
                 # Say it
                 content = {"arguments": {"tts": answer.content.get("tts")}}
-                self.create_transmission("text", "aptitudes.speak.say", content)
+                tmn = self.create_transmission("text", "aptitudes.speak.say", content)
+                # wait for end of speak
+                self.wait_for_answer(tmn.id_)
             # Print answer
             return answer.content
         return result
