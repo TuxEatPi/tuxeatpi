@@ -17,9 +17,19 @@ class Being(ThreadedAptitude):
         ThreadedAptitude.__init__(self, tuxdroid)
         self.start_time = time.time()
 
+    @threaded
+    @capability(gtt("Give capabilities"))
+    @can_transmit
     def help_(self):
         """Return aptitude help"""
-        return gtt("talk about myself")
+        help_dict = {"help": gtt("talk about myself"),
+                     "capabilities": {}}
+        for attr_name in dir(self):
+            # List attributes of aptitude object
+            attr = getattr(self, attr_name, None)
+            if getattr(attr, '_is_capability', False):
+                help_dict['capabilities'][attr_name] = attr._help_text
+        return {"result": help_dict}
 
     # TuxDroid name
     def _get_name(self):

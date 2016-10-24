@@ -64,6 +64,17 @@ class Http(SubprocessedAptitude):
             """Import all static routes"""
             return [static]
 
+        # Help
+        @hug.options('/help', requires=cors_support)
+        def help_options():  # pylint: disable=W0612
+            """help options route"""
+            return
+
+        @hug.get('/help', requires=cors_support)
+        def help_get():  # pylint: disable=W0612
+            """help get route"""
+            return {"result": __hug__.http.documentation()}
+
         # curl
         # -H "Content-Type: application/json"
         # -XPOST -d '{"command": "aptitudes.being.get_name" , "arguments": {}}'
@@ -109,13 +120,22 @@ class Http(SubprocessedAptitude):
             """Return languages and voices"""
             return {"result": VOICES}
 
-        # Serve in a thread
-        try:
-            app = hug.API(__name__).http.server()
-            self._http_server = _HttpServer(app, {"bind": "0.0.0.0:8000", "workers": 4})
-            self._http_server.run()
-        except KeyboardInterrupt:
-            pass
+        # Serve
+        while self._must_run:
+            # Reload tuxdroid
+            self.settings.reload()
+            port = int(self.settings.get('aptitudes', {}).get('http', {}).get('port', 8000))
+            bind = self.settings.get('aptitudes', {}).get('http', {}).get('bind', "0.0.0.0")
+            workers = int(self.settings.get('aptitudes', {}).get('http', {}).get('workers', 4))
+            try:
+                app = hug.API(__name__).http.server()
+
+                self._http_server = _HttpServer(app,
+                                                {"bind": bind + ":" + str(port),
+                                                 "workers": workers})
+                self._http_server.run()
+            except KeyboardInterrupt:
+                pass
 
     def order(self, command, arguments=None, block=True):
         """Http order method"""
