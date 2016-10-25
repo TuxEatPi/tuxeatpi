@@ -7,6 +7,7 @@ from tuxeatpi.aptitudes.nlu.text import nlu_text
 from tuxeatpi.aptitudes.nlu.audio import nlu_audio
 from tuxeatpi.libs.lang import gtt
 
+CONFIDENCE_THRESHOLD = 0.7
 
 class Nlu(ThreadedAptitude):
     """Natural language understanding aptitude"""
@@ -26,12 +27,27 @@ class Nlu(ThreadedAptitude):
             getChild("nlu").getChild("audio")
         logger.info("NLU audio starting")
         nlu_return = nlu_audio(self.settings)
-        # TODO handle low confidence
+        # Parse result
         result = self._handle_nlu_return(nlu_return)
-        if isinstance(result, dict):
-            result = self._do_and_say_it(result, do_it, say_it)
-        logger.info("NLU audio ending")
-        return result
+        # Handle result error
+        if result.get("error", "") != "":
+            if result.get("tts") != "":
+                content = {"arguments": {"tts": result.get("tts")}}
+                tmn = self.create_transmission("text", "aptitudes.speak.say", content)
+                # wait for end of speak
+                self.wait_for_answer(tmn.id_)
+            return result
+        elif result.get("need_confirmation", "False"):
+            content = {"arguments": {"tts": result.get("tts")}}
+            tmn = self.create_transmission("text", "aptitudes.speak.say", content)
+            # wait for end of speak
+            self.wait_for_answer(tmn.id_)
+            return result
+        else:
+            if isinstance(result, dict):
+                result = self._do_and_say_it(result, do_it, say_it)
+            logger.info("NLU audio ending")
+            return result
 
     @capability(gtt("Understand text"))
     @threaded
@@ -42,6 +58,30 @@ class Nlu(ThreadedAptitude):
             getChild("nlu").getChild("text")
         logger.info("NLU audio ending")
         nlu_return = nlu_text(self.settings, text)
+        # Parse result
+        result = self._handle_nlu_return(nlu_return)
+        # Handle result error
+        if result.get("error", "") != "":
+            if result.get("tts") != "":
+                content = {"arguments": {"tts": result.get("tts")}}
+                tmn = self.create_transmission("text", "aptitudes.speak.say", content)
+                # wait for end of speak
+                self.wait_for_answer(tmn.id_)
+            return result
+        elif result.get("need_confirmation", "False"):
+            content = {"arguments": {"tts": result.get("tts")}}
+            tmn = self.create_transmission("text", "aptitudes.speak.say", content)
+            # wait for end of speak
+            self.wait_for_answer(tmn.id_)
+            return result
+        else:
+            if isinstance(result, dict):
+                result = self._do_and_say_it(result, do_it, say_it)
+            logger.info("NLU audio ending")
+            return result
+
+
+
         # TODO handle low confidence
         result = self._handle_nlu_return(nlu_return)
         if isinstance(result, dict):
@@ -103,27 +143,31 @@ class Nlu(ThreadedAptitude):
                 # TODO improve me
                 self.logger.critical("No intent matched")
                 result['error'] = "no intent matched"
-                return result
+                tts = gtt("Sorry, I don't get it")
+                return {"result": result, "tts": tts}
 
             # Check intent
             if len(intent.get("value").rsplit("__", 1)) != 2:
                 # TODO improve me
                 self.logger.critical("BAD Intent name: {}".format(intent.get("value")))
                 result['error'] = "bad intent name - trsx files must me fixed"
-                return result
+                tts = gtt("Sorry, I don't get it")
+                return {"result": result, "tts": tts}
 
             module, capacity = intent.get("value").rsplit("__", 1)
             result['module'] = module.replace("__", ".")
             result['capacity'] = capacity
             result['arguments'] = arguments
             result['confidence'] = intent.get("confidence")
-            if intent.get("confidence") < 0.5:
+            if intent.get("confidence") < CONFIDENCE_THRESHOLD:
                 # TODO improve me
                 # I'm not sure to understand :/
                 self.logger.info("Module: %s", module)
                 self.logger.info("Capacity: %s", capacity)
                 self.logger.info("Need confirmation - confidence: %s", result['confidence'])
                 result['need_confirmation'] = True
+                tts = gtt("I'm not sure to understand, could you repeat please ?")
+                return {"result": result, "tts": tts}
 
             # Return result
             error = result.pop("error")
