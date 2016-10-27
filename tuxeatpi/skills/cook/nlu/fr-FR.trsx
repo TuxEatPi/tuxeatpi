@@ -1,0 +1,25 @@
+<?xml version='1.0' encoding='UTF-8' standalone='no'?>
+<project xmlns:nuance="https://developer.nuance.com/mix/nlu/trsx" xml:lang="fr-FR" nuance:version="2.0">
+  <ontology base="http://developer.nuance.com/mix/nlu/trsx/ontology-1.0">
+    <intents>
+      <intent name="skills__cook__search_recipe">
+        <links>
+          <link conceptref="text"/>
+        </links>
+      </intent>
+    </intents>
+    <concepts>
+      <concept name="text" freetext="true"/>
+    </concepts>
+  </ontology>
+  <dictionaries>
+  </dictionaries>
+  <samples>
+    <sample intentref="skills__cook__search_recipe">
+      Je veux une recette de
+      <annotation conceptref="text">
+        poulet au beurre
+      </annotation>
+    </sample>
+  </samples>
+</project>

@@ -6,6 +6,7 @@ import multiprocessing
 import threading
 
 from tuxeatpi.libs.common import AbstractComponent, threaded, subprocessed, capability, can_transmit
+from tuxeatpi.transmission import create_transmission
 
 
 __all__ = ["threaded",
@@ -32,6 +33,13 @@ class Skill(AbstractComponent):
 
     def help_(self):
         raise NotImplementedError
+
+    # FIXME rename me
+    def create_transmission(self, s_func, destination, content):
+        """Create a new transmission and push it to the brain"""
+        source = ".".join(["skills", self.__class__.__name__.lower(), s_func])
+        tmn = create_transmission(source, destination, content)
+        return tmn
 
 
 class ThreadedSkill(Skill, threading.Thread):

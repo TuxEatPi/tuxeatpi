@@ -110,6 +110,7 @@ class AbstractComponent(object):
     # FIXME rename
     def create_transmission(self, s_func, destination, content):
         """Create a new transmission and push it to the brain"""
+        # TODO fix me for skills
         source = ".".join(["aptitudes", self.__class__.__name__.lower(), s_func])
         tmn = create_transmission(source, destination, content)
         return tmn
