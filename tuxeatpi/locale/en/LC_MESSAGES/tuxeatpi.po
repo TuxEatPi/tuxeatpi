@@ -3,79 +3,102 @@ msgid "Give capabilities"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:25
+#: tuxeatpi/aptitudes/command/command.py:25
 msgid "talk about myself"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:40
+#: tuxeatpi/aptitudes/command/command.py:44
 msgid "Give my name"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:46
+#: tuxeatpi/aptitudes/command/command.py:50
 msgid "My name is {}"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:55
+#: tuxeatpi/aptitudes/command/command.py:59
 msgid "Give my birthday"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:60
+#: tuxeatpi/aptitudes/command/command.py:64
 msgid "I'm born on {}"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:69
+#: tuxeatpi/aptitudes/command/command.py:73
 msgid "Give my uptime"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:111
+#: tuxeatpi/aptitudes/command/command.py:115
 msgid "Give my age"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:119
+#: tuxeatpi/aptitudes/command/command.py:123
 msgid "I'm {} day old"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:121
+#: tuxeatpi/aptitudes/command/command.py:125
 msgid "I'm {} days old"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:124
+#: tuxeatpi/aptitudes/command/command.py:128
 msgid "I'm {} month old"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:126
+#: tuxeatpi/aptitudes/command/command.py:130
 msgid "I'm {} months old"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:129
+#: tuxeatpi/aptitudes/command/command.py:133
 msgid "I'm {} year"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:131
+#: tuxeatpi/aptitudes/command/command.py:135
 msgid "I'm {} year and {} month"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:133
+#: tuxeatpi/aptitudes/command/command.py:137
 msgid "I'm {} year and {} months"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:136
+#: tuxeatpi/aptitudes/command/command.py:140
 msgid "I'm {} years"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:138
+#: tuxeatpi/aptitudes/command/command.py:142
 msgid "I'm {} years and {} month"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:140
+#: tuxeatpi/aptitudes/command/command.py:144
 msgid "I'm {} years and {} months"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:151
+#: tuxeatpi/aptitudes/command/command.py:155
 msgid "Speak an other language"
 msgstr ""
 
 #: tuxeatpi/aptitudes/being/being.py:163
+#: tuxeatpi/aptitudes/command/command.py:167
 msgid "I speak english now"
+msgstr ""
+
+#: tuxeatpi/aptitudes/command/command.py:21
+msgid "Next"
 msgstr ""
 
 #: tuxeatpi/aptitudes/hear/hear.py:133
@@ -174,7 +197,7 @@ msgstr ""
 msgid "I don't have this capability"
 msgstr ""
 
-#: tuxeatpi/skills/clock/clock.py:17
+#: tuxeatpi/skills/clock/clock.py:17 tuxeatpi/skills/cook/cook.py:20
 msgid "talk about time"
 msgstr ""
 
@@ -188,4 +211,52 @@ msgstr ""
 
 #: tuxeatpi/skills/clock/clock.py:26
 msgid "It's {}"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:22
+msgid "Accept positive user answer"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:27
+msgid "Accept negative user answer"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:32
+msgid "Search recipe"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:43
+msgid "I found a recipe of {}. Do you want this recipe ?"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:51
+msgid "We are going to cook a recipe of {}"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:69
+msgid "We have one thing to do"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:71
+msgid "We have {} things to do"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:81
+msgid "This is the ingredient list for {}"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:103
+msgid "Do you have all ingredients ?"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:112
+msgid "Are you ready to begin ?"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:123
+msgid "Instructions for {}"
+msgstr ""
+
+#: tuxeatpi/skills/cook/cook.py:129
+msgid "Step number {}"
 msgstr ""

@@ -35,10 +35,12 @@ class Cook(ThreadedSkill):
     def search_recipe(self, pattern):  # pylint: disable=R0201
         """Return current time"""
         print(pattern)
+        # Search recipe
         recipes = common.search_recipe(pattern, self.settings['speech']['language'])
         user_recipe = None
+        # Browser search result (recipe list)
         for recipe in recipes:
-            tts = gtt("J'ai trouver une recette de ") + recipe['title'] + gtt(". Veux tu cette recette ?")
+            tts = gtt("I found a recipe of {}. Do you want this recipe ?").format(recipe['title'])
             tmn = self.create_transmission("search_recipe",
                                            "aptitudes.speak.say",
                                            {"arguments": {"tts": tts}})
@@ -46,7 +48,7 @@ class Cook(ThreadedSkill):
             # Wait for answer
             self.user_answer = self.user_answer_queue.get()
             if self.user_answer:
-                tts = gtt("Nous allons faire la recette de ") + recipe['title'] 
+                tts = gtt("We are going to cook a recipe of {}").format(recipe['title'])
                 tmn = self.create_transmission("search_recipe",
                                                "aptitudes.speak.say",
                                                {"arguments": {"tts": tts}})
@@ -54,18 +56,29 @@ class Cook(ThreadedSkill):
                 user_recipe = recipe
                 break
 
-        user_recipe = common.parse_recipe(user_recipe.get('link'))
+        if user_recipe is not None:
+            # start cooking
+            user_recipe = common.parse_recipe(user_recipe.get('link'))
+            self.cooking(user_recipe)
 
-        tts = gtt("Nous avons {} choses a faire").format(len(user_recipe.get("ingredients")))
+    def cooking(self, recipe):
+# {'Préparation': '30 min', 'instructions': {'Enrobage': [['Dans un autre bol, mélanger la farine, la poudre à pâte, \r\nles épices et le sel.'], ['Retirer le poulet du lait de beurre', 'Enrober les pilons du mélange de farine', 'Secouer pour retirer l’excédent', 'Déposer sur une plaque', 'Une fois tous les pilons panés, tremper une seconde fois dans le lait de beurre, puis enrober à nouveau dans le mélange de farine.'], ['Préchauffer la graisse végétale dans la friteuse à 185\xa0°C (365\xa0°F)', 'Tapisser une plaque de cuisson de papier absorbant.'], ['Déposer la moitié des pilons de poulet à la fois dans la graisse chaude et les cuire environ 15\xa0minutes ou jusqu’à ce qu’un thermomètre inséré au centre d’un pilon sans toucher l’os indique 82\xa0°C (180\xa0°F), en les retournant à quelques reprises durant la cuisson', 'Attention aux éclaboussures', 'Égoutter sur le papier absorbant', 'Saler.']], 'Marinade': [['Dans un bol, mélanger le poulet et le lait de beurre', '\r\nCouvrir et réfrigérer 12\xa0heures.']]}, 'link': '/recettes/7012-poulet-frit', 'Cuisson': '35 min', 'title': ' Poulet frit', 'ingredients': {'Enrobage': [{'em': '1 1/2 tasse', 'text': '{} de farine tout usage non blanchie', 'si': '210 g'}, {'em': '1 c. à thé', 'text': '{} de poudre à pâte', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de paprika', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poivre de Cayenne', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poudre d’ail', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poudre d’oignon', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de moutarde sèche', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de sel', 'si': '5 ml'}, {'em': '3 tasses', 'text': '{} de graisse végétale, pour la friture', 'si': '675 g'}], 'Marinade': [{'em': None, 'text': '8  pilons de poulet avec ou sans la peau', 'si': None}, {'em': '2 tasses', 'text': '{} de lait de beurre', 'si': '500 ml'}]}, 'Macération': '12 h', 'Portions': '4'} 
+
+        # List stuff to do
+        if len(user_recipe.get("ingredients")) == 1:
+            tts = gtt("We have one thing to do").format(len(user_recipe.get("ingredients")))
+        elif len(user_recipe.get("ingredients")) > 1:
+            tts = gtt("We have {} things to do").format(len(user_recipe.get("ingredients")))
+        else:
+            raise Exception("Nothing to do")
         tmn = self.create_transmission("search_recipe",
                                        "aptitudes.speak.say",
                                        {"arguments": {"tts": tts}})
         self.wait_for_answer(tmn.id_)
 
-# {'Préparation': '30 min', 'instructions': {'Enrobage': [['Dans un autre bol, mélanger la farine, la poudre à pâte, \r\nles épices et le sel.'], ['Retirer le poulet du lait de beurre', 'Enrober les pilons du mélange de farine', 'Secouer pour retirer l’excédent', 'Déposer sur une plaque', 'Une fois tous les pilons panés, tremper une seconde fois dans le lait de beurre, puis enrober à nouveau dans le mélange de farine.'], ['Préchauffer la graisse végétale dans la friteuse à 185\xa0°C (365\xa0°F)', 'Tapisser une plaque de cuisson de papier absorbant.'], ['Déposer la moitié des pilons de poulet à la fois dans la graisse chaude et les cuire environ 15\xa0minutes ou jusqu’à ce qu’un thermomètre inséré au centre d’un pilon sans toucher l’os indique 82\xa0°C (180\xa0°F), en les retournant à quelques reprises durant la cuisson', 'Attention aux éclaboussures', 'Égoutter sur le papier absorbant', 'Saler.']], 'Marinade': [['Dans un bol, mélanger le poulet et le lait de beurre', '\r\nCouvrir et réfrigérer 12\xa0heures.']]}, 'link': '/recettes/7012-poulet-frit', 'Cuisson': '35 min', 'title': ' Poulet frit', 'ingredients': {'Enrobage': [{'em': '1 1/2 tasse', 'text': '{} de farine tout usage non blanchie', 'si': '210 g'}, {'em': '1 c. à thé', 'text': '{} de poudre à pâte', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de paprika', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poivre de Cayenne', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poudre d’ail', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de poudre d’oignon', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de moutarde sèche', 'si': '5 ml'}, {'em': '1 c. à thé', 'text': '{} de sel', 'si': '5 ml'}, {'em': '3 tasses', 'text': '{} de graisse végétale, pour la friture', 'si': '675 g'}], 'Marinade': [{'em': None, 'text': '8  pilons de poulet avec ou sans la peau', 'si': None}, {'em': '2 tasses', 'text': '{} de lait de beurre', 'si': '500 ml'}]}, 'Macération': '12 h', 'Portions': '4'} 
-
         for item_name, ingredients in user_recipe.get("ingredients").items():
-            tts = gtt("Voici la liste des ingredients pour {}").format(item_name)
+            # List ingredients for each thing to do
+            tts = gtt("This is the ingredient list for {}").format(item_name)
             tmn = self.create_transmission("search_recipe",
                                            "aptitudes.speak.say",
                                            {"arguments": {"tts": tts}})
@@ -87,8 +100,7 @@ class Cook(ThreadedSkill):
                                                {"arguments": {"tts": tts}})
                 self.wait_for_answer(tmn.id_)
 
-
-        tts = gtt("As tu tous les ingredients ?")
+        tts = gtt("Do you have all ingredients ?")
         tmn = self.create_transmission("search_recipe",
                                        "aptitudes.speak.say",
                                        {"arguments": {"tts": tts}})
@@ -97,7 +109,7 @@ class Cook(ThreadedSkill):
         if not self.user_answer:
             return
 
-        tts = gtt("Es tu pret a commencer ?")
+        tts = gtt("Are you ready to begin ?")
         tmn = self.create_transmission("search_recipe",
                                        "aptitudes.speak.say",
                                        {"arguments": {"tts": tts}})
@@ -108,13 +120,13 @@ class Cook(ThreadedSkill):
 
 
         for item_name, instructions in user_recipe.get("instructions").items():
-            tts = gtt("Voici les instructions pour {}").format(item_name)
+            tts = gtt("Instructions for {}").format(item_name)
             tmn = self.create_transmission("search_recipe",
                                            "aptitudes.speak.say",
                                            {"arguments": {"tts": tts}})
             self.wait_for_answer(tmn.id_)
             for index, step in enumerate(instructions):
-                tts = gtt("Etape numero {}".format(index))
+                tts = gtt("Step number {}").format(index)
                 tmn = self.create_transmission("search_recipe",
                                                "aptitudes.speak.say",
                                                {"arguments": {"tts": tts}})
