@@ -93,6 +93,7 @@ class Hear(ThreadedAptitude):
         while self._rerun:
             # TODO raise an error
             self.logger.info("Starting hear aptitudes")
+            print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD1")
             if self._prepare_decoder() is False:
                 self._rerun = False
                 self._must_run = False
@@ -120,6 +121,7 @@ class Hear(ThreadedAptitude):
 
             self._decoder.start_utt()
             while self._must_run:
+                print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2")
                 buf = stream.read(1024)
                 self._decoder.process_raw(buf, False, False)
 

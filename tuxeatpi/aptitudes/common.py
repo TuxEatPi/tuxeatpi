@@ -7,6 +7,7 @@ import threading
 import multiprocessing
 
 
+from tuxeatpi.aptitudes.birth import check_birth
 from tuxeatpi.libs.common import AbstractComponent, threaded, subprocessed, capability, can_transmit
 
 
@@ -71,18 +72,19 @@ class Aptitudes(object):
         self.logger = logging.getLogger(name="tep").getChild("aptitudes")
         self.logger.info("Initialization")
         self.tuxdroid = tuxdroid
-        self._names = set()
+        self.names = set()
+        self.birth = False
 
     def _add(self, name, aptitude):
         """Add aptitude to aptitudes list"""
         setattr(self, name, aptitude)
-        self._names.add(name)
+        self.names.add(name)
 
     # TODO improve me
     def help_(self):
         """Aptitudes help"""
         aptitudes_help = {}
-        for aptitude_name in self._names:
+        for aptitude_name in self.names:
             # Get aptitude object
             aptitude = getattr(self, aptitude_name)
             # List attributes of aptitude object
@@ -99,15 +101,18 @@ class Aptitudes(object):
         """Load aptitudes"""
         # Get aptitude list
         aptitude_names = []
-        aptitudes_dir = os.path.dirname(__file__)
-        for file_name in os.listdir(aptitudes_dir):
-            abs_file_name = os.path.join(aptitudes_dir, file_name)
-            if os.path.isdir(abs_file_name):
-                if "__init__.py" in os.listdir(abs_file_name):
-                    print(abs_file_name)
-                    aptitude_names.append(file_name)
+        if self.birth and False:
+            aptitude_names = ['birth', 'http']
+        else:
+            aptitudes_dir = os.path.dirname(__file__)
+            for file_name in os.listdir(aptitudes_dir):
+                abs_file_name = os.path.join(aptitudes_dir, file_name)
+                if os.path.isdir(abs_file_name):
+                    if "__init__.py" in os.listdir(abs_file_name):
+                        print(abs_file_name)
+                        aptitude_names.append(file_name)
         # Load modules
-        aptitude_names = ['speak', 'nlu', 'hear', 'being', 'http']
+        # aptitude_names = ['speak', 'nlu', 'hear', 'being', 'http']
         for aptitude_name in aptitude_names:
             mod_aptitude = importlib.import_module('.'.join(('tuxeatpi',
                                                              'aptitudes',
@@ -118,13 +123,15 @@ class Aptitudes(object):
 
     def start(self):
         """Start all aptitudes"""
+        # Check birth status
+        self.birth = check_birth(self.tuxdroid)
         self._load()
         self.logger.info("Starting")
-        for aptitude_name in self._names:
+        for aptitude_name in self.names:
             getattr(self, aptitude_name).start()
 
     def stop(self):
         """Stop all aptitudes"""
         self.logger.info("Stopping")
-        for aptitude_name in self._names:
+        for aptitude_name in self.names:
             getattr(self, aptitude_name).stop()

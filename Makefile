@@ -4,7 +4,7 @@
 #######################################
 
 dev-dep:
-	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk libspeex-dev swig libpulse-dev libspeexdsp-dev
+	sudo apt-get install python3-virtualenv python3-pil.imagetk python3-tk libspeex-dev swig libpulse-dev libspeexdsp-dev portaudio19-dev
 
 
 pyenv:
@@ -53,11 +53,17 @@ hotword-fr:
 	# Get acoustic model fr
 	mkdir -p pocketsphinx-data/fra-FRA/
 	ln -s fra-FRA pocketsphinx-data/fra-CAN
-	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/cmusphinx-fr-ptm-5.2.tar.gz/download" -O pocketsphinx-data/fra-FRA/cmusphinx-fr-ptm-5.2.tar.gz
+	#wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/cmusphinx-fr-ptm-5.2.tar.gz/download" -O pocketsphinx-data/fra-FRA/cmusphinx-fr-ptm-5.2.tar.gz
+	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/cmusphinx-fr-ptm-8khz-5.2.tar.gz/download" -O pocketsphinx-data/fra-FRA/cmusphinx-fr-ptm-5.2.tar.gz
 	cd pocketsphinx-data/fra-FRA/ && tar vxf cmusphinx-fr-ptm-5.2.tar.gz && mv cmusphinx-*-5.2 acoustic-model && rm -f cmusphinx-*-5.2.tar.gz
 	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/fr-small.lm.bin/download" -O pocketsphinx-data/fra-FRA/language-model.lm.bin
 	# Get dict
 	wget "https://sourceforge.net/projects/cmusphinx/files/Acoustic%20and%20Language%20Models/French/fr.dict/download" -O pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
+	# Add stuff in dict
+	echo "coco(3) kk oo kk oo" >> pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
+	echo "coco(4) kk kk" >> pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
+	echo "coco(5) K OW K OW" >> pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
+	echo "coco(6) K au K au" >> pocketsphinx-data/fra-FRA/pronounciation-dictionary.dict
 
 hotword-en:
 	# Get acoustic model en

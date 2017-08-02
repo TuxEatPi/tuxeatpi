@@ -91,6 +91,13 @@ class Http(SubprocessedAptitude):
                 arguments = {}
             return self.order(command, arguments, block)
 
+        # Aptitudes
+        @hug.get('/aptitudes', requires=cors_support)
+        def aptitudes_get():  # pylint: disable=W0612
+            """list aptitudes"""
+            apt_list = self._tuxdroid.aptitudes.names
+            return {"result": apt_list}
+
         # Settings
         @hug.get('/settings', requires=cors_support)
         def settings_get():  # pylint: disable=W0612

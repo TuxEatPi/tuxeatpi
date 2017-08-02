@@ -33,9 +33,10 @@ class Tux(object):
         # Start aptitudes
         self.aptitudes = Aptitudes(self)
         self.aptitudes.start()
-        # Start skills
-        self.skills = Skills(self.settings)
-        self.skills.start()
+        # Start skills only if TuxDroid is born
+        if not self.aptitudes.birth:
+            self.skills = Skills(self.settings)
+            self.skills.start()
 
     def shutdown(self):
         """Shutdown the TuxDroid"""
