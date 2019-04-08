@@ -1,0 +1,27 @@
+tux:
+    advanced:
+        fake: true
+        log_level: DEBUG
+    aptitudes:
+        http:
+            bind: 0.0.0.0
+            port: 8000
+            workers: 4
+    data: {}
+    global:
+        gender: male
+        name: coco gadget
+    pins:
+        wings:
+            left_switch: 17
+            movement: 22
+            position: 25
+            right_switch: 4
+    speech:
+        app_id: NMDPTRIAL_DDDDDDDDDDD
+        app_key: DDDDDDDDDDDDDDDDDDDDDDDd
+        codec: speex
+        hotword: coco
+        language: fra-FRA
+        url: https://ws.dev.nuance.com
+        voice: thomas

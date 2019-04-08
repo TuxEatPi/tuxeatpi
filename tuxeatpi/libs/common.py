@@ -4,6 +4,7 @@ import time
 import multiprocessing
 import threading
 from queue import Empty
+import json
 
 from functools import wraps
 
@@ -61,6 +62,53 @@ def can_transmit(func):
     return wrapper
 
 
+import paho.mqtt.client as paho
+
+class MqttClient(paho.Client):
+
+    def __init__(self, parent, logger, topics=None):
+        paho.Client.__init__(self, clean_session=True, userdata=parent.name)
+        self.parent = parent
+        self.must_run = True
+        self.topics = topics
+        self.logger = logger
+
+    def on_message(self, mqttc, obj, msg):
+        self.logger.info("DDDDDDDDDDDDDDDDDDDDDDDDyyyy")
+        print(msg.topic+" "+str(msg.qos)+" "+str(msg.payload))
+        class_name, function = msg.topic.split("/")
+        print(self.__class__.__name__.lower())
+        print(class_name.lower())
+        if self.parent.name.lower() != class_name.lower():
+            self.logger.error("Bad destination")
+        elif not hasattr(self.parent, function):
+            self.logger.error("Bad destination function")
+        else:
+            data = json.loads(msg.payload.decode())
+            getattr(self.parent, function)(**data.get('arguments',{}))
+
+    def on_connect(self, client, userdata, flags, rc):
+        self.logger.info("MQTT client connected")
+
+    def on_subscribe(self, client, userdata, mid, granted_qos):
+        # Find topic
+        # self.logger.info("MQTT subcribed to %s")
+        pass
+
+    def on_publish(self, client, userdata, mid):
+        self.logger.info("Message published")
+
+    def run(self):
+        self.connect("127.0.0.1", 1883, 60)
+        for topic in self.topics:
+            self.subscribe(topic, 0)
+            self.logger.info("Subcribe to topic %s", topic)
+        self.loop_start()
+
+    def stop(self):
+        self.loop_stop()
+        self.disconnect()
+
 class AbstractComponent(object):
     """Abstract Class to define Tux aptitude/skill/body"""
     def __init__(self):
@@ -69,12 +117,38 @@ class AbstractComponent(object):
         self._get_logger()
         self.logger.info("Initialization")
         self.dependencies = set()
+
+
+        self.topics = self._get_topics()
+        self.mqtt_client = MqttClient(self, self.logger, self.topics)
+        self.mqtt_client.topics = self.topics
+        self.mqtt_client.run()
+
+
+
         manager = multiprocessing.Manager()
         self.answer_queue = manager.dict()
         self.task_queue = multiprocessing.Queue()
         self.answer_event_dict = manager.dict()
+
+
+
         self._must_run = True
         self.settings = None
+
+    def _get_topics(self):
+        topics = []
+        for attr_name in dir(self):
+            # List attributes of aptitude object
+            try:
+                attr = getattr(self, attr_name, None)
+            except ValueError:
+                continue
+            # Check if the attribute is a capability
+            if getattr(attr, '_is_capability', False):
+                topic = "/".join((self.__class__.__name__,attr_name)).lower()
+                topics.append(topic)
+        return topics
 
     def _get_logger(self):
         """Get logger"""
@@ -142,6 +216,7 @@ class AbstractComponent(object):
         self.logger.info("Stopping")
         self._must_run = False
         self.task_queue.close()
+        self.mqtt_client.stop()
 
     def run(self):
         """Default run loop for aptitude"""

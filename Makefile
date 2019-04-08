@@ -12,6 +12,12 @@ pyenv:
 	env/bin/pip3 install -r requirements.txt --upgrade --force-reinstall
 	env/bin/python setup.py develop
 
+
+mqtt_start:
+	#-v mosquitto.conf:/mosquitto/config/mosquitto.conf -v /mosquitto/data -v /mosquitto/log
+	docker run --rm -p 1883:1883 -p 9001:9001 -v `pwd`/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf  eclipse-mosquitto:latest
+
+
 #######################################
 ### Documentation
 #######################################

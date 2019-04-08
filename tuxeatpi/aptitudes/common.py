@@ -113,6 +113,7 @@ class Aptitudes(object):
                         aptitude_names.append(file_name)
         # Load modules
         # aptitude_names = ['speak', 'nlu', 'hear', 'being', 'http']
+        aptitude_names = ['hear', 'nlu']
         for aptitude_name in aptitude_names:
             mod_aptitude = importlib.import_module('.'.join(('tuxeatpi',
                                                              'aptitudes',

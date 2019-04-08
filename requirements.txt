@@ -1,3 +1,5 @@
+pip install paho-mqtt
+
 # Main
 RPi.GPIO
 PyYAML

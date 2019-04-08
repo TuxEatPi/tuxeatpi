@@ -2,6 +2,7 @@
 
 import os
 import wave
+import json
 
 import pyaudio
 from pocketsphinx.pocketsphinx import Decoder
@@ -65,7 +66,7 @@ class Hear(ThreadedAptitude):
         return True
 
     def _answering(self):
-        """Play the hotwoard confirmation sound"""
+        """Play the hotword confirmation sound"""
         f_ans = wave.open(self._answer_sound_path, "rb")
         stream = self._paudio.open(format=self._paudio.get_format_from_width(f_ans.getsampwidth()),
                                    channels=f_ans.getnchannels(),
@@ -92,8 +93,7 @@ class Hear(ThreadedAptitude):
         self._must_run = True
         while self._rerun:
             # TODO raise an error
-            self.logger.info("Starting hear aptitudes")
-            print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD1")
+            self.logger.info("Starting hear aptitude")
             if self._prepare_decoder() is False:
                 self._rerun = False
                 self._must_run = False
@@ -120,8 +120,8 @@ class Hear(ThreadedAptitude):
             self._paudio.get_default_input_device_info()
 
             self._decoder.start_utt()
+            self.logger.info("Starting listenning")
             while self._must_run:
-                print("DDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDDD2")
                 buf = stream.read(1024)
                 self._decoder.process_raw(buf, False, False)
 
@@ -132,7 +132,7 @@ class Hear(ThreadedAptitude):
                     break
             self._decoder.end_utt()
 
-    @capability(gtt("Give your my attention and listen to you"))
+    @capability(gtt("Give you my attention and listen to you"))
     # @can_transmit
     def wake_up_work(self):
         """Wake up work capability
@@ -142,9 +142,10 @@ class Hear(ThreadedAptitude):
         # answering
         self._answering()
         # create tranmission for audio nlu
-        content = {"arguments": {}}
-        tmn = self.create_transmission("hear", "aptitudes.nlu.audio", content)
-        self.wait_for_answer(tmn.id_)
+        content = json.dumps({"arguments": {}})
+        self.mqtt_client.publish(topic="nlu/audio", payload=content)
+#        tmn = self.create_transmission("hear", "aptitudes.nlu.audio", content)
+#        self.wait_for_answer(tmn.id_)
 
     def reload_decoder(self):
         """Reload decoder

@@ -2,18 +2,21 @@
 
 import logging
 
-from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit, threaded
+from tuxeatpi.aptitudes.common import ThreadedAptitude, capability, can_transmit, threaded, SubprocessedAptitude, subprocessed
 from tuxeatpi.aptitudes.nlu.text import nlu_text
 from tuxeatpi.aptitudes.nlu.audio import nlu_audio
 from tuxeatpi.libs.lang import gtt
 
 CONFIDENCE_THRESHOLD = 0.7
 
-class Nlu(ThreadedAptitude):
+class Nlu(SubprocessedAptitude):
     """Natural language understanding aptitude"""
 
     def __init__(self, tuxdroid):
-        ThreadedAptitude.__init__(self, tuxdroid)
+        SubprocessedAptitude.__init__(self, tuxdroid)
+
+    def run(self):
+        SubprocessedAptitude.run(self)
 
     def help_(self):
         """Return aptitude help"""
@@ -50,7 +53,8 @@ class Nlu(ThreadedAptitude):
             return result
 
     @capability(gtt("Understand text"))
-    @threaded
+#    @threaded
+#    @subprocessed
     @can_transmit
     def text(self, text, do_it=False, say_it=False):
         """Read and understand text"""

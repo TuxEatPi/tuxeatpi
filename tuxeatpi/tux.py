@@ -27,16 +27,16 @@ class Tux(object):
         self.brain = Brain(self)
         self.brain.start()
         # Start body
-        self.body = None
-        self._load_body('penguin', True)
-        self.body.start()
+        #self.body = None
+        #self._load_body('penguin', True)
+        #self.body.start()
         # Start aptitudes
         self.aptitudes = Aptitudes(self)
         self.aptitudes.start()
         # Start skills only if TuxDroid is born
-        if not self.aptitudes.birth:
-            self.skills = Skills(self.settings)
-            self.skills.start()
+        #if not self.aptitudes.birth:
+        #    self.skills = Skills(self.settings)
+        #    self.skills.start()
 
     def shutdown(self):
         """Shutdown the TuxDroid"""
