@@ -1,0 +1,26 @@
+tux:
+    advanced:
+        fake: true
+        log_level: DEBUG
+    data:
+        birthday: 1471893899.6387033
+    global:
+        gender: male
+        name: TuxDroid
+    hotword:
+        answer: salut
+        hotword: salut
+        model_dir: pocketsphinx-data
+    pins:
+        wings:
+            left_switch: 17
+            movement: 22
+            position: 25
+            right_switch: 4
+    speech:
+        app_id: NMDPTRIAL_thibault_cohen_nuance_com20150916110537
+        app_key: 504ed5103713cf9f467e3e892de0da595a6f1cca3a7962f3c14fb42d40237e917153a1a8677047adee85371b661175c080918aba0aecaecb3c62f87c85760df6
+        codec: wav
+        language: fra-FRA
+        url: https://ws.dev.nuance.com
+        voice: thomas
